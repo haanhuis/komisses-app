@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#e31e24">
+<meta name="theme-color" content="#0057ff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Lionlist">
-<title>Lionlist Boodschappen</title>
+<meta name="apple-mobile-web-app-title" content="Komisses">
+<title>Komisses</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,12 +210,12 @@
 <header class="header">
   <div class="header-top">
     <div class="logo-wrap">
-      <div class="logo">lion<span>list</span></div>
+      <div class="logo">Komisses</div>
       <div class="list-id-label" id="listIdLabel">Verbinden...</div>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-sharp fa-solid fa-share-nodes"></i></button>
-      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-sharp fa-solid fa-ellipsis"></i></button>
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-regular fa-share-nodes"></i></button>
+      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-regular fa-ellipsis"></i></button>
     </div>
   </div>
 </header>
@@ -279,10 +279,10 @@
 
 <div id="menuOverlay" style="display:none;position:fixed;inset:0;z-index:450;" onclick="closeMenu()"></div>
 <div id="menuPopup" style="display:none;position:fixed;top:60px;right:max(12px,calc(50% - 228px));z-index:451;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:220px;overflow:hidden;flex-direction:column;">
-  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-sharp fa-solid fa-trash" style="width:18px;margin-right:8px;"></i> Verwijder afgevinkte items</button>
-  <button class="menu-item" onclick="menuRefresh()">🔄 Lijst vernieuwen</button>
-  <button class="menu-item" onclick="menuRename()">✏️ Lijst hernoemen</button>
-  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);">🆕 Nieuwe lijst</button>
+  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-regular fa-trash" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
+  <button class="menu-item" onclick="menuRefresh()"><i class="fa-regular fa-arrows-rotate" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
+  <button class="menu-item" onclick="menuRename()"><i class="fa-regular fa-pen" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
+  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="fa-regular fa-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
 </div>
 
 <div class="modal-overlay" id="renameModal">
@@ -324,7 +324,7 @@
 </div>
 <div id="fabSearchBackdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeFabSearch()"></div>
 
-<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-sharp fa-solid fa-plus"></i></label>
+<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-regular fa-plus"></i></label>
 <input id="fabTriggerInput" type="text" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;bottom:50px;right:50px;" autocomplete="off">
 <div class="toast" id="toast"></div>
 
@@ -490,7 +490,7 @@ function renderItem(id, item) {
       <div class="item-name">${item.name}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
     </div>
     <span class="item-qty-label" onclick="openDetail('${id}')" style="cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;font-weight:500;">${qtyLabel}</span>
-    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-sharp fa-solid fa-trash"></i></button>
+    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-regular fa-trash" style="color:#777;"></i></button>
   </div>`;
 }
 
