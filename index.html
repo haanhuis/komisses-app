@@ -6,8 +6,10 @@
 <meta name="theme-color" content="#e31e24">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Delhaize Lijst">
-<title>Delhaize Boodschappenlijst</title>
+<meta name="apple-mobile-web-app-title" content="Lionlist">
+<title>Lionlist Boodschappen</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -919,6 +921,13 @@ window.saveRename = function() {
   closeRename();
   showToast('Lijst hernoemd ✓');
 };
+
+// ── Service Worker ─────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
