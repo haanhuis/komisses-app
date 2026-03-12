@@ -1,2 +1,1036 @@
 <!DOCTYPE html>
 <html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0057ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Komisses">
+<title>Komisses</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #0057ff; --red-light: #e8f0ff;
+    --green: #00a651;
+    --grey: #f5f5f5; --grey-mid: #e0e0e0;
+    --text: #1a1a1a; --text-muted: #888;
+    --radius: 14px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; height: 100dvh; overflow: hidden; }
+  body { font-family: 'Outfit', sans-serif; background: white; color: var(--text); max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
+
+  /* Sync bar */
+  .sync-bar { height: 0; background: transparent; position: relative; overflow: hidden; flex-shrink: 0; transition: height 0.2s; }
+  .sync-bar.syncing, .sync-bar.error { height: 3px; }
+  .sync-bar.syncing::after { content:''; position:absolute; left:-40%; width:40%; height:100%; background:var(--green); animation: syncSlide 0.9s ease-in-out infinite; }
+  .sync-bar.error::after { content:''; position:absolute; inset:0; background:var(--red); }
+  .sync-bar.ok::after { content:''; position:absolute; inset:0; background:var(--green); opacity:0.5; }
+  @keyframes syncSlide { 0%{left:-40%} 100%{left:140%} }
+
+  /* Header */
+  .header { background: var(--red); color: white; padding: 0 16px; flex-shrink: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,87,255,0.25); }
+  .header-top { display:flex; align-items:center; justify-content:space-between; padding: 12px 0 8px; }
+  .logo-wrap { display:flex; flex-direction:row; align-items:center; gap:10px; }
+  .logo-icon { width:28px; height:28px; flex-shrink:0; filter:brightness(0) invert(1); }
+  .logo { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+  .logo span { opacity:0.7; font-weight:300; }
+  .list-id-label { font-size:10px; opacity:0.65; letter-spacing:0.04em; }
+  .header-actions { display:flex; gap:8px; }
+  .icon-btn { background:rgba(255,255,255,0.18); border:none; border-radius:10px; color:white; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; transition:background 0.15s; }
+  .icon-btn:active { background:rgba(255,255,255,0.32); }
+
+  /* Search */
+  .search-input { width:100%; background:rgba(255,255,255,0.95); border:none; border-radius:10px; padding:10px 38px 10px 14px; font-family:'Outfit',sans-serif; font-size:15px; color:var(--text); outline:none; }
+  .search-input::placeholder { color:#aaa; }
+  .search-icon { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:16px; color:#aaa; pointer-events:none; }
+
+  /* Dropdown */
+  .search-dropdown { position:fixed; top:133px; left:50%; transform:translateX(-50%); width:min(480px,100vw); background:white; border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow-lg); z-index:200; max-height:60vh; overflow-y:auto; display:none; }
+  .search-dropdown.show { display:block; }
+  .search-result-item { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--grey-mid); gap:12px; transition:background 0.1s; cursor:pointer; }
+  .search-result-item:last-child { border-bottom:none; }
+  .search-result-item:active { background:var(--grey); }
+  .sri-name { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+  .sri-cat { font-size:12px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; text-align:right; }
+  .no-results { padding:20px; text-align:center; color:var(--text-muted); font-size:14px; }
+
+  /* Tabs */
+  .tabs { display:none; }
+  .tab { flex:1; padding:11px 8px; text-align:center; font-size:13px; font-weight:500; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color 0.15s,border-color 0.15s; }
+  .tab.active { color:var(--red); border-color:var(--red); font-weight:700; }
+
+  main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 100px; }
+
+  /* Loading */
+  .loading-overlay { position:fixed; inset:0; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:16px; }
+  .loading-overlay.hidden { display:none; }
+  .loading-spinner { width:42px; height:42px; border:4px solid var(--grey-mid); border-top-color:var(--red); border-radius:50%; animation:spin 0.7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { font-size:15px; color:var(--text-muted); font-weight:500; }
+
+  /* Category */
+  .category-section { margin-bottom:0; }
+  .category-header { display:flex; align-items:center; justify-content:space-between; background:var(--grey); border-radius:var(--radius); padding:13px 16px; cursor:pointer; user-select:none; transition:background 0.12s; }
+  .category-header:active { background:var(--grey); }
+  .cat-left { display:flex; align-items:center; gap:10px; }
+  .cat-emoji { font-size:22px; }
+  .cat-name { font-weight:600; font-size:15px; }
+  .cat-count { background:#777777; color:white; border-radius:20px; padding:2px 8px; font-size:12px; font-weight:700; min-width:22px; text-align:center; }
+  .cat-chevron { font-size:14px; color:var(--text-muted); transition:transform 0.2s; }
+  .category-section.collapsed .cat-chevron { transform:rotate(-90deg); }
+  .category-items { margin-top:4px; display:flex; flex-direction:column; gap:4px; overflow:hidden; transition:max-height 0.3s ease; max-height:2000px; }
+  .category-section.collapsed .category-items { max-height:0; }
+
+  /* Item card */
+  .item-card { background:white; border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:12px; transition:opacity 0.3s,transform 0.3s,max-height 0.35s,padding 0.35s; }
+  .item-card.checking { opacity:0; transform:translateX(60px); pointer-events:none; max-height:0; padding:0; overflow:hidden; }
+  .item-card.done .item-name { text-decoration:line-through; color:var(--text-muted); }
+
+  .item-checkbox { width:24px; height:24px; border:2.5px solid var(--grey-mid); border-radius:7px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background 0.15s,border-color 0.15s; }
+  .item-checkbox.checked { background:var(--green); border-color:var(--green); }
+  .item-checkbox.checked::after { content:'✓'; color:white; font-size:14px; font-weight:700; line-height:1; }
+
+  .item-info { flex:1; min-width:0; overflow:hidden; }
+  .item-name { font-weight:500; font-size:15px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .item-note-inline { font-size:13px; color:var(--text-muted); font-style:italic; font-weight:400; }
+
+  .item-qty { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .qty-btn { width:28px; height:28px; border:2px solid var(--grey-mid); border-radius:8px; background:none; font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); font-weight:300; transition:border-color 0.12s,color 0.12s; }
+  .qty-btn:active { border-color:var(--red); color:var(--red); }
+  .qty-num { font-weight:700; font-size:16px; min-width:20px; text-align:center; }
+
+  .item-action-btn { width:28px; height:28px; border:none; border-radius:7px; background:var(--grey); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:background 0.12s; }
+  .item-action-btn:active { background:var(--grey-mid); }
+
+  /* Empty */
+  .empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); }
+  .empty-icon { font-size:54px; margin-bottom:14px; }
+  .empty-title { font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px; }
+  .empty-sub { font-size:14px; line-height:1.5; }
+
+  /* Browse */
+  .browse-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .browse-card { background:white; border-radius:var(--radius); padding:16px 12px; box-shadow:var(--shadow); cursor:pointer; text-align:center; transition:transform 0.1s; border:2px solid transparent; }
+  .browse-card:active { transform:scale(0.97); }
+  .bc-emoji { font-size:32px; margin-bottom:6px; }
+  .bc-name { font-size:13px; font-weight:600; line-height:1.3; }
+
+  /* Panel */
+  .products-panel { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:min(480px,100vw); background:white; border-radius:20px 20px 0 0; box-shadow:0 -8px 32px rgba(0,0,0,0.14); z-index:300; max-height:65vh; display:flex; flex-direction:column; transition:transform 0.3s cubic-bezier(0.32,0.72,0,1); }
+  .products-panel.open { transform:translateX(-50%) translateY(0); }
+  .panel-handle { width:40px; height:4px; background:var(--grey-mid); border-radius:2px; margin:10px auto 0; flex-shrink:0; }
+  .panel-header { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--grey-mid); flex-shrink:0; }
+  .panel-title { font-size:16px; font-weight:700; }
+  .panel-close { width:30px; height:30px; border:none; background:var(--grey); border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; }
+  .panel-products { overflow-y:auto; flex:1; padding:8px 12px 24px; }
+  .product-item { display:flex; align-items:center; justify-content:space-between; padding:11px 12px; border-bottom:1px solid var(--grey); gap:10px; }
+  .product-item:last-child { border-bottom:none; }
+  .pi-name { font-size:14px; font-weight:500; flex:1; }
+  .pi-add { background:var(--red); color:white; border:none; border-radius:8px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
+  .pi-add.added { background:var(--green); }
+  .panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:299; display:none; }
+  .panel-overlay.show { display:block; }
+
+  /* Modals */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+  .modal-overlay.show { display:flex; }
+  .modal-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 40px; width:min(480px,100vw); }
+  .modal-title { font-size:17px; font-weight:700; margin-bottom:14px; }
+  .modal-input { width:100%; border:2px solid var(--grey-mid); border-radius:10px; padding:12px 14px; font-family:'Outfit',sans-serif; font-size:15px; outline:none; resize:none; color:var(--text); }
+  .modal-input:focus { border-color:var(--red); }
+  .modal-btns { display:flex; gap:10px; margin-top:12px; }
+  .btn { flex:1; padding:12px; border-radius:10px; border:none; font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
+  .btn-primary { background:var(--red); color:white; }
+  .btn-secondary { background:var(--grey); color:var(--text); }
+
+  /* Share modal */
+  .share-modal { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+  .share-modal.show { display:flex; }
+  .share-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 48px; width:min(480px,100vw); }
+  .share-title { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .share-sub { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+  .share-link-box { background:var(--grey); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--text-muted); word-break:break-all; margin-bottom:14px; border:2px solid var(--grey-mid); font-family:monospace; }
+  .share-options { display:flex; gap:10px; flex-direction:column; }
+  .share-btn { display:flex; align-items:center; gap:12px; background:var(--grey); border:none; border-radius:12px; padding:14px 16px; font-family:'Outfit',sans-serif; font-size:15px; font-weight:500; cursor:pointer; text-align:left; transition:background 0.12s; }
+  .share-btn:active { background:var(--grey-mid); }
+  .share-btn-icon { font-size:22px; width:28px; }
+
+  /* FAB */
+  .fab { position:fixed; bottom:24px; right:max(24px, calc(50% - 240px + 24px)); background:var(--red); color:#ffffff; border:none; border-radius:50%; width:52px; height:52px; font-size:20px; cursor:pointer; box-shadow:0 4px 20px rgba(0,87,255,0.45); display:flex; align-items:center; justify-content:center; z-index:80; transition:transform 0.15s; }
+  .fab:active { transform:scale(0.96); }
+
+  .add-custom-btn { width:100%; background:white; border:2px dashed var(--grey-mid); border-radius:var(--radius); padding:14px; font-family:'Outfit',sans-serif; font-size:14px; color:var(--text-muted); cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:500; transition:border-color 0.15s,color 0.15s; }
+  .add-custom-btn:active { border-color:var(--red); color:var(--red); }
+
+  .checked-section { margin-top:16px; }
+  .checked-title { font-size:13px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; padding:0 4px 8px; }
+
+  /* Toast */
+  .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); background:#222; color:white; padding:10px 20px; border-radius:10px; font-size:14px; font-weight:500; z-index:500; opacity:0; transition:opacity 0.2s,transform 0.2s; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* New list modal */
+  .newlist-modal { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:600; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .newlist-box { background:white; border-radius:20px; padding:28px 24px; width:100%; max-width:400px; text-align:center; }
+  .newlist-box h2 { font-size:22px; font-weight:700; margin-bottom:8px; }
+  .newlist-box p { font-size:14px; color:var(--text-muted); margin-bottom:24px; line-height:1.5; }
+
+  .unit-btn { padding:5px 10px; border:2px solid var(--grey-mid); border-radius:8px; background:white; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-muted); transition:all 0.12s; }
+  .unit-btn.active { border-color:var(--red); color:var(--red); background:#fff5f5; }
+
+  .menu-item { display:block; width:100%; padding:14px 18px; background:none; border:none; text-align:left; font-family:'Outfit',sans-serif; font-size:14px; font-weight:500; color:var(--text); cursor:pointer; transition:background 0.1s; }
+  .menu-item:active { background:var(--grey); }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Verbinden met lijst...</div>
+</div>
+
+<div class="newlist-modal" id="newlistModal" style="display:none;">
+  <div class="newlist-box">
+    <div style="font-size:48px;margin-bottom:12px;">🛒</div>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Komisses</h2>
+    <p style="color:#666;font-size:14px;margin-bottom:24px;">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
+
+    <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:15px;margin-bottom:12px;">
+      <i class="fa-regular fa-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
+    </button>
+
+    <div style="position:relative;display:flex;align-items:center;margin-bottom:12px;">
+      <div style="flex:1;height:1px;background:var(--grey-mid);"></div>
+      <span style="padding:0 12px;color:#aaa;font-size:12px;">of</span>
+      <div style="flex:1;height:1px;background:var(--grey-mid);"></div>
+    </div>
+
+    <div id="connectSection">
+      <button class="btn btn-secondary" onclick="showConnectInput()" style="width:100%;padding:14px;font-size:15px;">
+        <i class="fa-regular fa-share-from-square" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
+      </button>
+    </div>
+    <div id="connectInputSection" style="display:none;">
+      <input type="url" id="connectUrlInput" class="modal-input" placeholder="Plak de gedeelde link hier..." autocomplete="off" autocorrect="off" spellcheck="false"
+        style="margin-bottom:10px;"
+        oninput="validateConnectUrl()"
+        onkeydown="if(event.key==='Enter') connectToList()">
+      <div id="connectError" style="color:#e74c3c;font-size:13px;margin-bottom:8px;display:none;">Ongeldige link. Plak de volledige URL.</div>
+      <button class="btn btn-primary" id="connectBtn" onclick="connectToList()" style="width:100%;padding:13px;font-size:15px;" disabled>
+        Verbinden
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sync-bar" id="syncBar"></div>
+
+<header class="header">
+  <div class="header-top">
+    <div class="logo-wrap">
+      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 256 256" xml:space="preserve"><g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)"><path d="M 74.396 66.93 h -47.12 c -3.491 0 -5.549 -2.665 -5.777 -5.299 c -0.178 -2.057 0.741 -4.326 2.792 -5.506 L 16.745 22.34 c -0.132 -0.592 0.012 -1.213 0.392 -1.687 c 0.379 -0.474 0.954 -0.75 1.561 -0.75 H 88 c 0.647 0 1.256 0.314 1.631 0.842 c 0.375 0.528 0.471 1.206 0.258 1.817 l -7.983 22.876 c -0.991 2.838 -3.446 4.921 -6.406 5.438 l -48.522 8.48 c -0.006 0.001 -0.012 0.002 -0.019 0.003 c -1.499 0.267 -1.507 1.541 -1.473 1.926 c 0.033 0.386 0.261 1.644 1.792 1.644 h 47.12 c 1.104 0 2 0.896 2 2 S 75.501 66.93 74.396 66.93 z M 21.193 23.904 l 6.966 31.186 l 46.652 -8.152 c 1.533 -0.268 2.805 -1.347 3.318 -2.817 l 7.055 -20.216 H 21.193 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/><path d="M 27.846 83.111 c -3.615 0 -6.555 -2.94 -6.555 -6.555 c 0 -3.615 2.94 -6.556 6.555 -6.556 s 6.556 2.94 6.556 6.556 C 34.401 80.171 31.46 83.111 27.846 83.111 z M 27.846 74.001 c -1.409 0 -2.555 1.146 -2.555 2.556 c 0 1.408 1.146 2.555 2.555 2.555 c 1.409 0 2.556 -1.146 2.556 -2.555 C 30.401 75.147 29.255 74.001 27.846 74.001 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/><path d="M 68.845 83.111 c -3.615 0 -6.556 -2.94 -6.556 -6.555 c 0 -3.615 2.94 -6.556 6.556 -6.556 s 6.556 2.94 6.556 6.556 C 75.4 80.171 72.46 83.111 68.845 83.111 z M 68.845 74.001 c -1.409 0 -2.556 1.146 -2.556 2.556 c 0 1.408 1.146 2.555 2.556 2.555 s 2.556 -1.146 2.556 -2.555 C 71.4 75.147 70.254 74.001 68.845 74.001 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/><path d="M 18.695 23.904 c -0.916 0 -1.742 -0.633 -1.95 -1.564 l -1.407 -6.301 c -0.677 -3.033 -3.321 -5.151 -6.428 -5.151 H 2 c -1.104 0 -2 -0.896 -2 -2 s 0.896 -2 2 -2 h 6.909 c 4.995 0 9.244 3.404 10.333 8.279 l 1.407 6.301 c 0.241 1.078 -0.438 2.147 -1.516 2.388 C 18.986 23.889 18.839 23.904 18.695 23.904 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/></g></svg>
+      <div class="logo">Komisses</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-regular fa-share-from-square"></i></button>
+      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-regular fa-ellipsis"></i></button>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" id="tab-list" onclick="switchTab('list')">Mijn lijst</div>
+  <div class="tab" id="tab-browse" onclick="switchTab('browse')">Bladeren</div>
+</div>
+
+<main id="main"></main>
+
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="products-panel" id="productsPanel">
+  <div class="panel-handle"></div>
+  <div class="panel-header">
+    <span class="panel-title" id="panelTitle">Producten</span>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-products" id="panelProducts"></div>
+</div>
+
+<div class="modal-overlay" id="noteModal">
+  <div class="modal-box">
+    <div class="modal-title" id="detailTitle">Product</div>
+
+    <!-- Quantity + unit -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <button class="qty-btn" onclick="detailChangeQty(-1)" style="width:36px;height:36px;font-size:22px;">−</button>
+      <span id="detailQty" style="font-size:22px;font-weight:700;min-width:32px;text-align:center;">1</span>
+      <button class="qty-btn" onclick="detailChangeQty(1)" style="width:36px;height:36px;font-size:22px;">+</button>
+      <div style="display:flex;gap:6px;flex:1;justify-content:flex-end;">
+        <button class="unit-btn active" id="unit-aantal" onclick="selectUnit('aantal')">×</button>
+        <button class="unit-btn" id="unit-kg" onclick="selectUnit('kg')">kg</button>
+        <button class="unit-btn" id="unit-g" onclick="selectUnit('g')">g</button>
+        <button class="unit-btn" id="unit-l" onclick="selectUnit('l')">l</button>
+      </div>
+    </div>
+
+    <!-- Note -->
+    <textarea class="modal-input" id="noteInput" rows="3" placeholder="Notitie: biologisch, huismerk ok, rijp genoeg..."></textarea>
+
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeNote()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveNote()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customModal">
+  <div class="modal-box">
+    <div class="modal-title">➕ Product toevoegen</div>
+    <input type="text" class="modal-input" id="customName" placeholder="Productnaam..." style="margin-bottom:10px;">
+    <select class="modal-input" id="customCat"></select>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeCustom()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveCustom()">Toevoegen</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="menuOverlay" style="display:none;position:fixed;inset:0;z-index:450;" onclick="closeMenu()"></div>
+<div id="menuPopup" style="display:none;position:fixed;top:60px;right:max(12px,calc(50% - 228px));z-index:451;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:220px;overflow:hidden;flex-direction:column;">
+  <div style="padding:12px 18px 10px;border-bottom:1px solid var(--grey-mid);font-size:12px;color:var(--text-muted);font-weight:500;">Huidige lijst: <span id="listIdLabel" style="font-weight:700;color:var(--text);">Verbinden...</span></div>
+  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-regular fa-trash-can" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
+  <button class="menu-item" onclick="menuRefresh()"><i class="fa-regular fa-arrows-rotate" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
+  <button class="menu-item" onclick="menuRename()"><i class="fa-regular fa-pen" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
+  <button class="menu-item" onclick="menuConnectList()"><i class="fa-regular fa-link" style="width:18px;margin-right:8px;color:#777;"></i> Verbinden met andere lijst</button>
+  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="fa-regular fa-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
+</div>
+
+<div class="modal-overlay" id="renameModal">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Lijst hernoemen</div>
+    <input type="text" class="modal-input" id="renameInput" placeholder="Naam van de lijst..." autocomplete="off">
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeRename()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveRename()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="connectModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="fa-regular fa-link" style="margin-right:8px;"></i>Verbinden met lijst</div>
+    <input type="url" class="modal-input" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
+      autocomplete="off" autocorrect="off" spellcheck="false"
+      oninput="validateConnectModal()"
+      onkeydown="if(event.key==='Enter') confirmConnectModal()"
+      style="margin-bottom:6px;">
+    <div id="connectModalError" style="color:#e74c3c;font-size:13px;margin-bottom:10px;display:none;">Ongeldige link. Plak de volledige URL.</div>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeConnectModal()">Annuleren</button>
+      <button class="btn btn-primary" id="connectModalBtn" onclick="confirmConnectModal()" disabled>Verbinden</button>
+    </div>
+  </div>
+</div>
+
+<div class="share-modal" id="shareModal">
+  <div class="share-box">
+    <div class="share-title">📤 Lijst delen</div>
+    <div class="share-sub">Iedereen met de link kan live producten toevoegen en afvinken.</div>
+    <div class="share-link-box" id="shareLink"></div>
+    <div class="share-options">
+      <button class="share-btn" onclick="doShare('copy')">
+        <span class="share-btn-icon">🔗</span>
+        <div><strong>Link kopiëren</strong><br><small style="color:#888;font-size:12px;">Plak in WhatsApp, iMessage, e-mail...</small></div>
+      </button>
+      <button class="share-btn" onclick="doShare('native')">
+        <span class="share-btn-icon">📱</span>
+        <div><strong>Delen via...</strong><br><small style="color:#888;font-size:12px;">WhatsApp, SMS, e-mail en meer</small></div>
+      </button>
+      <button class="share-btn" onclick="closeShare()" style="background:transparent;color:#aaa;justify-content:center;">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<div id="fabSearchModal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;max-height:50vh;background:white;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.15);flex-direction:column;">
+  <div style="padding:14px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--grey-mid);display:flex;align-items:center;gap:10px;">
+    <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    <button onclick="closeFabSearch()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;padding:4px;flex-shrink:0;">✕</button>
+  </div>
+  <div id="fabSearchResults" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,16px);"></div>
+</div>
+<div id="fabSearchBackdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeFabSearch()"></div>
+
+<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-regular fa-plus"></i></label>
+<input id="fabTriggerInput" type="text" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;bottom:50px;right:50px;" autocomplete="off">
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD29JPhRCjywdu6RuTfIADfHFOdJMzejNs",
+  authDomain: "shopping-list-app-7b680.firebaseapp.com",
+  databaseURL: "https://shopping-list-app-7b680-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "shopping-list-app-7b680",
+  storageBucket: "shopping-list-app-7b680.firebasestorage.app",
+  messagingSenderId: "476561112723",
+  appId: "1:476561112723:web:3e7bb2e1e3653c05f19766"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+
+const CATEGORIES = [
+  { id:'fru', name:"Verse groenten en fruit", emoji:'🥦', products:["250G ZACHTE ABRIKOZEN", "Aardappel | Bloemig 1kg", "Aardappelen | Nicola", "Aardappelen bloemig | Bio", "Aardbei", "Abrikozen", "Ananas", "Ananas tidbits", "Ananas zonder kroon", "Appel", "Appel&noot", "Appelen | Pink Lady | Verpakt | 6st", "Appels | Jonagold | Verpakt | Bio", "Appelsienen | Net | Bio", "Appelzak mini | Bio", "Artisjok", "Aubergine", "Avocado | Bio", "Avocado eetklaar", "Baby maïs", "Babybietjes | Bio", "Bananen", "Bananenchips | Bio", "Basilicum | Verpakt", "Belgische | Gesneden | bruin | paddenstoelen", "Bessen | Goji | Bio", "Bieslook | Verpakt", "Bimi", "Bladpeterselie | Verpakt", "Blauwe bessen", "Bloedsinaas | 4 Stuks", "Bloemige Aardappelen | Primeur", "Bloemkool", "Bloemkoolrijst", "Bloemkoolroosjes", "Boerenkool | Bio", "Bonen | Gebroken", "Braambes", "Broccoli", "Bruine champignons | Belgisch", "Butternut Bio", "Capuccino | mix", "Charentais | Philibon", "Chinese kool", "Chiquita | Banaan", "Choco mix", "Citroen | 1 st", "Citroenen", "Citroengras | Verpakt", "Classic Kimchi | Bio", "Clementines", "Cocktail trostomaten", "Courgette", "Cranberrymix", "Dadels | Deglet | Nour", "Dadels Op Tak", "Dille | Verpakt", "Droge vruchten | Pruimen | Ontpit", "Druif | rood |pitloos", "Druiven | wit | pitloos", "Duo mango ananasstukjes", "Eetappel | Zuur | Bio", "Eetsinaas | 4ST", "Eetsinaasappels", "Eryngiisteaks", "Extra Hot mix", "FB granaatappelpitjes", "FB mini | Ananas", "FB mini galia | waterm | cantal", "Fijne bonen | Getopt", "Fijnproeversssla | Bio", "Flax | Lemonade | Fantasy", "Frambozen", "Fruit | verse ananas", "Fruities | Cantaloupe meloen", "Fruities extra zoete witte ananas", "Fruities mango passie", "Fruities mini Meloen | Mango | Appel", "Fruitsalade | appel | druif | bes", "Fruitsalade watermeloen", "Galia meloen", "Gazpacho | Tomaten", "Gekke appelen | Verpakt", "Gekke champignons", "Gekke peren | Verpakt", "Gekonfijte Sinaasrepels", "Gekonfijte Vruchten", "Gekrulde peterselie | Verpakt", "Gele Ajuin", "Gele uien | Netje", "Gember", "Gemengde sla", "Gepelde | Zonnebloempitten", "Geroosterd | Zonnenbloempitten", "Geroosterd Pompoenpitten", "Geschoonde spruiten", "Gesneden | Witte kool", "Gewassen spinazie", "Gezouten | Mix | Kenya", "Granaatappel | Per stuk | Cat1", "Granaatappelpitjes", "Granola Mix", "Groene asperges", "Groene kiwi", "Groene kool", "Groene selder | Bio", "Groene slascheuten | Bio", "Groentensoep", "Groentespaghetti | Tricolor", "Hutsepot met spruiten", "Ijsbergsla | Verpakt", "Jonagold | 6ST", "Jonge sla", "Jonge spinazieblaadjes", "Jonge uien | Bussel", "Juice | Tropical | Fresh", "Kefir Water | Framboos | Basilicum | Bio", "Kerstomaten", "Kerstrostomaten", "Kervel", "Kids smoothie |Aardbei, framboos en appel | Vers", "Kiwi | Geel | 6st", "Kiwi geel", "Knoflook | Netje", "Knolselder | Bio", "Kokosnoot", "KokosPoeder", "Kokosschilfers", "Kokoswater | Bio", "Kombucha | Raw | Apple Mint | Bio", "Kombucha mocktail | Sex on the peach", "Komkommer", "Koolrabi", "Koriander | Verpakt", "Korte veldsla", "Krielaardappelen", "Kropsla | Kluit", "Kult | Kefir water | Yuzu | Bio", "Kurkuma | Bio", "Limoen | 1 st", "Limoenen", "Look | Netje | Bio", "Lookbol | Netje", "Maaltijbox | Versneden | One pot pasta", "Maaltijdbox | Lasagne", "Maïs | Bio", "Mandarijn met blad | Bio", "Mandarijnen", "Mango", "Mango Natuur", "Medjool Dadels", "Meloen | Galia", "Meloen schijven", "Mezze Dolmas | Grieks", "Milde Kimchi | Bio", "Mini | kriel 500g", "Mini broccoli/bloemkool | Bio", "Mix hart van salade", "Mocktail | Pina | Colada", "Mosselgroenten", "Muchroomince", "Multivitamins  | Sap | Fruit | 90Cl", "Munt | Verpakt", "Mushoarma", "Notensla | Bio", "oesterzwammen | Belgisch | Bio", "Ontpitte Dadels | Bio", "Orange | Sap | Fruit | 25Cl", "Orange With Extra Pulp | Sap | Fruit", "Orange With Pulp | Sap | Fruit | 1.5L", "Orange Without Pulp | Jus | Fruits | 90Cl", "Oven/bbq groenten | Mediterraans", "Ovengroenten | Koolraap | Zoete a", "Paddenstoelenmix | Pasta", "Padron pepers", "Paksoi", "Papaja schijven", "Paprika | Mix", "Passievruchten | Verpakt per 6", "Pastinaak | Geschoond", "Pepitamix", "Peren | Conference | Verpakt | 4st", "Persappelsienen | Net", "Peulen", "Physalis", "Pijnboompitten", "Pink Grapefruit | Sap | Fruit", "Pompelmoes | Bio", "Pompoen | Bio", "Pompoenblokjes", "Pompoenpit", "Pompoensoep", "Portobello | Belgisch", "Postelein", "Prei | Bio", "Preibundel", "Preiwit", "Prinsessenbonen", "Radijsmix | Snack", "Rapen | Bot | Verpakt", "Rauwkost | Radijs", "Rauwkost Met Mais", "Raw Lemonade | Gember | Kurkuma", "Relax soda | Limoen", "Rode bessen", "Rode biet | Gekookt | Bio", "Rode kerstomaat | Bio", "Rode kool", "Rode pepers | Verpakt", "RODE PRUIM", "Rode puntpaprika | 2 stuks", "Rode radijzen | Bussel", "Rode uien | Netje", "Romanesco", "Romeinse sla | Bio", "Rozemarijn | Verpakt", "ROZIJNZN | SULTANA", "Rucola", "Salie | Verpakt", "Sanguinello | Sap | Fruit", "Sap | Açai juice", "Sesamzaad", "Shitake | Belgisch | Bio", "Shot | Vitamine D", "Sinaasappelsap | Pulp", "Sjalot", "Sjalotten | Verpakt | Bio", "Sla | Quattro", "Sla met fijne kruiden | kropsla, peterselie, bieslook", "Slaharten", "Slamengeling", "Smaaktrostomaten", "Smoothie | Açai banaan", "Snijbonen", "Snoepgroenten | Radijs | Wortel", "Soep | Wortel", "Soepgroenten | Kervel", "Sojascheuten | Bio", "Spaanse aardbeien", "Spaghettigroenten", "Spinazie", "Spitskool", "Spruiten | Verpakt", "Stoofappel zak 1,5kg", "Studentenhaver", "Stukjes ananas", "Suikermaïs", "Super smoothie | Defence | Vers", "Tijm | Verpakt", "Tomaten | Datterino", "Tomatenroomsoep", "Trio mix bessen", "Trio van sla | Kluit", "Tropicana | Tropisch fruit", "Trostomaten | Bio", "Tuinkers | Vilt", "Veenbessen", "Vegan | Smoothie | Aardbei", "Veldsla", "Venkel", "Verpakte | kookvaste aardappelen.", "Verpakte Groene selder", "Vers | Citroensap", "Vers geperst sap | Sinaasappel", "Vers sap | Sicilian citroen", "Verse look", "Verse vijg | Cat1", "Vesuvio mix", "Vijgen", "Vijgen natuur", "Volkoren bulgur | Gele wortel | Paprika", "Volkoren couscous| Tomaat | Courgette", "Water | Kéfir | Rozemarijn | Gember | Bio", "Wijnperssinaas", "Witloof | Hydrocultuur", "Witpuntradijs", "Witte asperges | 16+", "Witte champignons | Belgisch", "Witte kool", "Witte selder | Verpakt", "Witte uien | Netje", "Wok | Champignons", "Wokgroenten | Gochujang", "Wokmix | Soja", "Wortelen", "Wortelschijfjes", "Zachte Little Gem harten", "Zachte uien | Verpakt", "Zachte Vijgen Op Siroop", "Zoete aardappel wedges", "Zoete aardappelfriet", "Zoete paprika rood  |  Bio", "Zoete puntpaprika | Mix"] },
+  { id:'mea', name:"Vlees, vis en vegetarisch", emoji:'🥩', products:["'Time | Fijne worst", "Amatriciana", "Ambachtelijke beenham | Glutenvrij", "Ansjovis | Olijfolie", "Antipasto All'Italiana", "Antipasto di Salumi", "Aperitiefschotel op Italiaanse wijze", "Ardeens gebraad | Sneden", "Ardense Ham", "Ardense salami", "Ardense worst | Met look", "Asperge | Saus", "Bacon | Ontbijt | 5 Sneden", "Baconreepjes", "Balletjes | Kip", "Balletjes in tomatensaus", "Bayonneham | Sneden", "Bearnaise | Saus", "Beenham", "Belgische schotel", "Bereide Biefstuk | Martino", "Bereide Gehakte Biefstuk", "Biefstuk | Gehakte | Bio", "Bisque Grijze Garnalen", "Bistro | Time", "Blinde Vinken", "Blini's | 4st", "Blokpate in sneden", "Boerenpaté", "Boerenpensen | Zwart", "Boerenworst", "Boomstam | Kip | Kaas", "Borrelhapjes | Kip", "Borst| Eend", "Borstfilet | Kip", "Bouillabaisse met kabeljauw", "Boulet", "Boulogne De Nil", "Bout | Mechelse koekoek", "Bouten | Kip | Bio", "Bouten met rug| Kip | Maxi pack", "Boutfilet | Kip | Bio", "Bovenbouten | Kip | Zonder rug", "Braadkip | Halal", "Bresaola", "Brochette | Kip | Gemarineerd", "Bruinen en opdienen | Kalfs", "Burger | Kip", "Burgerbereiding | Varken| Rund| Plantaardig eiwit", "Cacciatore Dop", "Cacciatore Italiano", "Calamares | Gefrituurd", "Cãna de Lomo Iberico", "Carpaccio | Rund", "Carré | Italiaans |  Veggie", "Carre paprika", "Cassolettes St. Jacobsschelpen", "Champignon | Room saus", "Champignons | Griekse wijze", "Champignonworst", "Chateaubriand | Rund | Belgisch", "Chipolata | Kip", "Chipolota | Kip | Bio", "Chorizo", "Chorizo Extra Pikant", "Chorizo extra sneden", "Chorizo Extra Zacht", "Chorizo uit Leon | Hot", "Choron | saus", "Cocktail | Grijze-Tijger- garnalen", "Coppa", "Coppa di Parma", "Cordon Bleu", "Crèmepaté", "Crispy bacon", "Croc | Kip | Krokant", "Crumble |  Zalmforel Asperges", "Dino burger | Kip", "Disney Mini hespenworstjes", "Disney Mini kippenworstjes", "Droge ham | Natuurlijke rijping | Sneden", "Droge worst", "Droge worsten | Mini sticks", "Drumsticks | Kip", "Duo pack Salami/Kaas | MP", "Edelbacon", "Entrecôte | Bio", "Falafel | Vegan", "Feestschotel", "Fijnkost salami", "Fijnkostsalami Zonder Look", "Filet | Kip", "Filet d'Anvers | Supérieur | Sneden", "Filet De Saxe", "Filet Pur | Bio", "Filetblokjes | Kip", "Filethaasjes | Kip | Extra fijn", "Filets | Hoevekip | Geel | Label Rouge", "Filetstukjes | Chicken style | Vegan", "Fine St Agaune", "Finicchiona", "Finocchiona IGP | Sneden", "Fish sticks | Alaska pollak", "Flinterdun hespenworst", "Flinterdun kipfilet curry", "Forel | Ardense", "Foreleieren", "Forelfilet | Gerookt | Bio", "Frankfurter worsten", "Fuet", "Fuet de Vic", "Gamba's | Gekookt | Bio", "Ganda Ham | Bio", "Ganda Ham Vacuüm 120g", "Garnalen | Tapas | Natuur", "Gaumais Worst", "Gebakken kibbeling", "Gebraad | Kalfs", "Gedroogde boerenworsten", "Gedroogde ham | Natuurlijke rijping | Sneden", "Geel haantje | St-Sever", "Gegrilde schnitzel | Vegetarisch", "Gegrilde stukjes | Veggie", "Gehakt | Vegan", "Gehaktballen | Veggie", "Gehaktballetjes", "Gehaktbereiding | Rund", "Gehaktbrood | Hete Bliksem", "Gehakte biefstuk | Natuur | Rund | Belgisch", "Geheel | Konijn | Park", "Gekookt hammetje", "Gekookte ham met natuurlijke zwoerd | 4 Sneden", "Gekookte hamblokjes | Max. 5% de graisses", "Gekookte hamreepjes", "Gele hoevekip | Label rouge", "Gemarineerde varkenskroon peper-zout", "Gepelde Steak | Bio", "Geperste kop | Tomatensaus", "Gerookt ontbijtspek 2x100g", "Gerookt spek", "Gerookte bacon flinterdun", "Gerookte Cobourg | Sneden", "Gerookte Ham", "Gerookte kip", "gerookte paardenfilet", "Gerookte rundtong", "Gerookte spekblokjes | Bio", "Gerookte spekjes", "Gerookte worst uit Gelderland", "Gevogelte | Fond | Licht", "Gevogeltebrood | Fijne kruiden", "Gezouten spek", "Gorgonzola | Tartufo", "Goudbrasem", "Grijze garnaalsalade", "Grillworst", "Grisonvlees | Sneden", "Groenteballetjes | Veggie", "Groenteburger | Veggie", "Gyros | Varken", "Haasjes | Kip", "Ham", "Ham Oude Wijze", "Hamburger | Maïskip | Coqardenne", "Hammetje", "Hampate", "Hamreepjes", "Hamsalade", "Hamsworst", "Haringfilets | Azijn", "Haringpareltjes", "Haringsalade met dille | MSC", "Heilbot | Gerookt", "Hesp | Superieur | Sneden", "Hespenworst", "Hespenworst Ecopack", "Hespenworst in sneden", "Hoevekip | Zwart | Label Rouge", "Iberische Chorizo", "Inktvis salade", "Inktvisringen", "Inktvistentakels | Gekookt", "Inktvistubes", "Italian cocktail", "Italtufo", "Jambon cru | Bio", "Jambon Roti Aux Herbes | Bio", "JAMON IBERICO  | Sneden", "Jamon Serrano", "Just like chicken | Vegan", "Kabeljauw |  Ecopack", "Kabeljauwburger | Gepaneerd", "Kabeljauwfilet", "Kabeljauwhaas | Gemarineerd", "Kabeljauwhaasje", "Kabeljauwparels", "Kabeljauwstaart", "Kalfsfricassee", "Kalfsgebraad", "Kalfslapje", "Kalfsworst", "Kalkoenfilet", "Kalkoenfilet met vel", "Kalkoengebraad", "Kalkoensalami", "Kaviaar | Klassiek | Belgisch", "Kebab | Vegan", "Kip | Bio", "Kip curry", "Kipfilet", "Kipfilet curry", "Kipfilet gerookt", "Kippenbil | Maïskip | Coqardenne", "Kippenreepjes", "Kippenstukjes | Curry", "Kippenvleesbrood", "Kippenworstje | Disney", "Kippewit", "Kipsalade", "Kipsalami", "Kleine droge worsten", "Knacki | Kip", "Komkommersalade", "Kookham | bio", "Kop | Tomatensaus | Sneden", "Kop tomatensaus sneetjes", "Kotelet | Kalfs", "Koteletten | Lam | Bio", "Krabsalade", "Kreeftensaus", "Kwartels", "Lamsbrochetten | Bio", "Lamskroon | Celtic", "Lamsnoot | Celtic", "Lapjes | Kalkoen", "Le Filet | Vegan", "Le Filet Croquant | Vegan", "Le schnitz  | Vegan", "Lentesalade", "Lenteworst", "Les Petites Tranches", "Lever | Kip", "Leverpaté", "Lomo", "Lomo curado", "Lompviseieren | Rood", "Look | Saus", "Lookworsten", "Luikse gehaktballetjes", "Lunch worst", "Lunchworst", "Magen | Eend | Gekonfijt", "Magret | Eend | Gedroogd", "Maïskip| Coqardenne", "Makreel | Gerookt", "Makreelfilet | Gerookt | Peper", "Makreelhaasje | Gerookt | Graatloos", "Mangalica", "Marcassou salami ardeense brood", "Martino | Chef", "Meatball-style rondo | Vegan", "Mechelse koekoek", "Medaillon | Kalfs", "Mediterraanse balletjes", "Merguez | Kip", "Mergueze | Vegan", "Mett worst", "Mignon | Varken", "Mignonette | Lam | Celtic", "Mini Buchettes | Comte", "Mini frikandel |Vegan", "Mini salamis | 100% Kip", "Mini-Salamis | Noten", "Mortadella", "Mosselen | Kant-en-klaar", "Mosselsaus", "Mosselvlees | Gekookt", "Mousselinesaus", "MSC gepaneerde visfilet", "No Mayo | Rijk aan proteïne | Krab", "Nuggetkes | Vegan", "Nuggets | Vegan", "Octopusarmen", "oesters | Fine de France | 12st", "Onderbouten | Kip", "Ontbijtspek | Bio", "Ontbijtspek Gerookt | 10 sneden", "Ontvette | Kookham", "Ontvette ham", "Opgebonden filet | Kalkoen", "Osso Bucco | Kalfs", "Ovengebak ham | Dikke snede", "Ovengebakken ham | Glutenvrij", "Ovengeroosterde paté | Sneetjes", "PANCETTA", "Pancetta per carbonara", "Pangasiusfilet | Natuur", "Parelhoen", "Parijse worst", "Parma ham 90g", "Parmaham", "Pastrami in sneden", "Patron | Droge worst | 100% varken", "Pecorino | Geraspt", "Pensen | Zwart | Bio", "Peper | Saus", "Picanha", "Pita | Varken", "Pladijsfilet", "Plopworst", "Pntvet ham | -25% zout", "Poolse worsten", "Préparé van de chef", "Preskop", "Prosc.  di Parma", "Prosciutto arrosto", "Prosciutto Cotto", "Prosciutto cotto alle erbe", "Prosciutto cotto italiano", "Prosciutto Crudo", "Prosciutto crudo artigianale", "Prosciutto crudo Nazionale | Sneden", "Prosciutto Crudo Poggio", "Prosciutto di Parma", "Prosciutto di S. Daniele | Sneden | MP", "Prosciutto di San Daniele", "Pure varkensrosette | Sneetjes", "Pure varkensworst | Aveyron", "Ragout | Kalf", "Rauwe ham | Italiaans | Sneden | Maxi pack", "Rauwe ham truffel", "Ribs | Big | Honing", "Rillettes | Eend", "Rivierkreeftjes | Gekookt", "Rode bol | Boerenworsten", "Rolmops | Azijn", "Rondo | Griekse stijl | Veggie", "Roodbaarsfilet", "Roodbaarshaas", "Rosbief | Gebakken", "Rosette", "Roulade | Konijn | Park | Ardeense wijze", "Roulade Mosterdspek", "Royal oesters | Ierland | N.3 | 12st", "Roze garnalen | Gepeld", "Rumsteak | Bio", "Runderrookvlees", "Rundstoofvlees | Bio", "Salade | Ham", "Salade Kip | Crispy Bacon", "Salame | Felino", "Salame aglio rosso", "Salame al tartufo", "Salame milano", "Salame peperoncino rosso", "Salami", "Salami Bolzano", "Salami di Milano", "Salami light", "Salami Met Look", "Salami rustico", "Salami Varzi DOP", "Salami Zonder Look", "Salamistaafjes", "Saucissekes | Vegan", "Saus | Gehakte biefstuk", "Savourette varkensgebraad truffelsmaak", "Scampi  | Curry", "Scampi's | Gekookt | Gepeld", "Schelvisfilet | Ecopack", "Schelvishaasje", "schenkel | Lam | Celtic", "Schnitzel", "Schnitzel  Gouda | Veggie", "Schouderham in sneetjes", "Schouders | Konijn | Park", "Seitan | Gehakt | Vegan | Bio", "Sensational burger | Vegan", "Sensational gehakt | Vegan", "Serranoham", "Sint-Jacobsnoten", "Sjalot-dragonsaus", "Sliptongen | Ecopack", "Smeersalade | Krab", "Spek", "Spekblokjes", "Spekblokjes Gerookt | Bewaring Zonder Nitrieten", "Spekjes | Gerookt", "Spekreepjes | Natuur", "Spianata Piccante", "Spianata romana", "Spiering | Varken", "Steak | Gemalen | Bio", "Steak maître d'hotel | Rund Belgisch", "Stickado | Natuur | XXL", "Stoofvlees", "Stukjes | Shoarma | Vegan | Bio", "Superieur Ham -25% zout| 3 sneden", "Superieur ham natuur| 5 sneden", "Surimi | Staafjes", "Surimi krabsalade", "Surimi salade", "Tacchino arrosto", "Tafelworst | Sneden", "Tapas assortiment", "Tapasschotel | Ansjovis", "Tartaar | Saus", "Tartaarsaus | Vers", "Tiroler speck | Sneden", "Tofu | Vegan | Bio", "Tong | Noordzee", "Tongscharfilet | Zonder vel", "Tongscharrolletjes | Kreeftsaus & grijze garnalen", "Tonijn pikant", "Tonijn salade", "Tonijn steak | Ecopack", "Tonijnsalade", "Topfilet", "Tournedos | Rund | Belgisch", "Varken | Rillettes", "Varkensbroodje", "Varkensgebraad", "Varkenshaasje", "Varkenshammetje | Mosterdsaus", "Varkenshure in sneden", "Varkenskoteletten | 2 Stuks", "Varkensoester", "Varkensspiering | Bio", "Varkenswangen", "Vegan | Curry", "Vegetarisch | Martino", "Vegetarische sneetjes | Natuur | Bio", "Veggie | Sea salad", "Verse mosselen | Jumbo", "Visgratin | Beurre blanc", "Visschelp | Homardine", "Vitello tonato", "Vlaamse boerenham", "Vleesbrood", "Vleesbrood mosterd", "Vleessalade", "Vleugels | Kip | Bio", "Vogelnestje", "Vol-au-Vent", "Vongole", "Vuna | Vegan tuna", "Wangen | Varken | Iberico", "Wijtingfilet | Schotland", "Witte boerenpens", "Witte pens | Mandarijnen", "Witte worst | Veggie", "Wok reepjes | Kalkoen | Indisch", "Worst | Boeren", "Worstje | Vegan", "Worstjes | Strasbourg", "Zalm | Gerookt", "Zalmburger", "Zalmcarpaccio gravlax", "Zalmeieren | Atlantisch", "Zalmfilet | Met vel", "Zalmfilet Z/V | MAP | Gemarineerd", "Zalmforel | Gerookt", "Zalmforelhaasjes", "Zalmhaasje", "Zalmreepjes | Gerookt | Bio", "Zeebaarsfilet", "Zeekraal", "Zeevruchtencocktail | Gekookt", "Zeewolffilet", "Zuurkool | Natuur", "Zuurkool met wijn voorgekookt", "ZWARTE WOUDHAM"] },
+  { id:'dai', name:"Zuivel, kaas en plantaardig", emoji:'🧀', products:["0% Lactose | Volle room 35% VG | Eco", "4XPLATEAU FROMAGE BELGES", "Aardbei | Plantaardig alternatief voor yoghurt", "Aardbei-Banaan | Perzik-Peer | Plantaardig alternatief voor yoghurt", "Abdijkaas | Bio", "Amandel | Suikervrij | Bio", "Ambachtelijk | Verse plattekaas | Vol", "Ambachtelijke yoghurt | Natuur", "Aperitief kaas | Salsa | 24c", "Appenzeller | Zwitsers", "Artisanaal | Fruityoghurt | Mager 0%", "Authentieke Griekse yoghurt | 0% v.g.", "Authentieke Griekse yohurt | aardbei", "Bakken en braden | Vloeibaar", "Beaumont de Savoie", "Belegen | Blok", "Beurre champs d'Aubel | Licht gezouten boter", "Bio | Melk | Lichte start | Bio", "Black Bomber", "Bladerdeeg", "Blauwe bosbes | Plantaardig alternatief voor yoghurt", "Blauwe bosbes-Kers | Plantaardig alternatief voor yoghurt", "Bois du roi eieren | Vrije uitloop | Groot", "Bosfruit", "Boter | Look", "Brickvellen", "Brie", "Brie de meaux", "Brillat-Savarin | Belegen | Blok", "Cacaocake | melkroom", "Caffè Latte | Espresso", "Cake | Melk | Chocolade | 4 stuks", "Camembert", "Caractère | Sneden", "Cécémel | Drank | Plantaardig | Zonder gluten | Zonder lactose", "Chavignol AOP", "Cheddar", "Chester | Toasty", "Choco", "Chocolademelk", "Citroen-limoen | Plantaardig alternatief voor yoghurt", "Classic | Blok", "Clémont Rouge | Mini portie", "Coco Greek style | Fairtrade | Bio", "Coco start naturel | Fairtrade | Bio", "Comté | Geraspt", "Comté AOP + 6 maanden | Finesse", "Cottage cheese", "Crème brûlée | Natuur", "Croissants | Vers deeg", "Cubes | Gouda | Cheddar", "Culinaire room | 20% V.G. | Geen additief | Eco", "Dadelbrood met Walnoten", "De enige echte", "Dessert | Room | Vanille", "Dringyoghurt | framboos", "Drink | Coco | Rijst | Bio", "Drinkyoghurt | Natuur", "Dubbele room", "Eiercrème", "Eieren | Large", "Emment | Rasp | Eco | Fairtrade", "Emmental | Frans", "Emmental geraspt", "Emmentaler | Mini portie", "Epoisses | AOP", "Feta / AOP", "Feta | Bio", "Feta kaas | Op eiken vaten gerijpt", "Fischer", "Flan | Caramel", "Fondu | 24p", "Fondue | Zwitsers", "Fondue Classic", "Fondue Savoy", "Formaggini | Porties", "Gecondenseerde melk | Zoet | Gebak", "Geit | Buche St Maure", "Geitenkaas", "Geitenkaas en spek", "Gekarnde boter | Zacht", "Geklaarde boter", "Geraspte kaas | Emmental-Cheddar-Talligiano", "gez. | boter | rené bossart", "Gezouten boter | La Motte", "Gorgonzola | Mascarpone", "Goud Brugge | Blok", "Gouda | Sneden", "Goudasmaak | Sneden", "Goudkuipje | Sambal", "Gourmet | Bakken en Braden | 100% Plantaardig", "Gran Formaggio", "Grana padano | BOB", "GRANA PADANO BOB", "Gratin | Mix | Geraspt", "Gratin Mix", "Greek white block", "Gruyere | AOP | Blok", "Gruyère | Geraspt", "Halfharde kaas | Jonge | Sneden", "Halloumi kaas | Classic", "Haverdrink | Vol", "Haverprod om te koken", "Heks'nkaas Origineel", "Herve | Mild", "Instantmelk | Mager | Extra calcium | 0% V.G.", "Italian Style geraspt kaas", "Jong | Sneden", "Kaas", "Kaas met grillen", "Kaas Sneden| Gouda", "Karneboter", "Karnemelk", "Kefir | Halfvol", "Kers | Alternative | Plantaardig | Yoghurt", "Koffiemelk", "Kruidenkaas | Knoflook", "Kruimeldeeg | Vers", "Kwark | Aardbei | Opgeklopt", "La Brique", "Labneh", "Lactel geitemelk", "Lactosevrij", "Le Liégeois | Belgishe chocolade", "Le moelleux | Sneden", "Leerdammer | Original | Blok", "Lichte room | 8% V.G. | Eco", "Liégeois | Koffie", "Light | 8 Sneden", "Lightesse | Sneden", "Lightkaas | Geraspt", "Look & Fijne kruiden", "Mango | Plantaadig alternatief voor yoghurt | Zonder toegevoegde suiker", "Margarine | Light", "Mascarpone", "Melk | Vol", "Melkchocolademousse", "Melkdessert | Chocolade", "Melkdrank | Original", "Melkerijboter", "Minder suiker", "Mini Yop | Aardbei", "Mix | Fruit | Plantaardig alternatief voor yoghurt", "Moelleux | Chocolade", "Mousse | Koffie", "Mozzarella", "Mozzarella bufala", "Natuur | Plantaardig alternatief voor yoghurt", "Natuur met Kokosnoot | Plantaardig alternatief voor yoghurt", "Neufchatel", "Old Amsterdam | Intens | Blok", "Om te lepelen | Bosbes | Protéine | 0%", "Om te smeren | Plantaardig | Palmolievrij", "ongez. | boter | rené bossart", "Opgeklopt | Natuur | Zeezout", "Opgeklopte boter |Half-zout", "Opgeklopte verse kaas | Gezoet", "Original | 8 Sneden", "Ossau Iraty | Schapenmelk", "Oud | Blok", "Ovaal", "Pamesello | Geraspt", "Panier de Yoplait | kers", "Panna cotta | Framboos", "Pannenkoeken", "Parmigiano reggiano | BOB", "Pasta", "Pasta Mix", "Patisserie | Bakken", "PDP Clémentine-Noisettes", "Pecorino romano | bob geraspt", "Perzik | Plantaardig | Altern | Yoghurt", "Petit suisse | Mager", "Picolin", "Pizzadeeg | Bio", "Plantaardig | Alternatief | Room | Light", "Plantaardige dessert | Vanille | UHT", "Plantaardige drank | Soja", "Plantaardige saus | Alfredo | Bio", "Plantaardige yoghurt | Kokos | Natuur", "Plantbased", "PLAT.5 KAZEN KLASSIEK | Eco", "PLAT.KAAS 1 of 2 P.N°9-4KAAS | Eco", "Plateau | Assortiment fromage France  | 6 portions | Eco", "Poffertjes | Mini-pannenkoeken", "Product om te smeren | 25% vet", "Profiteroles", "Protein kwark | Bosbes", "Protein pudding | Chocolade", "Protein shake | chocolade", "Proteïne | Chocolade | Drink", "Pudding | Chocolade", "Pudding van Madagascar", "Queso de Cabra", "Queso Iberico", "Reblochon Le Regain", "Ricotta", "Rijstpap | Vanille", "Rood fruit | plantaardig |g suiker toegev.", "Room | 4% V.G.", "Room 20%", "Room 35%", "Room 40%", "Room dessert | Vanille", "Roomboter | Ardense | Zeezout", "Roomdessert | Liegeois  | Koffie", "Roomkaas | Kruiden & knoflook", "Roquefort | AOP", "Saint Paulin | Mini portie", "Saint-Marcellin", "Saus | Béchamel | Verse room | Licht", "Schapenkaas", "Scharrel ei | mix kaliber | 10st", "Schimmelkaas | Roquefort | AOC | Blok", "Selection | Kubus", "Skyr | Yoghurt | Natuur", "Slagroom", "Smeerkaas", "Smeerkaas Dubbelroom | 8 porties", "Smeltkaas | Cheddar | Kaas", "Smoothie | Yoghurt | Ananas | Limoen", "Snacking Kaas | Original | 12P | FP", "Sneden", "Sneetjes", "Soja | Calcium", "Soja topping", "Solo |Bakken en Braden | 500ml", "Soy | Cream", "Spaanse kaas plateau", "Spuitbus |  volle room", "spuitbus volle room 35 %", "Stracciatella | 0% vet", "Tartiflette", "Tête de Moine VV", "Tiramisu", "Topping | Le Viennois | Koffie | 9% V.G.", "Tortilla wraps | Wortel", "Trappistenkaas | Zacht & Smeuïg", "Tubs | Verse kaas | Fruit | Calcium | Vitamine D", "UHT room | 30 % V.G.", "Vanille", "Vanille rijstpap", "Vegan | Plakken", "Verse geitenkaas | Honing", "Verse hoevekaas | Kwark", "Verse kaas | Vol", "Verse Kaas Specialiteit | Speculoos", "Verse kaaskrans | Bieslook", "Verse kaasspecialiteit | Aardbei", "Verse melk | Halfvolle | Bio", "Verse roomkaas | Peper | 150g", "Versierd met noten", "Vijgen | Eco", "Volle room /Authentiek / 35%", "Volle room | Authentiek | 35%", "Witte kaas | Natuur | Opgeklopte creme", "Witte kaasplak", "Yoghourt | Soja | Naturel | Ongezoet", "Yoghurt | Natuur", "Yohurt | Natuur | Eco | Bio", "Zachte boter", "Zachte kaas", "Zuivelspecialiteit | Natuur"] },
+  { id:'con', name:"Snel en smakelijk", emoji:'🍝', products:["A Pinch of vol au vent", "Aardappelen | Partjes | Peper & Zout", "Aardappelgratin", "Aardappelpartjes | Rosemarijn", "Aardappelpuree", "Aardappelsalade | Bieslook", "Aardappelschijfjes", "ABB | Beefburger", "Airfryer | Pizza | Mozzarella", "Alumettes friet", "APO Angus Stoverij", "APO Balletjes Tomatensaus", "APO Chipolata Duchesse", "APO Cordon Bleu", "APO Gegrilde Kip Archiduc", "APO Macaroni Kaas Breydelham", "APO Spaghetti Bolognaise", "APO Spaghetti Carbonara", "APO Tikka Massala", "APO Varkenshaasje Pepersaus", "APO Zalm Pasta Pesto", "Asian | Noedels | Met kip", "Aubergine rollade", "Babi pangang", "Bagel | Gyros | Kip", "Baguette | Hawaii", "Bakaardappel | Rozemarijn", "Balletjes | Luikse", "Bami | Goreng", "Bami goreng", "Bart Desmidt | Kabeljauwfilet", "Bbq | Pulled pork", "Beef | Protein | Noodles", "Bibimbap | Groenten", "Big Americans | Cheese | Onion", "Big sensation | Salami & BBQ", "Blinde vink | Spinaziepuree", "Bloemkool | Couscous", "Bloemkool Mezz", "Bloemkool mornay", "Bloemkoolrijst", "Bloemkoolroosjes", "Boerenkool | Versneden", "Boeuf Bourguignon | krieltjes | Rozemarijn", "Bolognaise | Saus", "Bolognaisesaus", "Borrelhapjes | Kip", "Boubasud couscous groenten", "Bowl | Marokkaans | Kip", "Braadworst | Bloemkool", "Broccoli", "Bulgogi | Rijst | Rundvlees", "Bun | Groenten en hummus", "Butter | Chicken", "Cacio e Pepe", "Cannelloni | Bolognaise", "Cappelletti | Rauwe ham", "Casa di mama | Salame", "Celentoni | Kip | Mascarpone", "Cheeseburger", "Cheeseburgers", "Chia | Banana | Cacao", "Chicken | Yakisoba", "Chicken ceasar salad", "Chili | Sin | Carne | Bio", "Chili Con Carne | Rijst", "Classic Kimchi | Bio", "Coleslaw", "Coq au vin royale met krielaardappel", "Courgette | Spaghetti", "Couscous met verse groenten 2P", "Croque monsieur", "Drumsticks | Kip", "Eieren | Scharrel | Hardgekookt", "Falafel | Groenten | Puree", "Farfalle | Pesto", "Fettuccine", "Fettucini | Funghi", "Filet | Kip | Mozarella | Ovenschotel", "Frieten | Vers | Voorgebakken", "Fusilli", "Gazpacho | Tomaten", "Gebraiseerd witloof", "Gehakt | Kalf | Schotel", "Gehaktbal | Luikse saus", "Gehaktballetjes | Tomatensaus", "Gehaktbrood | Spinazie | Puree", "Gerecht | Rijstnoedels | Groenten", "Gestoomde worteltjes", "Gevulde Paprika | Quinoa", "Girasoli met kaas", "Gnocchi", "Gratin | Dauphinois", "Gratin Dauphinois", "Green salad | Kip", "Groene salade | Ham en kaas", "Groentenmix | Gegrild", "Groentensoep", "Groenteschotel | Italiaans", "Groentesoep | Bio", "Groentespaghetti | Tricolor", "Gyros | Kip | BBW", "Halve krieltjes | Rozemarijn-Zeezout", "Hamburger | Appelcompote | Aardappelpuree", "Hamrolletjes | Witloof", "Heek | Gemarineerd | Rijst", "Heekfilet | Blanke botersaus", "Hot Dog", "Hummus | Pesto", "Hutsepot", "Hutsepot met spruiten", "Indian curry | Bio", "Kabeljauwfilet | Witte Wijnsaus & Groentjes", "Kip | 1/2", "Kip aan het spit | Krielaardappelen", "Kipburger", "Kipfilet | Archiduc saus", "Kippen | Brochette", "Kippenhaasje | Romescosaus", "Konijn | Pruimen", "Koolsla | Zonder gluten", "Krieltjes", "Kroketten | Aardappelen | Garnituur", "Lasagne", "Linguini | Tomtatensaus | Spek", "Linguini carbonara", "Lionel Rigolet | Gehaktballetjes zinnebir", "London | Double beefburger", "Maaltijbox | Versneden | One pot pasta", "Maaltijdbox | Lasagne", "Mac | & | Greenz", "Macaroni", "Macaroni Creamy", "Margherita", "Mashed potato | Sweet | Kip | Zonder gluten | Zonder lactose", "Medaillon | Varken | Archiduc", "Mezzelune | Parma Truffle", "Mezzelune al Parmigiano Reggiano", "Mihoen goreng", "Milde Kimchi | Bio", "Mini-Kriel | Aardapp", "Minikrieltjes | Bistro", "Minikrieltjes BBQ", "Mosselgroenten", "Moussaka", "Nasi | Goreng", "Nasi goreng", "New York | Cheeseburger", "Noedels | Kip", "Oatmeal | Granaatappel", "Ossetong | Madeirasaus", "Osso buco | Milanese | Zonder lactose", "Oven/bbq groenten | Mediterraans", "Ovengroenten | Koolraap | Zoete a", "Ovenschotel | Kip-Broccoli", "Paella", "Paëlla | Royale", "Paella Valencia | Met Kip en Garnalen", "Pan | Funghi | Truffel", "Panini | Prosciutto", "Pappardelle", "Paprikamix | Gegrild", "Parmentier | Vis | Spinazie", "Pascale Naessens | Kippenhaas | Bloemkoolrijst", "Pasta | Voor lasagne", "Peking | Eend | Rijst | Witte", "Penne", "Penne arrabbiata | Bio", "Penne Pesto | Bio", "Penne pollo mascarpone", "Pesto | Rood", "Peter Goossens |  kalfsblanket", "Piadina | Diavola", "Piccolissima | 3 formaggi | 12p", "Pinsa | Mini", "Pinsa classica", "Pita | Kip | BBW", "Pizza | Tuna", "Pizzabodem | Steen", "Pompoen | lasagnebladen", "Pompoenblokjes", "Pompoensoep", "Prei | Fijngesneden", "Puree | Prei", "Quiche | 3 kazen", "Ratatouille", "Ravioli | Artisjok", "Ricotta Spinazie tortelloni | Bio", "Rigatoni | Arrabiata", "Risotto", "Rundsburger | Zoete Aardappelpuree", "Rundsstoofvlees", "Rundstong | Madeirasaus", "Rundstong madeira", "Salad | Mexican style", "Salad Italian style", "Salad Thai style", "Salade | Garnaal", "Saus | Pesto", "Scampi | Diabolique", "Scampis | Diabolique | Pasta", "Sergio Herman | Thaise kip", "Shoarma", "Skyr | framboos | granola", "Soep | Wortel", "Spaghetti", "Spaghetti bolognese", "Spaghettigroenten", "Spirelli Feta | Bio", "Stoofvlees | Rund", "Stoommaaltijd | Zalm", "Sweet Potato Salad | Bio", "Taart | Geflambeerd | Elzas", "Taboulé", "Tabouleh Feta | Bio", "Tagliatelle", "Tagliatelle di Mare", "Tagliatelli | Scampi | Diabolique", "Tagliolini", "Tajine | Couscous | Midden oosters", "Tartiflette", "Teriyaki Rund | Noedels", "Tikka Masala", "Tomatenroomsoep", "Tomatensoep | Bio", "Tondi | Aubergin-Gegrilde tomaten-Mozzarella", "Tortellini | Ricotta", "Tortellini glutenvrij", "Tortelloni | Vlees", "Tortelloni met Basilicum", "Tortelloni ricotta", "Tortelloni ricotta met spinazie", "Tortelloni tomaat mozzarella", "Triangel | Kip curry", "Triangle | Ham en kaas", "Triangoloni | Eekhoorntjesbrood-Truffels", "Varkenshammetje | Witloofstoemp", "Varkensmedaillon | Bearnaise | Aardappel", "Varkensstroganoff | Groentenrijst", "Vegan | Italian | Lasagnette", "Veggie Bowl | Thaise Curry", "Verse eierpasta | Parma | Parmigiano", "Verse Pasta | Pesto basilicum | Bio", "Vispannetje | Oostendse wijze", "Vlaamse stoverij | Puree", "Vleesbrood | Krieken", "Vogelnestjes | Boontjes", "Vol au vent", "Vol-au-Vent", "Volauvent | Veggie", "Volkoren bulgur | Gele wortel | Paprika", "Volkoren couscous| Tomaat | Courgette", "Waterzooi | Gentse", "Witloof | Voorgegaard", "Witloof gratin | Met Aardappelpuree", "Witloofpuree", "Worst | Wortelstamppot", "Worstenbrood", "Wortelschijfjes", "Wortelsoep | Bio", "Wout Bru | Kippenhaasje spek", "Wrap | Salmon", "Wrap chicken caesar", "Zalm | Belle vue", "Zalmfilet | Met Mosterdsaus & Groentjes", "Zoete aardappel wedges", "Zoete aardappelfriet", "Zuurkool | Gegarneerd"] },
+  { id:'ape', name:"Apero en voorgerechten", emoji:'🥂', products:["'Time | Fijne worst", "10 | Mini | Loempias", "2 Kaaskroketten", "20 Aperitiefhapjes", "8 Mini pizzas", "9 Mini Burger | Rund", "Aioli", "Ajuin & Fijne Kruiden | Snacks | Chips", "Ansjovis", "Antipasto All'Italiana", "Aperitiefschotel op Italiaanse wijze", "Apero | Tzatziki", "Apero box", "Apero schotel | De luxe", "Aperogroente | Radijs 230g", "Aperogroenten 280g", "Ardense worst | Met look", "Asian | Snack | Box", "Aubergine | Kaviaar", "Babaganoush", "Bao kip | Mini", "Barbecue | Nuts | Nootjes | 200G", "Bâton | Natuur", "Bbq | Ribbled | Chips", "Bistro | Time", "Bitterballen | Rundvlees", "Bladerdeeghapjes | Bolognaise | Kaas", "Boulogne De Nil", "Bretzels | Sesame", "Bruscetta | dip", "Cacciatore Dop", "Cheese | Gouda | Belegen | 50+120G | Bio", "Cheezy Croquette", "Chips | BBQ", "Chips Tortilla | Bbq Style", "Chorizo | Espagnol | Zacht", "Chorizo Extra Pikant", "Chorizo Extra Zacht", "Cocktail | Nuts | Nootjes", "Copparolletjes met roomkaas en vijg", "Cornetas | Zoete Chili", "Crackers | Zout", "Creppies | Bacon", "Crispbread | Dille | Ui", "Dim sum | Stoommandje", "Dip | Hot", "Dipsaus | Kaas", "Dipstokje | Olijfolie", "Dolmades", "Droge worst", "Droge worsten | Mini sticks", "Duo | Kaas | Fuet", "Duo pack Salami/Kaas | MP", "Eendenlever | Blok", "Empanadas | Gekruide kip", "Escargots de Bourgogne", "Feuilletés | +20%", "Fine St Agaune", "Focaccia | Pugliese", "Formaggio Tapenade", "Fotw | Thai | Snack", "Fuet", "Fuet de Vic", "Fuet Iberico", "Fuet manchego", "FUN | MIX | SELECT.32ST", "Garnaal | Torpedo", "Garnalen | in look", "Gazpacho | Tomaten", "Gedroogde boerenworsten", "Gedroogde Tomaten | Met Basilicum", "Gegrilde artisjokharten", "Gemarineerde tomaten", "Gepofte Aardappelchips | Barbecuesmaak", "Gerookt | Snacks | Chips", "Gevulde gele pepers", "Gouda | Kaasblokjes | Jong", "Grissini | Sesam", "Groene olijven", "Groenteloempias", "Groentensoep", "Groentenspread | bloemkool en curry", "Groentesoep | Bio", "Guacamole | Mild", "Gyoza | Kip", "Hapje | Kipsaté", "Harde volle afsmakende kaas | Oud", "High Protein | Kip", "Hula Hoops | Paprika", "Hummus", "Hummus Libanese", "Italiaanse schotel", "Kaas pesto | Dip", "Kaasballetjes", "Kaasrollen", "Kalamata olijven", "Kleine droge worsten", "Koekje | Comté", "Konfijt | Uien", "Korean | Crispy | Chicken", "Korean style chili hummus", "Kroket | Iberico ham", "Kroketten | Garnalen", "Kroon | Boursin", "Kubus Averbode", "Les Petites Tranches", "Mais | Geroosterde", "Marokkaanse  Hummus", "Mini | Loemp | Veggie | 10", "Mini broodjes | Worst", "Mini Buchettes | Comte", "Mini croques | Ham&Kaas", "Mini hapjes | 16st", "Mini Paprika | Roomkaas", "Mini pizza | Piccolinis | Prosciutto", "Mini salamis | 100% Varken", "Mini schelpjes", "Mini Tortilla", "Mini-Salamis | Noten", "Mix | Aziatisch", "Mozarella | Sticks", "Muhammara", "Nacho | Cheese | O&a", "Nacho Cheese", "Nem | Kip | Mini", "Nocellara natuur", "Nootjes | Gezouten", "Olijf | Kalamata | Bio", "Olijven | Met | Pesto", "Olijven met kaas", "Olijven met look", "Olijven natuur", "Olijven Queen basilicum", "Onion bites | Cheese | Oven&airfryer", "Oud | Brugge | Kaasbl", "Oven | Party mix", "Oven Goudse Kaasballetjes", "Oven&Airfryer | Fun | Mix", "Paprika | Nuts | Nootjes", "Paprika Kaas | Snacks | Chips", "Party snack | 36 stuks", "Partyschotel", "Patron | Droge worst | 100% varken", "Peper", "Peperkoek | Honing", "Peppadew tapenade", "Piccolissima | Salame", "Pico Grissini", "Picos | Olijfolie", "Picos Andaluz | Volkoren", "Pikante olijven", "Pinda's | Karamel", "Pindanootjes | Grill-Zout", "Pindanoten | Peper-Zout", "Pindas | Gezouten", "Pittige fetadip", "Pizza crocantina | Olijf | Bio", "Pizza Croccantina | Truffles", "Pompoensoep", "Popcor | Zoet en gezouten", "Popcorn | Sweet", "Pretzel | Gezouten", "Pretzels | Zeezout", "Provencaalse | olijven | bio", "Pure varkensworst | Aveyron", "Rode bol | Boerenworsten", "Salami | Look", "Salami rustico", "Salamistaafjes", "Samosa | Groenten", "Saus Dip | Guacamole", "Scampi | Look", "Schotel | Apero | Spaans", "Scrocchi | Spelt", "Serranohamrolletjes met roomkaas", "Snack | Megamix", "Snackworteltjes", "Soep | Wortel", "Staafjes | Gouda", "Stickado | Natuur | XXL", "Stokbrood | Look", "Tapas assortiment", "Tapenade | Artisjok | Zonder gluten | Zonder lactose", "Tapenade dip | Trio", "Tempura | Garnalen", "Teriyaki | Bao | Buns", "Tiger Bbq Paprika | Nuts | Nootjes", "Toast 'n chips | Knoflook", "Toast | Mini", "Toasts | Mini | Naturel", "Tomaatjes | Bio", "Tomaten | Tapenade", "Tomatenroomsoep", "Tortilla | Ui", "Tortilla chips | Kaas", "Truffelsalami Met Parmezaan", "Twists | Mini | Boter-Kaas", "Veggie | Steamed | Dumplings", "Verse kaas | Provençaals", "Wafeltjes | Gevuld | Gouda", "Wortelsoep | Bio", "Yakitori Soja", "Yakitori teriyaki", "Zakouskis", "Zalmrolletje | Roomkaas", "Zoete aardappel met chili madras", "Zwarte olijventapenade"] },
+  { id:'bak', name:"Bakkerij en banket", emoji:'🥐', products:["100% mie | Volkoren", "American sandwich | Natuur ZTS", "AMS Rustiek", "Bagel | Zacht | Sesam", "Baguette | Bio", "Berlijnse bollen | Pudding", "Boerenbrood | Wit", "Bokkenpootjes", "Botercake citroen", "Botercake natuur", "Botergaletten", "Brioche | Gesneden", "Brioches | Chocolade", "Brood | Turks", "Broodjes | Hamburger", "Brookies | 2x1P", "Bun | Brioche | Zonder lactose", "Burger | Maanzaad boekweit", "Cake | Marmer", "Cheesecake | Aardbei", "Chocolade fondant", "Chocoladebroodje | 6st", "Chocoladebroodjes | x8", "Chocoscarpone", "Ciabatta natuur", "Croissants | 6st", "Cuberdons", "Dessert | Advocaat", "Dessertkoekjes | Assortiment", "Doosje pralines", "Eclairs | Chocolade", "Finntoast | Bio", "Galetten | Boter | Bio", "Gebakjes | Javanais", "Groentewrap | Wortel", "Hamburgerbroodje | Sesam | Bio", "Hamburgerbroodjes | Glutenvrij | Bio", "Haverkorn | Meergranenbrood", "Hotdog | Bun | Brioche | 4 St", "Kaastaart | Frambozen 6p", "Keizerbroodjes | Wit | 4 stuks", "Kleine broodjes | Wit", "Koekje | Amandelen | Frangipanne", "Koekjes | Amandel | Artisanaal", "Koffiepuntjes", "Koninginnenhapje | 4 stuks", "Manon blanc 150G", "Marsepein | Aardbeien", "Mattentaartjes | 2x1p", "Maxi burger", "Meergranenbrood | Glutenvrij", "Meisterbäckers | Classic", "Melkbrood | Chocolade | X10", "Melkbroodjes | 10st", "Mini cakes | Artisanaal", "Mini fondants | Chocolade", "Mini pavé maanzaad", "Misérables", "Mix | Broodjes | Bio", "Moelleux | Chocolade", "Moelleux Chocolade | 6P", "Mousse | Chocolade", "Muffin Brioché | 5 Stuks", "Orangettes", "Paashaas | Natuur", "Palmier", "Pancake", "Panini broodjes", "Panna cotta | Mango", "Pâtes de fruits | Mix", "ProVital | Protein buns", "Raw cakes | Chocolade | Glutenvrij", "Raw sweets | Glutenvrij | Dadel | Chocolade | Hazelnut", "Rijstpap | Krieken", "Sandwich | Boter", "Sandwich met boter 10 x 45g", "Sandwiches", "Schwarzbrot", "Speltpistolet | Bio", "Stokbroden | Wit", "Stokbrood | Bruin", "Studentenhaver | Chocolade", "Suikerwafels", "Taart | Krieken | Gerasterd | 6P", "Tiramisu | Speculoos", "Truffels | Cacao", "Vierkant brood | Wit", "Waldkorn | Roggebrood", "Wrap | Proteïne | Zonder lactose", "Wraps | Glutenvrij", "Zachte wafel met botersmaak", "Zoete macarons | 12st"] },
+  { id:'swe', name:"Zoete kruidenierswaren", emoji:'🍫', products:["3in1 | Oploskoffie | 10 sticks", "4 Nuts | Ontbijtgranen | Muesli | 450G", "500G BLOC DESSERT", "Aardbeiconfituur", "Aardbeienconfituur | Bio", "Abdijbrood | All-in mix", "Abrikozenconfituur", "Agave | Siroop | Bio", "All in mix Waldkorn brood", "Amandelen | Poeder", "Amandelpasta | Bio", "Appelsap", "Aroma | Vanille", "Bakkersgist", "Bakpoeder", "Barista | Crema | Bonen| Esp", "Beschuiten | Volkoren | Bio", "Bicarbonaat", "Biscuit reep | 5x58gr", "Bloem | Vloeiend", "Bloemsuiker", "Boterwafel met Pure Chocolade", "Bourbon | Vanilla Extract", "Brezel| Flipz | Chocolat au lait", "Brownie | Proteïnebar", "Cacao | Poeder", "Cake | 4/4", "Cakes | Moelleux | Natuur", "Cankao | Poeder", "Cashewpasta | Bio", "Cassonade", "Chiazaad | Bio", "Choco | Instant | Poeder | RFA", "Choco Waffle", "Chocohagelslag | Puur", "Chocolaatje | Hazelnoot | Wafel", "Chocolade", "Chocolade Reep | Pure Chocolade | Vanille", "Chocoladebonbons | Melk  | Kleurrijk", "Chocoladehagelslag | Melk", "Chocoladehageslag | Puur", "Chocoladepasta | Choco-hazelnoten", "Chocoladepoeder | doos", "Chocoladereep | Wafer", "Chocolat | Donkere | Mint", "Chocopasta | Duo", "Cichorei | Grove granen", "Confituur | Kersen", "Control+ | Hazelnootpasta | Maltitol", "Cookie | Driedubbele chocolade", "Cookies | Chocolade", "Corn Flakes | Org", "Cornflakes | Glutenvrij | Bio", "Coulis | Framboos | 80% fruit", "Crackers | Spelt", "Ei | Chocolade | Lait", "Eierwafels | Bio", "Esdoorn | Siroop | Bio", "Familiewafels", "Flappen | Abrikoos", "Flash wafels | Verse eieren", "Florentines | Amandel", "Fondant chocolade tartinettes", "Fruitbeleg | Abrikozen | Bio", "Fruitrolletjes | Aardbei", "Galetten | Boter | Bio", "Gebak | Madeleine", "Gelei | Aardbeien", "Gevulde wafels | Vanille", "Gezouten Karamel | Proteïnebar", "Gist | Droog", "Gist droog", "Graanrepen | Chocolade", "Granola | Bessen", "Hagelslag | Puur", "Havermout", "Havermoutvlokken | Bio", "Haverreep | Proteïne | Cacao", "Havervlokken | Fijn", "Hazelnootpasta", "Hazelnotenpasta | Bio", "Honing | Bio", "Infusie | Kamille Kaneel | Bio", "Kauwgom | Original", "Kempische koffiewafels", "Knäckebröd | Sesam", "Koek | Honing", "Koeken | Matadi", "Koekje | Chocolade-hazelnoot", "Koekjes | Zoo", "Koffie | Oplos", "Koffie Africa Ristretto | 10 capsules", "Koffie Espresso | Oploskoffie | 100 gr", "Koffie Espresso Roast | 10 capsules", "Koffie Espresso Roast cafeïnevrij | 10 capsules", "Koffie Guatemala | 10 capsules", "Koffie House Blend | 10 capsules", "Koffie Lungo Brazil | 10 capsules", "Kokosnoot | Geraspt", "Krokante toasts | Tarwe", "Kruidenthee | Relax | 20 zakjes | Bio", "Lange vingers", "Latte Macchiato | 12 capsules", "Luikse siroop", "Madeleines", "Maiswafels | Zeezout | 4X25G", "Mano | Bonen | Subtil | Bio | FT", "Marmelade | Sinaas", "Medaillons | Kokos", "Melkchocolade | Zout karamel | fairtrade | bio", "Melkchocolade Praliné", "Mini Frangipanes | 9 Stukken", "Mm | Puiss | Gemalen | Ft | Bio", "Muesli | Gedroogd Fruit", "Muffins | Chocolade", "Natuurboterwafels | Pocket", "Nektar | Perzik", "Notenpasta | Amandel | 100%", "Ontbijtgranen", "Ontbijtgrannen | Original", "Ontbijtkoeken | Chocolade", "Ontbijtkoekjes | Craquinette | Chocolade", "Oplos | 2/3 chicorei en 1/3 koffie", "Pannenkoeken | Bereiding", "Pasta | Speculoos", "Pastilles | Munt", "Peperkoek", "Petit Beurre | Bio", "Pinda & Karamel | Proteïnebar", "Pindakaas | Bio", "Pletkoekjes voor papjes | 6M", "Pralines | Chocolade | Variété", "Pudding | Poeder | Vanille", "Quinoa | Gepoft | Gluten vrij | Bio", "Reep | Melkchocolade", "Repen | Fruit&Nut | Cacao", "Rietsuiker | Klontjes", "Rijst toasts | Zout", "Rijstpudding | Original", "Rijstwafels | Bio", "Rochers | Kokos | Mini", "Saft | Tomato | Spiced", "Sap | Appel", "Sinaasappelsap", "Smeerpasta | Pure", "Snoep | Muizen", "Snoepjes", "Speculaas | Bastogne | Koekjes", "Speculoos", "Speculooskoekjes | Chocolade", "Speculoospasta", "Spelt | Gepoft | Bio", "Suiker | Klontjes", "Suzy | Luikse wafels", "Tablet | Witte chocolade | Kokos | Amandel", "Tarwe | Gepoft | Bio", "Tarwebloem", "Toast | Crackers | Sesamzaad", "Toasts | Crackers | Tarwe", "Toffees | Karamel", "Topping | Caramel", "Vanille | 1 stokje", "Vloeiende bloem", "Vlokken | 5 granen | Bio", "Voedingsgelatine | 9 blaadjes", "Volkoren speltmeel | Bio", "Wafels | Luik", "Wafeltjes | Boter", "Witte chocolade | Reep | Melk-hazelnoot", "Wortelsap | Bio", "Zoetstof | Stevia | Klontjes", "Zoetstofpoeder | Bokaal | 100% sucralose", "Zoetstoftabletten", "Zwarte Muisjes | Zonder Gluten", "Zweedse broodjes"] },
+  { id:'sal', name:"Zoute kruidenierswaren", emoji:'🫙', products:["1L LIEB DELI PREI", "28G SM Chili Con Carne", "Abbracci", "Ajuin & Fijne Kruiden | Snacks | Chips", "Amandel G&G", "Amandelen | Wit", "Amandelpoeder", "Appelkappertjes", "Arachideolie", "Aroma | Smaakmaker Vloeibare", "Arrabbiata | Sc", "Arrabbiatasaus", "Artisjokken | Gegrild", "Augurken | Zoetzuur", "Azijn | Wit", "Back-erbsen", "Baiocchi Nocciola", "Balsamico | Crème", "Bamboescheuten in water | Gesneden", "Barbecue | Nuts | Nootjes | 200G", "Bbq | Ribbled | Chips", "Becel | Frituurolie | 2l", "Bechamelsaus", "Beef Jerky | Original", "Bifi roll | 3 pack", "Bindmiddel | voor bruine saus | 250 g", "Blonde linzen | Bio", "Bolognaise extra", "Bonen | Rode", "Bouillon Keteltje | Kip | 8x28 g", "Bouillon original | Kip | Bouillonblokjes", "Bouillon | Rund", "Bouquet garni", "Bretzels | Sesame", "Bulgur Quinoa | Mix | Kookbuiltje", "Bulgur | Bio", "Burrito | Seasoning Mix", "Canestrini", "Cashew Dille Pickels", "Cashew | Honing | Rozemarijn", "Cashewnoten | Gezouten", "Cashews | Tamari | Bio", "Cassave", "Chili con carne", "Chips Tortilla | Bbq Style", "Chips | Zout", "Chunky | Wrap | Salsa | Medium", "Chutney | Zoete mango", "Cocktail | Nuts | Nootjes", "Couscous | Parel", "Crackers | Zout", "Crèmesoep | 7 Groenten", "Curry | Mild", "Dadels Op Tak", "Dip | Salsa", "Dipsaus | Kaas", "Dipstokje | Olijfolie", "Doppinda's", "Dressing | Light", "Droge saus | Wit", "Droge sauzen | Kaas | 4x28 g", "Droge vruchten | Pruimen | Ontpit", "Express | Instant bindmiddel | Witte saus", "Fajita | Seasoning Mix", "Feculent | Gierst | Bio", "Finesse Bouillon | Vis | 12 Bouillonblokjes", "Fleur de sel | Guerande", "Fond | Vis", "Fondue olie", "Frituurvet | Vloeibaar", "Gallo Per Risotti", "Gazpacho | Tomaten", "Gegrilde / Gezouten pecannoten", "Gepelde Pistachenoten", "Gerookt | Snacks | Chips", "Geroosterde pecannoten", "Geroosterde | notenmix | bio", "Gevogeltefond", "Gezouten Pistachenoten", "Gnocchi |Di Patate", "Graan | Spelt | Bio", "Granen | Boekweit | Bio", "Grissini Sesamo", "Hazelnoten | Italiaans", "Indiase kruidenpasta | Tikka masala", "Inktvis | Olijfolie", "Jalapeno |Groene | Peper", "Joppie Sauce", "Kappertjes | Azijn", "Ketchup | Curry", "Ketjap Manis", "Kikkererwten | Gekookt", "Koekje | Comté", "Koekjes | Chocolade Hazelnoot | Sterren", "Koko | Vol", "KokosPoeder", "Kokosmelk", "Kokosnotenmelk", "Koolzaadolie", "Korstjes | Fijne kruiden", "Kroepoek | Naturel", "Kruiden | Kip", "Lange korrelrijst  | Risotto", "Lange witte bonen | Bio", "Lasagne | Eieren", "Laurierblaadjes", "Liebig | Délisoup | Ui", "Linzen | Beluga", "Lychees | Hele", "Macadamia | gezouten", "Macadamianoten", "Macine", "Mais | Geroosterde", "Mais | Notenmix", "Maiszetmeel", "Mango Natuur", "Mayonaise", "Maïsolie", "Meel | 1kg", "Mezze Dolmas | Grieks", "Mie | Wok", "Mild curry paste", "Mini Grissini | Natuur", "Mirin seasoning", "Miso soup", "Mix | 5 Noten | Bio", "Mix | pinda-Cashewnoten", "Moambe classic", "Mosselen | A l'escabeche", "Mostard | Sterke", "Mosterd", "Mélange | Stoofvlees | 62 g", "Naan | Natuur", "Natuurazijn", "Noedels | Nest", "Noedles | Konjacmeel", "Noodles | Classic", "Noten rozemarijn", "Noten rozijnen", "Noten sojabonen", "Noten | Pecan", "Noten | Pecan | Bio", "Noten&Vruchten | Mix", "Notenmengeling", "Notenmix", "Olie | Sla", "Olijf Notenmix", "Olijfolie | Pepers", "Olijven | Groene | Ansjovis", "Oliën | 5 mengelingen | Bio", "Ossewit", "Pad Thai paste", "Paneermeel", "Panko | Broodkruimels", "Paprika Kaas | Snacks | Chips", "Paprika | Nuts | Nootjes", "Paranoten", "Pasta Instant Snack | Carbonara XXL | 92 g", "Pasta snack | Pot | Mac Cheese", "Pasta | Torti", "Pastasaus | Basilico | 400 g", "Paste | Red curry", "Pecannoten | ongebrand", "Peper | Wit | Bollen | Bio | Fairtrade", "Pesto Alla Genovese", "Pesto Rosso", "Pesto | Rucola", "Pickles | Comme Chez Soi", "Picos Andaluz | Volkoren", "Picos | Olijfolie", "Pijnboompitten", "Pinda | Bio", "Pinda's | Karamel", "Pinda's | Ongezouten", "Pindanootjes | Grill-Zout", "Pindanoten | Peper-Zout", "Pistache | Al Kbari", "Pistachenoten", "Pistaches | Bio", "Poeder | Cacao | Bio", "Popcorn | Zout | Microwave", "Pretzel | Honey & Mustard", "Pretzels | Zeezout", "Puree | Aardappel | Klassiek", "Pâtes | Collezione | Linguine", "Quinoa Bulgur | Bio", "Quinoa | Bio", "Ragu Bolognese Saus", "Rijst noodles | 2MM", "Rijst | Sushi", "Rijstazijn", "Rijstolie", "Rijstpapier", "Rijstvermicelli", "Roomsoep | Pompoen", "Rouille | Fijn", "Saitaku | Nori | Snack", "Sambal oelek | Pimentenpuree", "Sambal | oelek | 200 g", "Santa Maria | Ras El Hanout", "Sauce | Look", "Saus | Soja", "Scrocchi | Spelt", "Sesamolie | Zuiver | Bio", "Sesamzaad | Geroosterde", "Slaolie | Omega 3 | 10x8ml", "Smaakverfijner | Natuur | 88 g", "Snack | Cups rond", "Snelkookrijst | 8 min", "Soba | Cup | Chili", "Soep in brik | Prei | 500 ml", "Soep | Kip", "Solo | Frituurolie | Plantaardig", "Spliterwten | Bio", "Squeeze Mayonaise | Original | 250 ml", "Staafjes | Gouda", "Sushi nori", "Sushi rijst", "Tabasco | Rode peper", "Taco |Sauce | Mild", "Tapenade | Zwarte olijven", "Tarallucci", "Tarwe | 10 min", "Tiger Bbq Paprika | Nuts | Nootjes", "Tijmblaadjes", "Toast 'n chips | Knoflook", "Toast | Mini", "Toasts | Mini | Olijfolie | Oregano", "Tomaten | Zongedroogd", "Tortellini | Vlees", "Tortilla chips | Chili | Bio", "Tortilla | Bio", "Twists | Mini | Boter-Kaas", "Udon Noedels", "Uien | Azijn", "Uitjes | Gebakken", "VDM | Resi | frituurvet", "Vinaigrette | Mosterd", "Wafeltjes | Gevuld | Gouda", "Walnoten", "Walnoten | Grenoble 1 Kg", "Wasabi pasta", "William Saurin | Couscous groenten |Veggie | Bereide Maaltijd |980g", "Woksaus  | Sweet & Sour | 175 ml", "Wrap tortilla", "Yogorette | Fijne kruiden", "Zeezout | Grof", "Zonnebloemolie", "Zout | Kruiden | Bio", "cashewnoten"] },
+  { id:'fro', name:"Diepvries", emoji:'🧊', products:["10 | Mini | Loempias", "12 | Macarons", "12 Chicken Nuggets", "15 broodjes | Mix", "18 | Mini viennoiseries", "2 Visfilets| Fish & Chips Wijze", "4 | Burgers | Broccoli", "4 Garnaalkroketten | Oven", "4 Groenteburgers", "6 | Corn | Aardbei", "6 Flapjes ham kaas", "6 flapjes kip champignons kaas", "Aardappel- en groentepannetje", "Aardappelblokjes", "Aardappelgratin | Met Gehakt en Spinazie", "Aardappelnootjes", "aardappelpuree", "Aardappelpuree met broccoli", "Aardbei", "Aardbeien", "Acai | Bessen | Bio", "After dinner", "Airfryer | Noisettes", "Allumettes | S Size", "Allumettes Frieten | Oven & Airfryer", "Almond", "Ananas | Witte Chocolade | Coco", "Andijvie | Met Béchamelsaus", "ASC Hele garnalen", "Asian | Snack | Box", "Atlantische | Zalm | Bio", "Atlantische Zalm | 2 filets", "Avocado | Stukjes", "Baguette | Hawaii", "Balletjes voor soep", "Bami | Goreng", "Banaan", "Bbq | Pulled pork", "Belgische | Puree", "Belgische chocolade | Roomijs", "Belgische frieten | L Size", "Bevroren Sinaasappel | Met Sinaassorbet", "Bibimbap | Groenten", "Big Americans | Cheese | Onion", "Big sensation | Salami & BBQ", "Bitterbal | Apero | Oven", "Bitterballen | Rundvlees", "Bladerdeeg", "Bladspinazie | Natuur", "Blauwe bessen | Gekweekt", "blauwe bosbes en frambozen", "Blinde vink | Spinaziepuree", "Bloemkool", "Bloemkoolrijst | Bio", "Bonbon | Witte chocolade | Cookie", "Boontjes op zijn Provencaals", "Bosvruchten", "Boterbonen", "Bowl | Marokkaans | Kip", "Broccoli", "Broccolimix", "brusselse wafels 4 st", "Buche | Chocolade", "Bueno | Ijshoorntje", "Bulgogi | Rijst | Rundvlees", "Burger | Angus", "Burgers | Visfilet | 2 stuks", "Butter | Chicken", "Butternut | Blokjes", "ButternutBlokjes| Bio", "Calamar A La Romana", "Carrero", "Casa di mama | Salame", "Chicken | Wings", "Chicken burger | 2 stuks", "chicken fingers glutenvrij", "Chickenburger", "Chocolade", "Chocostick | Vanille", "Chunky | Salted caramel", "Churros", "Classic", "Classic mix | Roomijs | Fairtrade", "Classic Selection | Minicups |", "Classico", "Cocktailgarnalen | S 51/60", "Cookie | Brownie | Collection", "Cookie dough pieces", "Cookies & Cream | Roomijs", "Cooli | Power", "CORNET GEZOUTEN KARAMEL", "Cornets d'amour | Brésilienne", "Couscousgroenten", "Crispy Chick n Original", "Croissant", "Crunchy & Creamy | Bites | KitKat", "De Bitterbol | Jeroen De Pauw", "Dennenaardappel", "Diepvries gratin dauphinois |", "Diepvriesfrieten | Steakhouse", "Diepvrieskroketten | Aardappel", "Dim sum | Stoommandje", "Double | Chocolate", "Double gold | Caramel billionaire", "Edamame", "Erwten | Bio", "Escargots | Op Bourgondische wijze", "Euphoria", "Exotic", "Extra fijne Boontjes", "Extra fijne erwtjes | Steam", "Extra krokante | Frieten", "Falafel", "Favorite Selection | Roomijs", "Fettucini | Funghi", "Feuilletés | +20%", "Fiesta | Mediterranea", "Fijne erwten", "Fijne ovenfrieten", "Fijngesneden ajuin", "Fijngesneden basilicum", "Fijngesneden bieslook", "Fijngesneden koriander", "Fijngesneden look", "Fijngesneden peterselie", "Fijngesneden sjalot", "Filodeeg", "Fish & Fun | Gepaneerde vis", "Fish Sticks | 28 stuks", "Fish Sticks Omega 3 | 10 stuks", "Flapjes | Ham | Kaas", "Fotw | Thai | Snack", "Framboos | Sorbet | Ijs", "Frambozen", "Frieten", "Frietjes | Zoete aardappel", "Frikandel", "Frikandellen", "Frisko | Vanille", "Frit express | Klassiek", "Friteuse|frieten|Allumettes", "Fruitsticks | Mango | Passie", "FUN | MIX | SELECT.32ST", "Garnaal | Gepeld met staart | M 38/50", "Garnaalkroketten  | 4 stuks", "Garnaalstaarten | L 26/30", "Garnalen | Gepeld", "Garnalen in diabolosaus", "Gebakken | Patatjes", "Gebroken prinsessenbonen", "Gegrilde Aubergines", "Gegrilde groenten", "Gehaktballetjes | In Tomatensaus", "Gehakte bonen", "Gehakte spinazie | Room", "Gehakte spinazie met room", "Gekke | Röstis", "Gemengde groenten", "Gepaneerde Kabeljauwfilets | 4 stuks", "Gepelde garnalen 21/25", "Gesneden ajuinen", "Gesneden Champignons", "Gesneden prei", "Gesneden wortelen | Bio", "Giant | Almond | Sticks", "Gimbap | Champignon", "Glutenvrij flapjes | ham en kaas", "Granaatappel", "Gratin | Brocoli", "Gratin Dauphinois", "Groene groentepannetje", "Groentebrunoise", "Groentemix | Curry-Kokossaus", "Groenten | Pompoensoep", "Groenten trio | Met roomsaus", "Groentenratatouille | Met krui", "Groentenstamppot | Spek", "Groentepannetje | Italiaans", "Groentesticks", "Gruvi | Pistache | Stick", "Guud | Greek yoghurt | Framboos", "Gyoza | Rund | Bulgogi", "Hamburger | Oven & airfryer", "Hapjes | Bladerdeeg | 30st", "Hele bonen | Bio", "Hoorntje | Vanille", "Hoorntjes | Vanille | Chocolade", "Hoorntjes Vanille - chocolade", "Hoorntjes Vanille -Koffie", "Hoorntjes vanille.", "Ice crush premium", "Ice Cubes Premium", "Icy | Vanille", "Ijs | Stick", "Ijs Pint | Half Baked", "Ijs stick | Double starchaser", "Ijsroom | Brésilienne", "Ijsstronk | Caramel", "Ijstaart | Low sugar", "Inktvistubes", "Italiaanse Groentemix", "Julienne | Soepgroenten", "Kaasballetjes", "Kaaskroket | Oven", "Kaaskroketten | 12 stuks", "Kabeljauw | 4 filets", "Kabeljauwfilet", "Kabeljauwfilets", "Kabeljauwhaasje", "Kabeljauwhaasjes | 4 stuks", "Karamel | Dulce de leche  | Ro", "Kersen | Zwart | Zoet", "Kervel", "Kervel in mini-porties", "Kervel Velouté", "Kervelsoepgroenten", "Kibbeling", "Kid smile", "Kikkerbillen | Zonder gluten | Zonder lactose", "Kip | Nuggets", "Kipfilet | Archiduc saus", "kipfingers", "Kipkorn", "Kipnuggets", "Kippenreepjes | Gekruid", "Klassieke frieten | M Size", "Kleine erwten | Extra fijn", "Knolselder | Rondini", "Knolselderblokjes", "Kombinos | Kaas | Peterselie", "Koolvis | Alaska", "Koolvisfilet", "Koreaanse | Veggie | Pannenkoek", "Korean | Crispy | Chicken", "Korndog | Plantaardig", "Kroket | Garnaal", "Kroketten | Kaas | 4s", "Lasagne | Bolognese", "Loempia | Groenten", "Loempias | Met kip en ham", "Loempias met kip en groenten", "Mac | & | Greenz", "Macadamia nootjes | Roomijs", "Macaroni  | Met Ham en Kaas", "Magnum | Mini | Double caramel & gold", "Mango", "Margherita", "McCain|Country|Potatoes|wedges", "Mediterraanse | Soepgroenten 8x600g", "Mexicaanse groenten", "Mini | Rösti", "Mini broodjes | Worst", "Mini calzone | Bites", "Mini classic | Almond | White", "Mini croques | Ham&Kaas", "Mini cups | Vanille | Roomijs", "Mini delice | Melkchocolade", "Mini Diepvrieskroketten", "Mini frikandel | Oven & airfryer", "Mini giant | Vanilla | Almond", "Mini hapjes | 16st", "Mini mix | Vanille", "Mini pizza | Piccolinis | Prosciutto", "Mini raw cakes | 8st", "Mini schelpjes", "Mini sorbet | Stick | Mango | Passie", "Mini stick | Komkommer | Wortel | Limoen", "Mini sticks | Vegan", "Mini-eclairs", "Mix | Romanesco", "Mix van Visfiletstukjes", "Mochi | Vanille", "Moelleux | Met Chocolade", "Mokka | Roomijs", "MORA | HAMBURGER", "Mora Sito Gold Originals", "Mosselen | Inktvis | Tomatensaus", "Mozarella | Sticks", "Nacho | Cheese | O&a", "Nasi | Goreng", "Noedels | Kip", "Non dairy | Cookie dough", "Nuggets | Fish", "Ola | ijs | Double | Gold | Car | Billion", "Onion bites | Cheese | Oven&airfryer", "Ossetong | Madeirasaus", "Oven & Airfryer | Kipkorn", "Oven | Party mix", "Oven Goudse Kaasballetjes", "Oven&Airfryer | Fun | Mix", "Oven&Airfyer | Kroketten", "Ovenfrieten", "Ovenkroketten", "Paella", "Paëlla | Royale", "Paella Valencia | Met Kip en Garnalen", "Pan | Funghi | Truffel", "Pangasiusfilet", "Paprika | Blokjes", "Parmentier | Vis | Spinazie", "Partjes | Zoete aardappel", "Party snack | 36 stuks", "Pasta | Kip | Broccoli | Boontjes", "Peaces | Brookies & Cream", "Penne | Kip", "Perletta  | Roomijs", "Piadina | Diavola", "Piccolissima | Salame", "Pinsa | Gluten Vrij | Magherita", "Pistachio | Cream", "Pizza | Pollo", "Pizza Margherita gluten- en lactose vrij", "Plant based | Madagascan vanilla", "Pollak | Alaska | Gepaneerd", "Pommes | Duchesse", "Pommes Duchesses|aardappelroosjes", "Pommes Williams", "Pompoen | Banaan | Kaneel", "Potato | Wedges", "Pralinella", "Pralines | Bomboniera", "Prei | Bio", "Protein | Caramel | Biscuit", "Puree | Bintje", "Rainbow | Wedges", "Rauwe garnalen | XL 8/12", "Rigatoni | Arrabiata", "Risotto", "Rode | Argent. | Gar", "Rode kool | Appel", "Ronde kroketten", "Roomijs | Mokka", "Roomsoep | Kip", "Roomsoesjes", "Rosti", "Rösti", "Salted Caramel | Roomijs", "Scampi Fritti", "Scampipan | Look", "Schar  Lasagne", "Scharrolletjes uit de Stille Oc", "Schelvisfilet | Gepaneerd", "Schorseneren", "Shoarma", "Sint Jakobsnoten | 50/80", "Sint-Jakobsschelpen", "Soep | Prei", "Soep mix | Tomaat | Groenten", "Soepgroenten | Bio", "Soft | Vanille | Chocolade", "Sorbet | Framboos", "Soup | Dumplings | Chicken", "Space | Waterijs", "Spaghetti | Bolognese", "Spaghetti bolognese", "Special | Ovenkroketten", "Spectacu-love", "Speculoos en karamel | Roomijs", "Spinazie | Bio", "Spinaziestamppot", "Spruitjes", "Spruitjes met spek", "Stick | Aardbei", "Stoemp | Knolselder", "Stoemp met wortels | Diepvries", "Stoomgroenten | Broccoli | Worteltjes", "Stoomzakje | Courgette | suikererwt", "Sundae | Cookie", "Tagliatelle | Funghi", "Tagliatelle di Mare", "Tempura | Garnalen", "Teriyaki | Bao | Buns", "THAI |  WONTON SoeP", "Thai wok veg dish", "Thaïse kippesoep", "Toaster | Wafels | 8st", "Tomaten Velouté", "Tortellini | Ricotta", "Tropische | Fruit mix", "Twister | Mini", "Twister fries | Seasoned | Family pack", "Uglies | Gekke frietjes", "Utopia | Double | Cherry", "Vanille | Roomijs", "Veenbessen", "Vegan | Classic", "Vege | Draadjesvlees | Bitterbal | 12St", "Vegetarische | Mini |Mix | 12St", "vegetarische Mini loempia's", "Veggie | Dino | Nuggets", "Veggie Bowl | Thaise Curry", "Venusschelpen", "Vergeten groentesoep", "Vesuvio | Pizzabites | Salami", "Viandel", "Visgratin | Tomaat Mozzarella", "Vispannetje | Oostends", "Vissticks | Minced | MSC", "vissticks glutenvrij", "Vol-au-Vent", "Vongole | Schaaldieren | Witte wijn", "Wafel | Aardappel | Ui | Zonder lactose", "Waffle fries | Seasoned", "Waterijs | Calippo | Supermix", "White", "Wilde bosbessen | Bio", "Witloof gratin | Met Aardappelpuree", "Witte asperges", "Witte preiringen", "Witte tonijn | Albacore", "Wok | Mix", "Worst | Wortelstamppot", "Wortel | Rondini", "Wortelen | Erwten | Asperges", "Wortelgroenten | Gegrild", "Wortelschijven", "Worteltjes | Honing en Tijm", "Yakitori Soja", "Yoghurt | Stick | Mango | Aardbei", "Yoghurtijs | Bosvruchten", "Zakouskis", "Zalmfilet | Atlantisch | 4 stuks", "Zeevruchten | Tomatensaus", "Ziggy fries | Natural", "Zigzag | Frieten", "Zoete aardappel | Kubus"] },
+  { id:'spe', name:"Bewuste voeding", emoji:'🌱', products:["Actif+ | Koekje | Melkchocolade", "Amandel | Drink", "Ambachtelijke beenham | Glutenvrij", "Barista | Soya | 1L", "Bier | 0,3% alc", "Brood | Equiform | Wit | Glutenvrij", "Broodjes | Glutenvrij", "Brownie | Glutenvrij", "Cakemix | Glutenvrij", "Cakes | Mini | Marmer", "Cécémel | Drank | Plantaardig | Zonder gluten | Zonder lactose", "CEREAL | MANDELEINE", "chicken fingers glutenvrij", "Chocolade | Puur | Stevia", "Chocolade melk | Zonder lactose", "Chocolademelk", "Control+ | Rozijnenkoekjes | Zoutarm", "Cookie | Chocolade | Chips", "Cookies | Chocolade | Glutenvrij", "Crisp bar | Gluten vrij", "croissant glutenvrij", "Drink | Rijst", "Drinks | Soja | Proteïne", "Emmental | Geraspt", "Fusilli | Geen Gluten", "Galetten | Zonder suikers", "Gebakje | Chocolade | Sinaas | Glutenvrij", "Glutenvrij flapjes | ham en kaas", "Gouda | Sneden", "Graanreep | Sesam-Abrikoos | Laag in suiker", "Grissini", "Hamburgerbroodjes | Glutenvrij | Bio", "Haverdrink", "Havermout | Glutenvrij", "Knäckebröd | Gluten- en lactosevrij", "Koek | Gevulde chocolade | Glutenvrij", "Koeken & Digestive | Chocolade | Zonder gluten", "Koeken | Glutenvrij", "Koekje | Sinaas", "Koekjes | Appel-Noten", "Lactosevrij", "Lasagne | Gluten vrij", "Machiato", "Madeleine | Glutenvrij", "Mango | Plantaadig alternatief voor yoghurt | Zonder toegevoegde suiker", "Melk | Halfvolle| Lactosevrij", "Mini cake | Choc chips | Zonder suiker", "Mini Cakes | Chocolade | Zonder suiker", "Mini calzone | Bites", "Mix | Brot", "Mozzarellasmaak | Geraspt", "Ontbijtkoekjes | Honing", "Ovengebakken ham | Glutenvrij", "Paneermeel | Glutenvrij", "Pannenkoeken | Bereiding | Glutenvrij", "Pasta | Gnocchi", "Penne | Rigate | Glutenvrij", "Petit Beurre | Glutenvrij", "Pinsa | Gluten Vrij | Magherita", "Pizza | Mozzarella | Glutenfree", "Pizza Margherita gluten- en lactose vrij", "Plantaardige drank | Soja", "Pudding | Vanille | Amandel", "Raw cakes | Chocolade | Glutenvrij", "Rood fruit | plantaardig |g suiker toegev.", "Room dessert | Vanille", "Roomijs | Hoorntje | Zonder gluten", "Salade | Préparé | Vegan", "Schar  Lasagne", "Schär | Bladerdeeg", "Schar | Chocoladebroodjes", "Soep | Thaïse kip", "Soft | Cookies | Double chocolade", "Soja | Calcium", "Soja Drink | Natuur | Bio", "Soyadrink | Van | 3X20CL", "Spaghetti | Glutenvrij", "Sugar control | Koekjes | Choco delight", "Sugar controle | Vanille wafels | Maltitol", "Tortellini glutenvrij", "vissticks glutenvrij", "Vital energy  | Sesam bar | Honing| Magnesium", "Wafels | chocolade", "Wafeltjes | Chocolade | Glutenvrij", "Wafers | Cacao | Glutenvrij", "Yoghurt | Natuur | Niet gesuikerd", "Zandkoekjes | Natuur"] },
+  { id:'win', name:"Wijn en bubbels", emoji:'🍷', products:["0 % | alcoholvrije schuimwijn", "2016", "2019", "2020", "2021", "2023", "Abadia | Cabernet Sauvignon / Tempranillo | Bio", "Albarino", "alcoholvrije wijn | Rosé", "Alentejo", "Alluvial | Syrah", "Alpha | Carmenere", "Alta | Malbec", "Altano Rood | Bio", "Altano Rosé | Bio", "Altos Ibéricos Crianza", "Ambroise  | Gm | 2024 | Rood", "Arbois Chardonnay Wit", "Ardèche", "Aviva Pink Gold | Wit", "Barbaresco | 2021", "Barbera d'Alba | 2023", "Bardolino Chiaretto", "Barolo", "Barrik | Bio", "Basilicata", "Beaujolais", "Bergerac | 2022", "Bergerac Sec", "Best Planet Rosé | Bio", "BGA Vlaamse Landwijn", "Bianca | Umbria", "Bin 35", "Bin 40 | Merlot", "Bin 45 | Cabernet Sauvignon", "Bin 50 | Shiraz", "Bin 65 | Chardonnay", "Bin 85 | Pinot Grigio", "blanc", "Blanc de Blancs", "Blanc Demoiselles 2024 Wit", "Blayes Côtes de Bordeaux", "Bollinger Cuvée Spéciale", "Bordeaux", "Bordeaux Supérieur", "Bourgogne Chardonnay", "Bourgogne Cote d'Or", "Brouilly", "Brunel marrucheto | 2020 | Rood", "Brunello di Montalcino", "Brut", "Cabernet d'Anjou", "Cabernet Franc", "Cabernet Sauvignon", "Cabernet Sauvignon / Merlot", "Cannonau", "Carmenere", "Carmenere / Shiraz", "Carpinus Lapis Furmi Wit", "Casillero Belight Rosé", "Casillero Belight Sauvignon Wit", "Cast Vin Santo | Bio", "Castell | Chardonnay | Bio", "Castilla y Léon", "Castillon - Côtes de Bordeaux | 2018", "Cava | Brut", "Cave de Castelmaure | Rode", "Cdj | Cuvée spéciale | 2020 | Witte", "Celeste | Rueda | Verdejo", "Celeste Crianza", "Celeste Roble", "Cévennes | Syrah | Bio", "Champagne | Brut", "Chardonnay", "Chardonnay / Sauvignon Blanc | 2022", "Chardonnay sur Lie", "Château Bas | Rosé | Bio", "Château Bellevue Grand Cru | Houten Kist | 2019 | Rood", "Château gigery | Rosé", "Château La Verrière | Rood", "Château La Verrière 2024 Wit Bio", "Château Saint-Pierre Holze Kiste 2019 Rood", "Château Villerambert Opéra | 2023 | Rood", "Chenin", "Chenin / Chardonnay", "Chianti Classico", "Cinquecento | McLaren Vale | Sangiovese", "Circum | Rosé", "Cloudy Bay Chardonnay | Wit", "Cloudy Bay Pinot Noir | Rood", "Codorniu Sparkling", "Confise | 2022", "Connetable Talbot 2023 Rood", "Corvez Appasim | Bio | Rood", "Corvezzo Pinot Grigio | Bio | Wit", "Costers del Segre | Albariño |  Bio | Wit", "Côte de Sambre et Meuse | 2020", "Coteaux Bourguignons | 2023", "Coteaux Bourguignons Gayot 2022 Rood", "Coteaux d'Aix en Provence", "Côtes de Bordeaux Rood", "Côtes de Bourg | 2020", "Côtes de Gascogne | 2023", "Côtes de Provence", "Côtes du Jura Tradition | Wit", "Côtes du Rhône", "Côtes du Rhône Villages", "Côtes du Rhône Villages Chusclan", "Cremant d'Alsace", "Crémant d'Alsace | Brut", "Crémant de Bourgogne | Brut", "Crémant de Loire | Brut", "Crianza | Rioja", "Cumulo | Bio | 2020", "Cuvée 5", "Cuvée Selection | Raven | Wit | Bio", "Cuvée spéciale | Brut", "Dame Trottevieille | Houten kist | 2016 Rood", "Dark Red", "Demi-sec", "Diablo Deep | Carmenere | Rood", "Dinotte", "Douro", "El Burro | Malbec | Bio | zonder toegevoegde sulfieten", "Ermitage | Bio | 2021", "Falerio", "Feteasca Neagra", "Fetzer Cabernet Sauvignon Rood", "Fetzer Chardonnay Wit", "Fines Bulles | alcoholvrije schuimwijn", "Finesse | Chardonnay", "Fleurie", "Floréal Laguens Rood", "Fonterutoli | Toscana | 2022", "Franciacorta | Extra Brut", "Franschhoek Cellar Merlot Rood", "Franschhoek Cellar Sauvignon Wit", "Fronsac | 2012", "Gard | 2023", "Garnacha", "Garnacha / Syrah", "Gavi | 2023", "Giallo | Chardonnay", "Giardino | Toscana", "Gordonne Riviera | Bio | Wit", "Gordonne Riviera Bio 2024 Rosé", "Gran Selezione | Chianti Classico | 2017", "Gran Vos Reserva", "Grand Barossa | Shiraz", "Grand Cru Andes Estate  | Merlot", "Grand Cru Costa Estate | Sauvignon Blanc", "Granit | Grüner Veltliner", "Graves", "Graves Blanc Sec", "Grigio | Friuli | Pinot Grigio", "Grillo", "Haut poitou | Sv | 2024 | Witte", "Haut-Médoc", "Haut-Médoc Cru Bourgeois Exceptionnel | 2019", "Haut-Médoc Grand Cru Classé | 2021", "High Altitude Vineyards | Malbec", "Hola | Bio", "Hola Mediterran | 0% | Wit", "Hundertgulden | Riesling | 2022", "I Gran Reserva | Rioja", "Île de Beauté", "Julienas", "Kitterlé Grand Cru | Gewürztraminer | 2017", "Koyle Costa Bio Sauvignon Wit", "Kristinus Sas Cuvée 2019 Rood", "Kristinus Sunshine Bio 2022 Wit", "Kristinus Tramini 2021 Wit", "Lacrima Superior Rood", "Lambrusco | Rosso", "Langhe | 2022", "Languedoc | 2021", "Laurenzikapelle | Sauvignon Blanc | 2022 | Bio", "Le Anfore | Bio | 2021", "Le Monnier | Côteaux du Languedoc | 2020 | Bio", "Le Mosellan", "Leçon N3 2024 Rosé", "Leo Vinum Wit | Bio", "Leopard Leap Chardonnay Wit", "Les 3 Grappes | Pays d'Oc", "Les Aunis  | Coteaux du Layon Chaume | 2013", "Les Gravières | Santenay Premier Cru | 2022", "Limestone Hill | Chardonnay", "Limited Selection | Pinot Noir", "Lubéron", "Macon Lugny", "Macon Villages", "Maison Lisein Vin de France | Rosé", "Malbec", "Margaux | 2021", "Margaux Grand Cru Classé | 2021", "Marsican | McLaren Vale | Shiraz", "Matthews Road | Chardonnay", "Méditerranée I.G.P. | 2023", "Mediterráneo | Rosé | Brut", "Médoc | 2018", "Médoc Cru Bourgeois | 2020", "Meiter |  Brut", "Mendoza | Malbec | 2021", "Merino Rood | Bio", "Merlot", "Meursault | Clous | 2022 | Wit", "Mitolo Montepulciano | Rood", "Mitolo Pecorino | Wit", "Mitolo Scylla | Rood", "Moelleux", "Mon Sud Igp Oc | Rs", "Monbazillac", "Montagne Saint-Émilion | 2020", "Montepulciano d'Abruzzo", "Monthélie | 2020", "Morgon", "Moulis-en-Médoc | 2021", "Mountain Vineyards | Malbec", "Mousseux Brut", "Muscadet", "Napa Valley | 2017", "Natura | Bio", "Natura Vibes | Bio | Wit", "Naturalis | Chardonnay | Bio | Wit", "Nero | Pinot Nero", "Nero d'Avola", "Nittnaus Ried Velt Wit", "Nuits-Saint-Georges Les Creux-Fraîches Eaux | 2022", "Nuvola Rosé | Bio", "Nuvola Rouge | Bio", "Nuvola Wit | Bio", "Offida | 2020", "Old Vin Cabernet Shiraz | Rood", "Old Vine Shiraz | Rouge/Rood", "Originelles | 2023", "Pauillac | 2021", "Pauillac Cru Bourgeois | 2018", "Pauillac Grand Cru Classé | 2021", "Pavia | Pinot Grigio | Bio", "Pays d'Hérault", "Pays d'Oc", "Peloponnese | 2021", "Persevero | Saint-Émilion Grand Cru | Bio | 2019", "Pessac-Léognan | 2021", "Pessac-Léognan Grand Cru Classé | 2022", "Petillant Nature Wit", "Pichet de France", "Pinot Grigio", "Pinot Noir", "Pinotage", "Plaza Mayor Bio Rosé", "Poco Vino | Rosé", "Pomerol | 2021", "Porto Vintage | 2011", "pouch | Bio", "Pouilly Fumé Prestige Wit", "Premier Fume", "Premier Merlot", "Primitivo di Manduria | 2022", "Prosecco", "Prosecco DOCG | Brut", "Prosseco | Bio | Brut", "Puglia | Primitivo | Bio", "Puisseguin-Saint-Émilion | zonder toegevoegde sulfieten | 2020", "red", "Reserva", "Reserva 100 Year Old Vines | Sauvignon Blanc", "Reserva Privada | Cabernet Sauvignon", "Réserve | 2020", "Reserve | Malbec", "Reserve de Pichon Comtesse Pauillac | 75CL | 2018 | Rode wijn", "Retsina", "Revolutionary Rosé", "Rib Gialla Mani | 24 | Wit", "Riesling | 2022", "Rioja | Graciano", "Rioja Crianza", "Rioja Reserva", "Rivaner", "Rosado", "Rosato", "rosé", "Rosé by Sacha Lichine", "Rosé d'Anjou Rosé", "Rosé d'Espagne", "Rosso", "Rouge d'Espagne", "Rueda | Verdejo", "Sable de Camargue | Bio", "Saint-Amour", "Saint-Chinian | Bio | 2022", "Saint-Émilion 1er Grand Cru Classé | 2021", "Saint-Émilion Grand Cru | 2021", "Saint-Émilion Grand Cru Classé | 2019", "Saint-Estèphe | 2021", "Saint-Joseph | Bio | 2021", "Saint-Julien | 2021", "Saint-Julien Grand Cru Classé | 2021", "Sainte-Victoire | Côtes de Provence | 2024", "Sangiovese / Cabernet Sauvignon | 2021", "Santa Julia | Cabri | Cabernet Sauvignon | Rood | Bio", "Santa Julia Chim | Malbec | Bio | Rosé", "Santenay | 2022", "Saumur | Brut", "Sauternes Grand Cru Classé | 2016", "Sauv Block | Sauvignon Blanc", "Sauvignon Blanc", "Sauvignon Blanc / Sémillon", "Sauvignon Touraine", "Sec", "Sekt | Brut", "Shiraz", "Sicilia | Pinot Grigio | Bio", "Single Vineyard | Syrah", "Skouras Agior Nemea Rood", "Skouras Zoe 2021 Wit", "Somontano | Chardonnay", "South African Wine | Chenin", "Special Edition", "Spirituelles | Savennières | 2024", "Sta Julia Zorrito Or Bio", "Stein | Pinot Noir | 2021", "Tavel", "Tempranillo, Syrah", "Teroldego", "Terra Dao Reserva | Rood", "Terrasses du Larzac | 2021", "Terrazas Chardonnay | Wit", "Terroir de Riquet | Minervois | Bio", "Terroir Riquet Bio 2024 Rosé", "The Banished Dark Red", "The Château | Merlot | Rood", "The Château Shiraz | Rood", "The Original", "tinto", "Tokaji 5 Puttonyos", "Torrebona Vernaccia di San Gimignano", "Toscana", "Treno del Mare Maremma Toscana", "Umbria", "Uone | Amarone | 2022 | Rood", "V | Rioja", "V Reserva | Rioja", "Val de Loire", "Val de Loire Rosé", "Valais | 2022", "Valdorb | Saint-Chinian", "Valdorb Saint-Chinian", "Valgencelle 2021 Rosé Bio", "Valles | Malbec", "Valpolicella Ripasso", "Valpolicella Ripasso Cort Rood | Bio", "Vaucluse", "Velenosi Solesta 2022 Rood", "Verdejo | Bio", "Vermentino", "VII | Rioja", "Villebois Menetou Salon Wit", "Villebois Sancerre Rood", "Villebois Sancerre Wit", "Vin de France", "Vinho Regional Alentejano", "Vinho Regional Algarve", "Vinho Regional Lisboa", "Vinho Verde", "Vino Frizzante | Legatura | Brut", "Vino Spumante | Extra Dry", "Viognier", "Viré-Clessé", "Volcanic | Syrah", "Vouvray | Excellence | Brut", "Vranken Grande Réserve |  Brut", "Zell-Weierbach | Spätburgunder", "Zero | alcoholvrije schuimwijn", "Zinfandel", "Zoe", "Zucc Aluv Altalmi Malbec Rood", "Zuccardi | Malbec | Houten kist |  Rood", "Zuccardi Aluv Guatal Malbec Rood", "Zuccardi Botanico Chardonnay Wit", "Zuccardi Concreto Malbec Rood", "Zuccardi Infinita Malbec Rood", "Zweigelt | 2023"] },
+  { id:'dri', name:"Koude en warme dranken", emoji:'☕', products:["3in1 | Oploskoffie | 10 sticks", "Agrumes | rPET", "Almdudler Kruidendrank 1000 ml |Frisdrank|Almdudler Kruidendrank 1l", "Ananas | Sap", "Appel Zwarte Bes Framboos | rPET", "Appelsap", "Apple Citrus Twist | Zero", "Barista | Crema | Bonen| Esp", "Bio | Groene | Jasmijn | 20z", "BITTER LEMON", "Black tea | Peach rose | Zero", "Bronwater|Niet bruisend|PET|Sportdop", "Bruisend | Zwarte thee | Lemon | Blik", "Bruisende Ijsthee | Original  | Caloriearm | PET", "Café | Lungo 05 | Dolce Gusto capsules", "Café au Lait cafeïnevrij | 16 capsules", "Café au Lait Intenso | 16 capsules", "Café Cortado Espresso | 16 capsules", "Café Verona | 10 capsules", "Cappuccino | 16 capsules", "Cappuccino cafeïnevrij | Oploskoffie | 10 sticks", "Cappuccino Intenso | Oploskoffie | 10 sticks", "Caramel Latte | 5 sticks", "Caramel Macchiato | 16 capsules", "Cherry | Blik", "Chococino | 16 capsules", "Citroen en framboos", "Citroen Limoen", "Citroensap | Vitamin C", "Citrus Fizz | limonades", "Clementine en perzik", "Cola | Zero | Sleek Can", "Daiqui", "Drink | Kombucha | Blik", "Earl | Grey | 50Z", "Eau de coco | Extra Coconut", "Energiedrank | Blik", "Energy Drink | 6-Pack | 25 cl", "Energydrink | Ultra Rose | Blik", "English | Breakfast | 50Z", "Exotic | PET", "Extra | Oploskoffie", "Filters | Dessert", "Flat White | 16 capsules", "FSP | CITRoeN", "Gemalen | Espresso | Barista | Intenso", "Ginger Ale | PET", "Ginger Beer | 50 cl", "Green | Tea | Ginger | Rosemary | Bio", "Grenadine | Bruisend | PET", "Groen thee | Energy | 17Z | Bio", "Groene | Thee | Intense | Munt | 20Z", "Groene thee | Granaatappel", "Hibiscus Appel | Bio", "Ice crush premium", "Ice Cubes Premium", "Ice Tea | Perzik", "Ijsthee | Watermeloen | Munt", "Indian Tonic", "Indian Tonic Water | Light", "Infusie | Zen Again | Bio", "infusion | Groene thee | Munt | Bio", "Juice | Bad | Apple", "Koffie | Oplosbaar", "Koffie Africa Ristretto | 10 capsules", "Koffie Blonde Espresso Roast | 10 capsules", "Koffie Breakfast Blend | 10 capsules", "Koffie cafeïnevrij | Oplos", "Koffie Colombia | 10 capsules", "Koffie Colombia cafeïnevrije | 10 capsules", "Koffie Creamy Vanilla | 12 capsules", "Koffie Espresso | Oploskoffie | 100 gr", "Koffie Espresso Intenso | 16 capsules", "Koffie Espresso Roast | 10 capsules", "Koffie Espresso Roast cafeïnevrij | 10 capsules", "Koffie Grande Houseblend | 12 capsules", "Koffie Grande Miami | 18 capsules", "Koffie Guatemala | 10 capsules", "Koffie House Blend | 10 capsules", "Koffie India Espresso | 10 capsules", "Koffie Italian Roast | 10 capsules", "Koffie Latte | 12 capsules", "Koffie Lungo | 30 capsules", "Koffie Lungo Andes | 10 capsules", "Koffie Lungo Brazil | 10 capsules", "Koffie Lungo cafeïnevrij | 16 capsules", "Koffie organic | Oplos | Bio", "Koffie Pike Place Roast | 10 capsules", "Koffie Ristretto Napoli | 16 capsules", "Koffie Smooth Caramel | 10 capsules", "Koffie Sunny Day Blend | 10 capsules", "Koffie White Mocha | 12 capsules", "Koffiebonen | Classico", "Koffiebonen Dark Espresso Roast", "Koffiebonen Pike Place Roast", "Koffiefilters | Original | 1X6", "Kokoswater | Natuur", "Kombucha | Raw | Apple Mint | Bio", "Kombucha tea | Limoen gember | Bio", "Kruidendrank | Pet", "Kruidenthee | Goede nacht", "La Maison Guiot Aalbes & Framboos 700 ml |Siroop|La Maison Guiot Aalbes en Framboos 70cl", "La Maison Guiot Citroen & Mandarijn 700 ml |Siroop|La Maison Guiot Citroen en Mandarijn 70cl", "Latte | Oploskoffie | 8 sticks", "Latte Macchiato | 16 capsules", "Latte Macchiato Caramel | 12 capsules", "Lemon | PET", "Lemon Regular | Blik", "Lemonade | Exotic Fit | Blik", "Light | PET", "Limoen & Citroen | Limonade | Frisdrank | 33Cl", "Limonade | Yuzu", "Mango loco | Energetische drank", "Mango-Passievrucht", "Mano | Bonen | Subtil | Bio | FT", "Marrakesh Groene Thee | 16 capsules", "Mediterranean Light Tonic | 50 cl", "Mediterranean Tonic", "Mineraal Water | Niet bruisend | PET", "Mineraalwater | Bruisend | PET", "Mineralwater | Sterk sprankelend | PET", "Mm | Puiss | Gemalen | Ft | Bio", "Mocha | 16 capsules", "Mocktail | Pina | Colada", "Mojito | Zero | Canette", "Moka | Oploskoffie", "Monin Caramel 250 ml |Siroop|Monin Siroop Caramel 25cl", "Monin Rietsuiker 250 ml |Siroop|Monin Pure Cane Sugar 25cl", "Monin Vlierbloesem 250 ml |Siroop|Monin Siroop Elderflower 25cl", "Multivitamin | Zéro", "Multivitamins  | Sap | Fruit | 90Cl", "Multivruchten | rPET", "Naturally Light Tonic | 4-pack | 20 cl", "Natuurlijk licht bruisend mineraalwater | rPET", "Natuurlijk mineraalwater | niet bruisend", "Nectar | Guava", "Nektar | Perzik", "Nesquik | 16 capsules", "Night | Time | Berry | Bio", "Oploskoffie | Dessert", "Oploskoffie White Mocha | 5 sticks", "Orange | PET", "Orange With Extra Pulp | Sap | Fruit", "Orange With Pulp | Sap | Fruit | 1.5L", "Orange Without Pulp | Jus | Fruits | 90Cl", "Orangina | Red", "Original | Groene thee met honing", "Original taste | PET", "Perzik | rPET", "Perzik Abrikoos | rPET", "Pina Fizz", "Pink | Canette", "Pink Grapefruit | Blik", "Pink grapefruit tonic water", "Pipeline punch | Energetische drank", "Pyramides | Kamille | 20S", "Rabarber Appelsap | Bio", "Raspberry & Rhubarb Tonic | 4-pack | 20 cl", "Raw Lemonade | Citroen-Limoen-Gember | Vers", "Red Peach", "Regular | Blik", "Ricoré Latte | 16 capsules", "Rose lemonade", "Roselini | Limonades", "Saft | Tomato | Spiced", "Sanguinello | Sap | Fruit", "Sap | Appel", "Shot | Pink Dragon", "Sinaasappelsap", "Siroop | Limoen", "Smoothie | Mango Passie", "Sprite | Zero | Blik | Sleek", "Suikerriet | Vloeibaar", "Super smoothie | Defence | Vers", "Thee | Earl grey", "Tonic water | Elderflower | 50cl", "Tonica Eikenhout", "Tropical | rPET", "Ultra Peachy Keen", "Vanilla Latte  | Oploskoffie | 8 sticks", "Vegan | Smoothie | Aardbei", "Vers | Citroensap", "Vers geperst sap | Sinaasappel", "Vit-Hit Detox 500 ml |Vitaminendrank|Vit Hit Mandarin + Orange 500ml", "Vit-Hit Lean & Green 500 ml |Vitaminendrank|Vit Hit Apple + Elderflower 500ml", "Water | Aardbei", "Waterdrop | Flair", "Wild Cherry", "Wortelsap | Bio", "Yellow | Label | 100Z", "Zero | Cherry | Sleek Can", "Zero Lemon | PET", "Zero Red Peach | PET", "Zero Sugar | PET", "Zero Sugar en zonder cafeïne | PET", "Zwarte thee | Peach Hibiscus | PET"] },
+  { id:'alc', name:"Bier, alcohol en alcoholvrij", emoji:'🍺', products:["1L Raffelli Bianco", "1L Raffelli Rosso", "20C J&B  WHISKY", "25CL ABSOLUT RTD RASP&LEM", "25CL GIMBER RTD ENERGY", "25CL GIMBER RTD FOCUS", "25CL GIMBER RTD IMMUNITY", "25CL HAVANA RTD RUM &COLA", "4X20CL SCHW BASIL&LEMON", "50CL FEVER-TREE MOJITO MIXER", "50CL MIONETTO APERITIV 0%", "70CL SMIRNOFF ICE RASPBER", "70CL TANQUERAY SEVILLA 0%", "Abdijbier | 6% | Fles", "Abdijbier/Blond | 7.5% ALC. | Fles", "Abdijbier/Bruin | 8% ALC. | Fles", "Aboacado, medium | Sherry | 15% alc.vol.", "Absolut Vodka | 70cl | 40D", "Advocaat | Eieren | Zacht-Romig", "Aguilar | Tawny | Porto | 19% vol.alc.", "Alcohol | Extra fijn | 96% ALC.", "Alcohol voor fruit | 35%", "Alcoholvrije ricard", "Amaretto | 30%", "Amaro | 16,5% alc. | Italiaanse likeur op basis van artisjok", "Amber bier | 7,2% alc", "Amberkleurig | Vermouth | 17% alc.vol.", "Amberkleurig gold | Vermout", "Ambré | 40% alc. | Franse plantage rum", "Anijshoudend | Pastis | 45% alc.vol.", "Aperitief | 20% alc", "Appelcider", "Appeljenever 18%", "Arboralis | 40% alc. | Single malt Scotch whisky", "Armagnac VS | Alc. 40% vol.", "Bacardi | Mojito | 5% alc | Premix", "Banaan Likeur | 17%", "Baroko | Rum | 70cl | 40%", "Basil Breeze | 0%", "Batida | Koko | 16% alc", "Bellini | Sprankelend Cocktail | Rosé", "Bier | 9%", "Bier IPA | 0,3% alc", "Bier Kriek | 4% alc", "Bier Pale Ale | 6% | Fles", "Bier PRIOR 8", "Bier Rouge | 0%", "Bier tripel | 9% alc", "Bier Tripel Blond | 8,1% alc", "Bier whisky infused | 11,7% alc", "Bio bier | blond | 6.4% | Fles | Bio", "Bitter | Aperitief | 21% alc", "Bitter lemon | Blik", "Black Spiced | Rum | 70cl | 40% Alcohol", "Blackberry cider | Blik", "Blended Scotch whisky | 40% alc.", "Blond bier | 0.0", "Blond tripel bier | 10,5% ALC. | Fles", "Blood Orange Ginger Beer | 50 cl", "Bop", "Bourbon | 43% alc", "Bourbon Barrel | 70cl | Labels 5 | 40°", "Bourbon uit Kentucky | Wit | Alc. 40% vol.", "Brandy | 30%", "BREEZER PASSI-MANG", "BREEZER WATERMELON", "Bruin bier | 7% alc", "Bruisend | 0%", "Bumbu | Craft Spiced | Rum | 70CL | 40°", "Cachaça | Maturidado | 3 jaar | 43,5% ALC.", "Cachaça Pitu | 70cl | 38%", "Calvados | 40%", "Can. | Rhum & Cola | 5% alc", "Captain Reserve | Whisky | Single malt", "Cazadores Margarita", "Cazadores Paloma Can", "CHATEAU DU BREUIL CALVADOS", "Chouffe|Belgisch Speciaalbier|Blond|8%|75cl|Fles", "Cider | Appel", "Cider bier | Perzik | 5% | Fles", "Citroenjenever | 18%", "Cocktail | Expr | Martini", "COCKTAIL MAISON", "Cocktail Whisky Cola", "Cocolikeur 18% alc", "Cognac", "Cognac VS | Sing Dist | 40% Alc", "Colis mix", "Cordon Rouge | 40% alc. | Cognac & sinaasappel likeur", "Corona Extra Bier | Pils | 4,5% alc | Fles", "Crème de cassis | 20% alc", "Crème de Cassis 16% St Michel", "Cuberdonjenever | 18% | 70cl", "Dark | Rum | 70cl", "Delta IPA | 6,5% | Fles", "Disaronno | Amaretto | Velvet Cream | 70cl", "Donker winter bier | 10% | Fles", "Dry Fino Sherry | Rood", "Duvel|Belgisch Speciaalbier|Blond|8,5%|75cl|Fles", "Elderflower Tonic | 4-pack | 20 cl", "Eristoff Red Flash 5% alc.", "Fiero | Vermouth | 14,5%", "FILLIERS 5Y 38% VOL", "FILLIERS AMARETTO", "FILLIERS CHOCOLATE 17", "Filliers Genievre 30D", "FILLIERS SPECULOOS", "Fino | Sherry | 15% vol.alc.", "Fino, pale dry | Sherry | 15% alc.vol.", "Floreale | Sans alcool", "Frambozencreme", "Fruitbier | 3,5% alc", "Gebrouwen Frisdrank | Botanisch | Gember", "Get 27 | 70cl", "Geuze | 6,5% alc", "Geuze Mariage Parfait | 8% alc", "Giftpack", "Giftpack + glas", "Gin & Tonic Mocktail | 0% Alcohol", "Gin | Bio", "Gin 40% alc", "Gin Mare | 70cl | 42,7% Alcohol", "Gin pink & tonic | Can", "Gin Premium Espagnol | 70cl", "Gin Premium Spaanse | Larios 12 | 70cl", "Gin Tonic Can", "Ginger Ale | 4-pack | 20 cl", "Ginger Beer | 50 cl", "GINGER GEM | 0%", "Gluhwein", "Graanjenever | 30% Alc", "Grapefruit Grace  | 0%", "Grappa | 40% alc", "Green Label | Mix blended | 15Y | 43% alc", "Gueuzebier | 6% ALC. | Fles", "Gunpowder | Irish Gin | 43%", "Hugo 0% alc", "Ice Vodka 5,0D", "Iers bier | Stout | 4.2% | Blik", "Ierse bier | Stout | 4.2% | Blik", "Il Hugo 8% alc", "Indian Tonic", "Indian Tonic Water | Light", "Indian Tonic Zero", "IPA | 6% | Blik", "Islay Single Malt Scotch Whisky 10 Years", "Italiaans Apéritief  | 11% alc.", "Jenever | 70cl | Appel", "JENEVER CACTUS 16G", "Kan | Ananas/Kokos Rum", "Kinawijn | 13% alc.vol.", "Kirsch | 37.5% ALC.", "Koffielikeur | Hasselt | 18%", "Kriek Mariage Parfait | 8% alc", "Lemonade rosé", "Likeur | Amaretto", "Likeur 40% alc", "Likeur N°1 Cup 25%", "Lillet Wit | 17¨% alc", "Limon | Lemon | Rtd | 5%Alc", "Limoncello", "Limoncello 30%", "Limoncello 30% alc", "London Dry Gin | 43.1% Alc", "Mandarine Napoleon 38", "Mango Mojito", "Margarita | Alcoholvrij", "Marsala Dolce", "Mediterranean Light Tonic | 50 cl", "Mediterranean Tonic", "Mionetto Aperitivo 50cl", "Mix 6 Belgische trappisten", "Mixed drink Blue 5% alc.", "Mocktail | Hugo", "Mojito | RTD | 14.9D", "Mojito 0% alc", "Mojito Mocktail | 0% Alcohol", "Muscat de Beaumes de Venise | Wit", "N1 bio", "N2 Brut Bio", "Naturally Light Tonic | 4-pack | 20 cl", "Night Orient | alcofree| 12 Botanics", "Nona | 70 CL | Ginger", "Nona Ginger", "Orange | 4%alc | Rtd", "Original | Vermout | 14,9% alc.vol.", "Original Whisky | 70cl | 40% Alcohol", "Oude geuze | 7% alc", "Paloma | 0%", "Passie | 7.2% alc", "Passievruchten | Jenever | 18%", "Passion | Cocktail |Fruit | Martini", "Pastis | 45% Alc", "Pastis de Marseille 45% alc", "PETERMAN VIOLETJENEVER", "Pils | 0.0", "Pineau des Charentes | La Jasserie | 15% alc.vol. | Wit", "Pink | Non alcohol", "Pink G&T Mocktail | 0% Alcohol", "Pink grapefruit tonic water", "Pisco La Caravedo 41% alc", "Poire Williams | 42% ALC.", "Porto | Fine tawny", "Porto Imperial 20% Alc", "Porto natura reserva | Bio", "Porto Tawny 19.5% Alc", "Porto Tawny 19% Alc Pote", "Porto Taylor's First Estate", "Punch | 14%alc", "Raspberry & Rhubarb Tonic | 4-pack | 20 cl", "Raspberry | Cosmo | 15%alc", "Recolte Saison | 6% | Bio", "Red Label | Whisky | Blended | 40% Alc", "Rhum | Royal Ambre | 40%", "Rhum 0%", "Rood | Wijn uit Madera | 17% alc.vol.", "Rood bier | 8,4% ALC. | Blik", "Rosato | Vermouth | 14,5%", "Rosé | 17% alc", "Rose | Pompelmoes", "Rose lemonade", "Rossini | Sprankelende Cocktail", "Rouge bier | 8% Alc. | Blik", "Ruby | Porto", "Rum", "Rum Cola | Rtd | 5% | Can", "Sake Hakushika", "San Bitter | Licht bitteren en bruisenden drank", "Sangria", "Sapphire Gin", "Scotch | Finest | 8% ALC. | Fles", "Scotch Whisky  | 70cl", "Sherry Fino 15% Alc", "Sherry Manzanilla 15% Alc.", "Signature | 40% alc. | Jamaica rum", "SINGLE MALT SCOTCH WHISKY 12Y -70CL", "SINGLE MALT SCOTCH WHISKY 12Y 40% ALC", "Sir James Ging Mu 0 %", "Sir James Passion 0 %", "Speciaal bier blond", "Spritz | 9%alc", "Spritz 0% alc", "Spritz Aperitif | 0% Alcohol", "Stassen | Cider bier | Framboos | 0%Alc", "Sterk bier | 8.5% | Blond", "Sterk fruitbier | Rouge | 8% ALC. | Fles", "Suikerriet | Vloeibaar", "Sweet Lily | Bio", "Talisker Skye | 70cl", "Tawny | Porto | 20% alc.vol.", "Tawny rood | Porto | 10 jaar", "Tennessee Whiskey | Gentleman Jack | 70cl", "Tennessee Whisky | NR7 | Giftbox | 70cl", "Tequila", "Tequilla | Reposado", "TONIC", "Tonic water", "Tonica Eikenhout", "Trappist | 4,8% alc", "Trappist Bier | 7,5% ALC. | Fles", "Tripel bier | 8% alc", "Tripelbier | 8% | Fles", "Triple Hop bier | 8,5% alc", "Triple Sec  | 70cl | 40%", "VANILLEJENEVER", "Velvet | Giftpack | 70cl", "VERMOUTH - 1L", "Vermouth | Extra dry", "Vermouth Bianco | 15% alc. | Italiaanse vermout", "Vermouth Rosso | 15% alc. | Italiaanse vermout", "Vibrante | Zonder alc", "Violetjenever | 18%", "Vodka", "VS | 40% alc. | Franse cognac", "Whiskey | Tennessee | Honey | 35% Alc", "Whisky | 40% ALC.", "Whisky Bourbon | Single Malt | 43° Alc", "Whisky Cola | 5%Al | RTD | Can", "Whisky cola can", "Wit | Porto", "Witbier | 4,5% | Fles", "Witte Porto", "Witte Rum | 37.5% | 70cl", "Wooden crate Cornet", "XO | Armagnac 40% alc", "Zizi | Coin Coin | 10% | Bop", "Zoete Rhum | Masskara | Cannister | 70cl | 40d"] },
+  { id:'cle', name:"Onderhoud en huishouden", emoji:'🧹', products:["10 Aluminium Bakjes + Deksels | 1L", "12ct | Floor | XLL Refills", "26 Vaatwastabletten | Brilliant Shine +", "3 Keukenrollen | 2 lagen", "30 Pedaalemmerzak | Handvat | PCR | 30L", "30 Vaatwastabletten | Bicarbonate | Eco", "3D duster | Sk | Xxl | Oob | 1 navulling", "4 SUPER SPONSEN", "46 Vaatwascapsules | AIO | Lemon |", "46 Vaatwastabletten | AIO | Regular", "4in1 | Pods + Ultra", "4lin1 | Pods | Lenor touch of unstopppable", "5ct | 3D duster | Refill", "Activeermiddel voor septische put", "Aerosol | Frisse Was", "Afvoer Stank Verwijderaar | 500gr", "Afwas Middel | Lily&Lotus | 0,45L | ECO", "Afwasborstel", "Afwasmiddel | Citroen", "Afwasmiddel spray | Citroen", "Airfryer bakpapier", "Airfryer reiniger", "All in 1 | Pods | Color", "All In One | Capsules | Citroen | 1+1", "Allesreiniger | Eco", "Allesreiniger Citroen | Eco", "Allin1 | Pods | + Ultra", "Aloe Vera | Afwas | 500ML | Eco", "Ammoniak", "Anti kalk | Kalkaanslag & vuil | Spray", "Antikalk | Bio", "Antikleurdoorloop | Doekjes", "Antwerpen | Gemeentelijke vuilniszakken | Wit | 60L", "Badkamerreiniger | Eco", "Bakpapier | 30st", "Bakvellen | Anti-Slip | 16st", "Bijenwas | Spray", "Bleekmiddel | Spray | 750ml", "Bleekpoeder | Waskracht", "Bleekwater | Lavendel", "Boterham papier", "Boterhamzakken | 1L | Zip | 25ST", "Brabant Wallon | Gemeentelijke vuilniszakken | Blauw | 60L", "Brillette | Grotere vorm + spons", "Brilreiniger | 120ml", "Capsules | Sceptische putten", "Classic | Vaatwaspoeder | Regular | 2.5kg", "Decolor Stop doekjes | Revive Colors", "Decolor Stop Max Protect", "Desinfectiemiddel was", "Detergent Kleur | 35sc", "Detergent Wit | 35cs", "Diepvrieszak | 3L | Zip | 30st", "Diepvrieszakken | 1l", "Doek | Microvezels | Colors", "Doekjes | Droogtrommel", "Doekjes allesreiniger", "Duster | Navulling", "Dweil | Microvezel | Kleuren", "Dweilen | Viscose | 60 cm x 70 cm", "Elektrische Vliegenmepper", "Finish | Protector | 1st", "Floor | Navulling", "Foil Aluminium | Easy Cut System | 35m", "Frigo XL | Neutraliseert geurtjes", "Fruitvliegjesval", "Geïmpregneerd Vloerdoekje | Oranje | 25st", "Gel | 4In1", "Gel bleekmiddel | Pure white", "Gel Ontstopper | 1L", "Gemeentelijke vuilniszakken | Oranje | 30L", "Gemeentelijke vuilzakken | Wit | 60L", "Geparfumeerde Gel | Marine", "Geurstokjes | Zachte Lavendeldagen", "Glas | Spray | Triple action | 750ml", "Groene Aanslag Reiniger | 1L", "Groene Aanslagreiniger | 5L", "Haarontstopper", "Handschoenen | Wegwerp | Vinyl | One size", "Handschoenen comfort extra m", "Handschoenen dermo plus | M", "Huishoudhandschoen | M", "Huishoudhandschoenen | Large", "Huishoudhanschoenen | L", "Huishoudzakken | Zipper | 3l", "Huisvuilzakken | grijs | 22L", "Hygiënische Koelkastreiniger | 500ml", "Ijsblokzakjes", "Impregneermiddel | Stof en leer", "Jasmijn & Eucalypt", "Kaars | Appel & Kaneel | 204 gr", "Kachelruitjesreiniger | 500ml", "Kalk verwijderaar | Eco", "Kalk Weg Spray | 500ml", "Kalkreiniger | Eco", "Kalkweg | Concentraat | Professionele | 0.5L", "Kalkweg gekleurd sanitair", "Katoen Doekje Luxe", "Keukenontstopper | 1L", "Keukenpapier | Decor | Eco", "Keukenrol | 2st", "Keukenrollen | 4x64 Vellen | 3 laags | Eco", "Koffiemachine | Ontkalker Melkzuur | 500ml", "Koffiemachine ontkalker | Eco", "Kookplaatreiniger | Extra Sterk | 250ml", "Kookplaatreininger | Keramisch | Spray", "Krasvrijspons voor steel | Navulling", "Laminaatreiniger | 5 in 1", "Limburg.Net | Gemeentelijke vuilniszakken | Blauw | PMD | 60L", "Luchtverfrisser | Katoen Bloesem", "Luchtverfrisser met wiek | Ocean", "Magnetronfilm", "Meubelhersteller Donker | 250ml", "Microfibres | Colors", "Microvezel doek", "Natrium bicarbonaat | 1KG", "Natuurlijke Vloeibare zeep", "Natuurlijke Zachte zeep", "Natuurzeemvel", "Navulling | Witte bloem", "Navulling Fruitvliegenval | 40ml", "Nespresso Ontkalker | 500ml", "Onderhoud | Afvoerbuizen", "Onderhoud afvoeren | Antigeuren", "Onderhoud Leidingen | Bleekmiddel | Citrus", "Onderhoudsmonteur | 200g", "Ontkalker | Vloeibaar", "Ontkalker voor koffiemachines | 500ml", "Ontkalkingsgel | Wasmachine", "Ontsmetter | Vloer & oppervlakken", "Ontsmettingsspray anti-mijten", "Ontstopper | Turbo | Gel", "Ontstopper met katalysator | Express", "Ontvetter | Spray | Power", "Ontvlekkend droog schuim | Zetels", "Ontvlekkingsmiddel | Spray", "Ontvlekkingsmiddel voor wasbeurt", "Oppervlaktereiniger | Relax Sensations", "Original | Groen Dweil", "Oven en kookplaat reiniger | Eco", "Ovenreiniger | Eco", "Pannenspons roestvrij staal | 2st", "Parels | Fris", "Parketreiniger | 1L", "Pedaalemmerzak | Fixeerband | 10st |60L", "Perles | Us Fresh", "Pioen & Musk", "PMD zakken | Blauw | 50L", "Pods | Color", "Poeder | Ontsmettingsmiddel", "Power Caps | Color | 27DS", "Power gel", "Power Gel Borstel | Kalk", "Regenereerzout | Vaatwasser", "Regular | Ontvlekker", "Reiniger |Tapijt |1L", "Reiniger Keuken | Power | 500ml", "Reinigingscrème | Krachtig", "Reinigingscups voor Nespresso machines", "Reinigingsdoekjes | Ocean", "Reinigingsmiddel alle vloeren |Zeep Marseille", "Reinigingsmiddel badkamer | Sani-Net | Original | Eco", "Reinigingsmiddel tegelvloeren", "Restavalzakken grijs | 44L", "Rinse Aid | 800 ml | Regular", "Ruiten Reiniger | 500ml", "Ruitenreiniger | Spray | Eco", "Schimmelvlekkenriniger | 500ml", "Schoendeo", "Schoensmeer | Classic | Bijenwas | Zwart", "Schoonmaakazijn", "Schoonmaakmiddel | Alle Oppervlakken", "Schuim | Kalkweg | 3x sterker | 500ml", "Schuurborstel | Fsc", "Schuurcrème | Citroen | 750ml", "Schuurpoeder | Citroen", "Schuurspons | Glitzi | Power inox", "Schuursponzen", "Sensitive easy fit | M", "Sodakristallen | Tradition", "Spoelmiddel | 1L", "Spoelmiddel voor vaatwasser | Eco", "Sponsdoek | Super absorberend", "Sponzen | Slalom Soft | 3+1 gratis", "Spray | Oven", "Spray classic | Antikal", "Spray Fresh | Antikal", "Spray Tegen Mieren | 400ml", "Spray voor meubels", "Stijfsel | Spray", "Stinkende wasmachine reiniger", "Stofblik + veger", "Stofopnemer", "Strijken | Spray", "Super activator | Blanc nuclear", "Super mocio | Navulling | Micro fibre plus", "Super Power Toiletreiniger | 500ml", "Swiffer | Wetjet Wipes | 12", "Synthetisch zeemvel", "Tabletten | Anti-kalk", "Tabs | 4In1", "Tegelreiniger | 1L", "Tegelreiniger Glans | 1L", "Tegen Slechte Geuren | Spray | 500ml", "Textiel | Lenor | Spring Awakening", "Textielverfrisser | Desinfecterend | Spray", "Toevoeging bij de was | Fris", "Toilet borstel met houder", "Toiletgel | Eco", "Toiletpapier | Ultra Care", "Toiletreiniger | Fris", "Toiletruimte reiniger | Eco", "Toilettenpapier | Gold | Quattro | Eco", "Ultra max | vervangin | 2in1", "Un Stoppables | Parfum kralen | Was | Boost Ariel", "Vaatwas Machine Reiniger | Citroen | 250ml", "Vaatwascapsules | Citroen", "Vaatwasmachine Reiniger |  Regular  | 3x40 g", "Vaatwasreiniger | Expert", "Vaatwasser | Ultimate+ | Regular", "Vaatwasser Reiniger |  3 Tabs | Hygienique", "Vaatwasser Spoelglans |  Regular | 1L", "Vaatwastablette | Ultimate+ | Lemon", "Vaatwastabletten | Classic | Eco", "Venster Spray | Alcohol", "Verhoudsfolie | 20M", "Vershoudfolie | 2 in 1", "Vershoudzakjes | Zip | 3L | 15st", "Ville de Liège | Vuilniszak | Blauw | 60L", "Viscosedoekjes | 3st", "Vlekkenduivel | Bloed & Eiwit", "Vlekkenoplosser spray | Triple action", "Vlekkenverwijderaar | Gel | Pink", "Vlekverwijder | Oxi Power | Poeder | Wit", "Vlekverwijderaar | Droog | Spray", "Vlekverwijderaar Sterk | 500ml | Spray", "Vloeib wasmiddel| Optmal white| 1.17L | 26D", "Vloeibaar Afwasmiddel | Appel", "Vloeibaar ontvlekkingsmiddel | Eco", "Vloeibaar ontvlekkingsmiddel in tube | Borste", "Vloeibaar wasmiddel | 1,48L | 37DS | Wit", "Vloeibaar Wasmiddel Universeel | 5L | 100DS | Eco", "Vloeibare Ontstopper | 1L", "Vloeibare wascapsules | Wit", "Vloeibare wasmiddel | Black | 1,5L", "Vloeibare zeep | Met lijnolie", "Vloerreiniger | met lijnolie", "Voorwasbehandeling | Vloeibaar | Ossengzalzeep", "Vuilniszakken | 60L", "Vullingen stofopnemer", "Wascapsules | Universal | Eco", "Wasknijpers | In hout", "Wasmachinereinger | Integrale Behandeling", "Wasmachinereiniger | Hygiëne", "Wasmiddel | Gel | 0.855L", "Wasparfum | Blauw Jasmijn", "Waspoeder | Kleur", "Waspoeder Voorwas | Voorwas | 1,9 kg", "Wasverzachter | Puur & Zacht", "Wasverzachterdoekjes | Droogtrommel | Hemels fris", "Watertank blokje | 3 in 1", "Wc | Schoonmaaktabletten", "WC Blok | Blauw Water", "WC Fresh Disc | Navulling | Marine Fris", "Wc Gel | Reiniger | Klassiek", "WC-Blok | Waterbloemen", "WC-Reiniger | Den & Munt | Eco", "WC-Reniger | M. Power", "Wet | Navullingen | Fresh", "wetjet Bottle | 1,25L", "White spirit | 1L", "Witmakend | Ontvlekker | 3in1", "Wol en Fijnwasmiddel | Vloeibaar | 1,43L | 31DS | Eco", "Wolwasmiddel | 1.5L", "X | Spray tegen spinnen", "Zakken voor 20 ijsblokjes", "Zeepvlokken | Savon de Marseille", "Zilver Glansdoek | 1st", "Zilverglanscreme | 125ml", "Zout  | Vaatwasmiddel | 1kg", "Zout voor vaatwasser", "Zoutzuur"] },
+  { id:'non', name:"Keuken, wonen en vrije tijd", emoji:'🏠', products:["10 witte papieren bekers 200ml", "150G Elastiekjes Bal", "18ct | Geurtheelicht | Fresh cotton", "3-klepsmap | A4 | met elastiek", "50 theelichten | 6h", "75 theelichten | 4u", "9 dagen brander | rood", "Aanmaakblokjes | Houtwol | Eco", "Aanmaakhout | Ovendroog | Eco", "Aanmaaklucifers", "Aanmaakvloeistof", "Aansteker Megalighter Flex", "Alcoholstift | 700 N | 0,7 mm", "Anti mug | Sk", "Anti-mot zakjes | Amerikaans rood cederhout", "Anti-motbollen | Rood cederhout", "Anti-mug | Sk", "Anti-muggenvloeistof | Navulling", "Bakvorm | Rechthoekig", "Ballonnen | Medium | 50 st", "Balpen | Original", "Balpennen | Blauw | Medium", "Bamboe prikkers | Ecofriendly | 9 cm", "Batterijen | C", "Bindtouw | Sisal | +- 200g", "Blikopener", "Borstel | Silicone", "Brandpasta | Eco", "Brandspiritus", "Briefomslagen | Zelfklevend | 114mm x 162mm", "Brochettepennen | Bamboe | 18cm", "Canvas met print", "Car Clip | Vanilla | 2ml", "Champagne kurk", "CIK Bait | 2in1 | Mierenval | 2pcs", "Citrus-pers", "Container | 1.4L", "Correctielinten | 4,2mm x 5m", "Cursusblok | A4 | Geruit", "Cylinder 60L | Eco", "Diepvriesetiketten | 35 mm x 21 mm", "Dinerkaarsen | wit | 23cm | 8 stuks", "Dunschiller", "Ei | Ruimte", "Eiersnijder", "Eierwekker", "Enr cr2025 Lithium - bp4", "Etiketten | Wit | 73 mm x 40 mm", "FIK | Spray | 400ml", "Filter Microdisc | Eco", "Filterpatronen | Maxtra | Pro | Eco", "Flessen 1L | Eco", "Fluos", "Gasaansteker", "Geschenkdoos voor 2 wijnflessen | Zwart", "Geschenkdoos voor 3 wijnflessen | Zwart", "Grafietpotloden|HB|n° 2|Premium quality", "Gumpen & 2 vullingen", "Herbruikbaar champagne glas | plastic | 15cl", "Herbruikbaar wijnglas | plastic | 18cl", "Herbruikbare borrelglaasjes | plastic | 4,5cl", "Herbruikbare koffie beker | plastic | 15cl", "Herensokken | Coton Style | groen/zwart | 43/46", "Hersluitbare clips | 12", "Hoesjes | Multi-geperforeerd | A4", "Houtskool", "Ijslepel", "Insecticide|Ti-tox total|Vliegend & kruipend", "Jamlepel", "Jampotten | + Omslag | 400 ml", "Kaar Geurglas | 97/85 | Vanilla", "Kaars Geurglas | 80/73 | Vanille", "Kaarsen | Theelichten | Wit | 6 uur", "Kaasrasp", "Keukenlopper", "Keukenpapier | Blitz | Extra large | Eco", "Keukentouw", "Klasseur | A4 | 2 ringen | 30 mm | PP", "Kleurpotloden | Evolution stripes", "Krachtige aanmaakblokjes", "Kurkentrekker", "Lepels | hout | 16cm", "Lijm | 100% | Repair gel | Extra sterk | 20 g", "Lijm vilt", "Lijmstick | Original", "Lithium CR2032 - BP4", "Luchtverfrisser | Citroen | Auto", "Lucifer | King size | pack", "Maatbeker | 1L", "Mand van konijnenvilt", "Map | A4 | 2 ringen | 16 mm", "Markeerstift pastel | 4st", "MAXI BLISTER AANSTEKER", "MDF konijnendecor", "Memoblaadjes | Zelfklevend | 76mm x 76mm", "Mes | Chef | 34 cm", "Messen | hout | 16.5cm", "Meststof | Kamerplant", "Meststofstaafjes | Groene planten", "Mini Pocket Mouse", "Mini roller | Correction | 4,2 mm x 7m", "Montagelijm | Geen spijkers of schroeven", "Muffin bakvorm | Silicone", "Multi Insect | Spray | 400ML", "Natuurlijke aanmaakblokjes | Eco", "oester mes", "Ontdooingsmiddel", "Ovenschaal | 23x14x5cm", "Paaseend | 23cm", "Paasfiguren verf set", "Papier | A4 | Eco", "Pizza pan | 30 cm", "Pizzasnijder", "Plakband | Afroller | Invisible", "Potloden + Gom", "Puree pers", "QuickConnect Cylinder 60L | Eco", "Rechthoekige container | 0.4L", "Ringschrift | A4 | Geruit", "Ruiten Ijskrabber Auto 17 cm", "Ruitenontdooier | Spuitbus", "Ruitensproeier | Geconcentreerd", "Ruitensproeiervloeistof | Ethanol Dekra", "Schaar | Keuken | 21 cm", "Schilmesje | Inox", "Secondelijm | Universal | Water resistant", "Servetten | Wit | 24x24cm", "Set 2 stoppers grijs", "Silicone ijsblokjesvorm", "Siliconen mat", "Snijplank uit | Bamboe", "Spatel | Silicone", "Stiften | Wit bord | 4 kleuren | 1,2 mm", "Stompkaars | 130/68 | Soft Pearl", "Taartvorm | 25x2.5 cm", "Tandenstokers | FSC hout", "Tape | Pack | Verpakking | Strong", "Terra Zwart | Eco", "Theelepel infusie", "Theelichten | 8 Uren", "Theelichtje | Geurend | Geschenkset", "Ti-Tox | Anti-Mieren | 2 dozen", "Verjaardagskaarsen | Houders", "Verpakkingstape | transparant", "Versterkingsringen", "Vierkante container | 1.2L", "Viltstiften | Wasbaar | Medium punt", "Vliegenval | Bladen", "Vliegenvanger | 4 linten", "Vorken | hout | 16cm", "VP ANTIMOU UNI 45N", "Vulpotloden | Combos | HB | 0,7 mm", "Waterfilter | Essential sand | Maxtra pro", "Waterfilterkan | Blauw | Eco", "Waterfilterpatronen", "WC Fresh Disc | Houder + Navul. | Marine", "Whiteboard + marker + wisser", "Wijndoos Vrolijk Pasen", "Wijnvacuümpomp + dop | Zwart", "Wite tafelkleed | 140x220cm", "Witte Borden | 20cm", "Zittend konijn T-shirt"] },
+  { id:'hyg', name:"Hygiëne en verzorging", emoji:'🧴', products:["125ML NIV ESLS OOG MU REMOVER", "12H Wet Look effect | Haargel", "24ct | Inlegkruisjes | Organic cotton | Plus long", "30ct | Inlegkruisjes | Organic cotton", "4 Navul | Precision clean", "4 navullingen | Kids Frozen", "8 opzetborstels | Sensitive clean", "8 opzetborsteltjes | Precision clean", "Advanced Care | Deodorant Spray | Anti-transpirant | Cool Fresh | 150 ml", "After shave | Balsem | Sensitive | 100ml", "After sun lotion", "Aftershave | Dark Temptation | 100ml", "Age Perfect | Golden Age | dag", "Anti blister | Tape", "Anti-Pigmentvlekken | Nachtserum met Hyaluronzuur &  30ml", "Asblond - 4 | Haarkleuring", "Badschuim  | Indulging Cream", "Badscrub | Renew", "Balsem | Comfort | Intense hydratatie", "BB Cream | Anti Aging | Miracle Perf | lichte huid", "Blarenpleisters | Medium | 6st", "Blarenpleisters hiel | groot formaat", "Blond - 7 | Haarkleuring", "Body Cream | Silky", "Body lotion | Karitéboter", "Body Lotion Fluid | Express | Pomp", "Bodymelk | Voedend zijdezacht | Pomp", "Bodymilk | Herstellend", "Bodyspray | Black | 150ml", "Brilpoetsdoekjes", "Broekje | Urineverlies | M", "Broekjes | Urineverlies | M", "Camouflerende Uitgroei Spray | Bruin | 75ml", "Cellular filler | Nachtcreme", "Classic | 2-in-1 | Shampoo", "Classic Clean | Shampoo | 250ml", "CLEARASIL | Ultra Gel wash |200ml", "Clinical Anti-UV Fluid", "Clinical Pure Vitamine C 12% | Serum", "Color Vive | Mask 180 ml | Purple", "Color-Vive | Shampoo 200ml | Purple", "Conditiioner | Glycolic Gloss | 150ml", "Conditioner | Nutri Extreme", "Condoom | Classic Natural | 20st", "Condooms | Thin Feel", "Crème | Doos", "Creme | Lichaam | Repair & Care", "Crème Gevoelig | 20 cl", "Curl Power | Haarmousse | Krullen | 200ml", "Dag creme | Golden Age", "Dagcrème | Cellular Hyaluron", "Dagcreme | Voedend", "Dagcreme SPF 30", "DD | Lift+ | Hydration | DC | 50ml", "Deep Clean | Tandenborstel | Extra Soft", "Deep Conditioner | Repair", "Deo | Original roll", "Deo Men | Invisible | Black & white |150ml", "Deo Roll | Clean Comfort | 50ml", "Deo spray | Floral", "Déo Spray | Men | X Cool | 150ml", "Deo spray Men | 72H | Sport Cool | 150ml", "Deo Spray Original | 150ml", "Déo Stick | Ice Chill | 50ml", "Déodorant | Advanced Care | Invisible Dry | 150 ml", "Deodorant | Spray | Cherry Fizz", "Deodorant spray | Marine", "Deodorant Stick | Cobalt Dry | 50 ml", "Deoroll | Original", "Deospray | Talco", "DETTOL |Doekjes 2in1 |12pcs", "Disinfecting handgel | 75%", "Dissolvant | Express | Zacht-Hydraterend", "Donker kastanjebruin - 24 | Haarkleuring", "Donker kastanjebruin | 300 | Haarkleuring | Gloss", "Donkerblond - 6 | Haarkleuring", "Donkerblond - 600 | Haarkleuring", "Douche | Kids", "Douche crème | Abrikoos", "Douche Crème Gevoelig | 15 cl", "Douche Gel & Shampoo 3 in 1 | Epic Fresh | 250ml", "Douche Gel | Excite | 250ML", "Douche Men Power Refresh | 250ml", "Douchecrème | Relax | Lavendel | Bio", "Douchegel | Yuzu en Munt", "Dove | Derma Spa | Body lotion | Summer Revived Fair | | 200 ml", "Dream Long Masker | Lang , Beschadigd Haar | 300ml", "Droge Shampoo | Extra Volume", "Droogshampoo | Fresh & Fabulous | Volume", "Droogshampoo Spray | Light Haar | 200ml", "Eau de cologne | Bien-être | Naturelle 70°", "Eau précieuse", "Essent | reinigingsmelk | gevoeli/drog huid", "Essentials | Dagcreme | Voedend | SPF15", "Excel | Scheermesjes", "Expert | Actif Hyaluronique  | Serum", "Extra Freezing Gel | 250ml", "Extra milde intieme waslotion", "Extraordinary olie | Classic | Sublimerend", "Filler dagcreme", "Filler Serum Ogen", "Floss | Essential | Anti-plaque | Munt", "Fusion  | Power | Mesjes | 4st", "Gehoorbescherming | Schuim | Fluo", "Gel | Invisi fix | Strong hold", "Gel-creme | Remix | Strong hold", "Gezichtscreme | Q10 power+dag | F15", "Gezichtscrème | Verzachtend | Amandel | Bio", "Glad & Zijdezacht | Shampoo | 250ml", "Glans en Zacht haarmasker | Rice Water Infusion | 340ml", "Glans en zachte  | Shampoo | Rice Water", "Glijmiddel |Gel |  Sensitive", "Glued Spiking wax", "Golden Age | Rozig Olie-Serum", "Gum | Soft-picks | Pro | Medium", "GUM® | SOFT-PICKS® | Original | Regular 50 st", "Haarkleuring | 1-1 | Zwart", "Haarlak | Sterk", "Haarspray | Mega Strong", "Haarverzorging | Daily Oil Elixir", "Hair food | Banana | Masker | 400ml", "Hair Remady  | Kokosmelk / Macadamia | 340ml", "Hair Remedy | Advocaat | 340ml", "Hairfood | Aloe Vera | Masker | 400ml", "Hairspray | Extra Strong", "Hairspray Ultimate", "Hairstyling | Beach Matt", "Handcrème | Spf 20", "Handzeep | Citrus | Eco", "Heel licht blond - 6 | Haarkleuring", "Herstellend Haarserum | Geheim Van Honing | 115m", "Herstellende creme Intens", "Hydra Hyaluronic | Masker | 300ml | Gedehydrateerd, futloos haar", "Hydro 3 | Skin Protection | Mesjes 4st", "Hydro Boost | Wipes", "Hydro5 | Skin Protection | Scheerapparaat | 1st", "Ijzerkruid Citroen | douchegel | BIO", "Incontinentie dames | Maxi", "Incontinentie verbanden | Extra", "Inlegkruisje | Duoform", "Inlegkruisjes | Large", "Intense Hydration | Shampoo | 300ml", "Intieme waslotion | 200ml", "Invisi'fix | Gel | Sculpting | Pot", "Invisible Deo Spray | 150ml", "Jeukende Hoofdhuid | Shampoo | 300ml", "Kastanjebruin - 22 | Haarkleuring", "Kastanjebruin - 400 | Haarkleuring", "Keratin | Shampoo", "Keratin Protect | Masker | 300ml", "Kids | Spray Anti-Klit", "King C | Hydraterende Creme | Baard | 100ml", "King C Gillette | 10x Mesjes", "Koude wasstrips | Gezicht", "Lady | Discreet | Normal", "Laser | verbeterde oog verzorging", "Laser Peeling Toner", "Lavendel | uit de Provence | Douchecrème", "Licht asblond - 8.1 | Haarkleuring", "Licht kastanjebruin - 5 | Haarkleuring", "Licht kastanjebruin - 500 | Haarkleuring", "Lift+oogcrème", "Lippenbalsem | Everon | Bio", "Lotion", "Lotion tonic | Blauw | Kracht 5", "Lotion tonique | Groen | Force 5", "Maandverband | Ultra nacht", "Maandverbanden | Long Plus", "Mach3 | Mesjes | Basis | 5st", "Mask | Total repair | 400ml", "Masker | Colorvive", "Massagegel | Aloe Vera", "Matt&Messy Paste", "Max Hold & Seal", "Menthol Fresh | Shampoo | 300ml", "Mesjes | Sensitive", "Micellair water", "Micellair Water Droge/gev Huid | 400ml", "Micellair Water Gevoelig Huid | 400ml", "Micellair Water Normal Huid | 400ml", "Micellaire | Reinigende olie", "Mondspoeling | 400ml", "Mondspray | Zonder alcohol", "Mondwater | Extra fresh | 500ml", "Mousse | Volume Lift", "Nacht creme | Golden Age", "Nachtcreme | Age perfect | Rijpere huid", "Nachtserum | Retinol Pur Laser", "Nachtverbanden| Maxi", "Naturals zeep olijf", "Natuurlijk heel heel licht blond - 110", "Natuurlijk ultralicht blond -01| Haarkleuring", "Navulling Aloë Vera | 25cl", "Navulling Shea b & Rozen extracten | 25cl", "Nivéa | Derma | Active Wash Gel | 150ml", "Nivea | Soft | Pot | 200 ml", "Nivea Visage | Cell serum Bakuchiol | 30ml", "Noorse Formule | Snel Absorberend | Handcrème", "Nutrition | Intense | Nacht", "OAP |  Niacinamide Daycream | 50ml", "Oleo intense | intens zwart 1-10", "Ondergoed | Zwart | Plus | Large | 8st", "Ontharingscrème", "Ontharingscrème Gevoelige Huid | 20 cl", "Ontschminker | Oog & lip | Waterproof", "Ontschminkingsdoekjes | Expert", "Ontschminkingsschijfjes | Ogen", "Ontschminkingsschijven", "Ontschminkschijfjes | Expert", "Oogcreme | Contour | Q10 plus | Anti-rimpels", "Oogreiniger", "Oorspray", "Oorstaafjes | navulling", "OP AP DagCr Collag | SPF30 | Rp huid | 50ml", "Opzetborstels | Cross action", "Oranjebloesem | douchecrème | BIO", "Original | Aftershave | 100ml", "Pads | Level 1", "Pants | Plus | Large", "Paste | Gentleman molding", "Permanente crèmekleuring|5.0|Bruin", "Petroleum Jelly", "Pleisters | Mix pack", "Poeder Volume | 10gr", "Pomp Vloeibare Zeep | Classic refill | 500 ml", "Prebiotic intieme waslotion | Sensitiv", "Pro-Expert 7 | Anti Roos | Shampoo", "Procomfort | Normal", "Proglide | Power | Mesjes | 4st", "Protect|Incontinentie|Pants|Plus|Large|14 pc", "Prox-Expert 7 | Anti-Haaruitval | Shampoo | 250ml", "Pure | Intensive | 3 in 1", "Pure Droogshampoo", "Pure Intense | Oil Control | Shampoo", "Q10 | Plus c energy | Dagcreme", "Reiniger Voor Gebitsprothese | TripleAction", "Reinigings doekjes", "Reinigingsdoekjes | dry", "Reinigingsgel | Pure | 3 in 1", "Reinigingslotion | Ogen |  Express 2 in 1", "Reinigingsmelk", "Reinigingsspray voor wonden", "Reinigingsvloeistof | Zachte lenzen", "Reinigingswater | Micellair", "Repair & Protect | Shampoo | 250ml", "Revitalift | Filler | Nacht", "Revitalift Filler Serum | Hyaluronzuur", "Rexona Men 72H Deodorant nonstop Spray Cobalt Dry 150 ml", "Rexona Men 72H Deodorant nonstop Spray Quantum Dry 150 ml", "Rexona Women 72H Deodorant nonstop Spray Cotton Dry 150 ml", "Rexona Women 72H Deodorant nonstop Spray Invisible on B&W clothes 150 ml", "Rexona Women 72H Deodorant nonstop Spray Shower Fresh 150 ml", "Rijst Scrub Egaliserend 75ml", "Roll | Fresh Pure | 50ml", "Roll Zero% Extra Control | 50ml", "Roller | Carribean Lemon", "S.ACT MASK OGEN DoeK ORANGE", "Scheerapparaat | Dames | Intuition", "Scheergel", "Scheermes | Intuition Sensitive Care", "Scheermesjes | Contour plus", "Scheerschuim | Classic Sensitive | 200ml", "Scheersysteem | Intiem", "Scheerzeep | In een bol | 125gr", "SCHOLL|  Dubbelzijdige Carbon vijl", "Schuim | Styling | Extra Strong | 150ml", "Sensigreen Amandelbloesem | douchegel", "Sensitive | Cotton| Ovaal", "Serum | Vit. C | Anti-Pigmentvlekken", "Shampoo | Longhair", "Sheergel | Protect & Care | 200ml", "Shower Mousse | Argan Oil | 200 ml", "Simply Venus 2 | 10+5 gratis", "Skin Food | Huidcrème | Bio", "Spiking | Gel", "Spray | Fresh Pure | 150ml", "Spray 0% | Fresh Natural | 150ml", "Ssheerschuim | Quick Rinse", "STERADENT|Hechtcrème Extra Sterk Anti-etensresten |75g", "Stick lippen | Original", "Stick lips | Soft rose", "Strips | Clear-up | Zuiverende", "Styling Mousse | Krullend Haar", "Styling Spray  | Extra Sterk N9", "Sublieme olie voor haren | Argan & Camelia olie", "Sun protect | Spray | F 50", "Sun Protect Dry | SPF30", "Sun Protect Dry Touch | SPF50", "Sun spray | Kids | Pure & sensitive | SPF50+", "Super UV mist spray | SPF50", "Tampons | Super", "Tandenborstel | Extra Soft", "Tandenstokers | Fijn", "Tandpasta | 75ml", "Total repair 19 | Spray Anti-Klit", "Total Repair 5 | Conditioner", "Triple Action", "Vanillemelk | douchecrème", "Veet Koude wasstrips | Gevoelige huid", "Verband | Urineverlies | Normal", "Verbanden | Long", "Verfrissende intieme wasgel", "Verzorgende oogmake-up remover", "Verzorging lang beschadigd haar | 200 ml", "Verzorgingscrème | Vezorging zonder uitspoelen | Avocat Karité", "Vloeibare handzeep | Aqua", "Vloeibare zeep | Framboos", "Voetcrème | Voedend", "Wasgel Hydraterend | Lavendel | 25 cl", "Water Micellair | Reinig | Bleuet | 400ml", "Waterstofperoxyde", "Wattenschijfjes", "Wattenstaafjes", "Wax | Ultra | 75ml", "WE 45+ Int AntiRimpel DagCr RetPept | 50ml", "WE 55+ | AntiRimpel DagCreme Calcium | 50ml", "Wegwerpscheermes | Extra 3 | Essent | 8st", "Wegwerpscheermesjes | Extra2 Essent | 5+2", "Wilde Roos | douchegel | BIO", "XXL Waterproof Pleister", "Zakdoeken | Box", "Zakdoeken 4 diktes | Originele doos | 100u | eco", "Zakdoekjes | Balsem | Eco", "Zeep | Calendula | Bio", "Zeep naturals amandelmelk", "Zeepjes | Verbena Citroen"] },
+  { id:'bab', name:"Baby", emoji:'👶', products:["3x60 | Babydoekjes | Sensitive", "Aftersun | Baby en Kinderen", "Baby olie | Aloë", "Baby Poeder", "Babydoekjes | Water", "Babykoekjes | 6M | Bio", "Badcrème | Calendula | Bio", "Badschuim | Relaxing", "Berenkoekjes | Honing", "Berensnacks | Wortel Tomaat | 6m+ | Bio", "Billenbalsem | Calendula | Bio", "Bodylotion | Verzachtend", "Borstvoedingspads", "Boudoir | 8M | Bio", "Broekjes | Nacht |13 Jaar+", "Desinfecterende handgel", "Doekjes", "Eerste Leeftijsmelk | Poeder | 0-6 m |", "Fruit | Pruim Appel | 4M | Bio", "Fruitpap | Appel Peer | 4M | Bio", "Fysiologisch serum", "Gezichtscrème | Calendula | Bio", "Granen | Cacao | 6 maanden", "Groeidrink | Rijst | 1-3", "Groeimelk | 1-3", "Groentemengeling | Bio | 4M", "Groenten-Pasta-Kip | Bio | 12M", "Groenten-Rijst-Kalkoen | Bio | 12M", "Kaassteren | 7M | Bio", "Knabbels | Wortel | 10M | Bio", "Knijpzak | Red One | 6M | Bio", "Knijpzakje | Peer Banaan | 8M", "Knijpzakjes | Fruits | Multipack | Bio", "Koekje | Natuur | 12 maanden", "Koekjes | 12M", "Koekjesmeel | Glutenvrij | Baby |", "Liniment reinigingsmelk | Bio", "Luierbroekjes | Maat 5", "Luiers | Maat 4", "Luierzakjes | 100 st", "Maaltijd | Bloemkool | 4M", "Maïsknabbels | Maïs Erwten | 10M | Bio", "Maïssticks | Banaan Perzik | 7M | Bio", "Matrasbeschermers | Wegwerpbaar", "Melkdessert | Banaan | 6 maanden", "Nachtbroekjes | Maat 6", "Natuurlijke Vette Creme", "Neusspray", "Opvolgmelk | Poeder | 6M+", "Pasta-Ham-Groenten | Bio | 6M", "Plantaardig dessert | Mango Kiwi | 6m | Bio", "Pletkoekjes voor papjes | 6M", "Reinigende gel", "Reinigende Wasgel | Baby en Kinderen", "Rijstwafeltjes | Appel | 7M | Bio", "Ringen | Groenten | 12M | Bio", "Sap | Appel mild | 4M | Bio", "Schuimbad", "Shampoo", "Shampoo & douchecrème | Lichaam & haar | Calendula | Bio", "Shampoo en Body Wash | 2 in 1 | 0% parfum", "Snack | Chewing Wheels | Banaan", "Snoetenpoetsers | Disney", "Sticks | Mais en Wortel | 7M | Bio", "Tagliatelles-Spinazie-Kaas | Bio | 12M", "Verse babyvoeding | Macaroni | Bio", "Vitamine D | Olie", "Voedende Shampoo | Baby & Kinderen", "Vruchtensiroop", "Wascreme | Zeepvrij | Calendulla", "Wasgel | Zeepvrij", "Wash Gel | Cleansing | Navulling", "Wattenschijfje | Vierkant | Maxi | Bio", "Zachte amandelolie", "Zachte Creme | Pot", "Zinkzalf", "Zuigelingenmelk | Bio", "Zwangerschapsolie | Bio"] },
+  { id:'kaz', name:"Kazidomi", emoji:'🌿', products:["Actieve kool | Bio", "Ahornsiroop | Bio", "Amandelen | Natuur | Bio", "Bananenchips | Bio", "Basil Smash | Bio", "Bloemenhoning | Bio", "Boule énergie | Noisette | Cacao | Bio", "Cashewnoten | Natuur | Bio", "Chiazaad | Bio", "Chocolade | Pure | Bio", "Confituur | Blauwe Bes | Bio", "Gegrilde artisjok | Bio", "Ghee | Bio", "Granola | Natuur | Bio", "Hazelnoot | Natuur | Bio", "Kokosmelk | Bio", "Kokossuiker | Bio | Fairtrade", "Kombucha | Zwarte bessen | Bio", "Konfituur | Aardbei | Bio", "Medjoul dadels | Bio", "Penne | Linzen | Bio", "Pindakaas | Bio", "Poeder | Cacao | Bio", "Pure chocolade | 85% | Bio", "Rijs tagliatelle | Kurkuma | Bio", "Rijst Tagliatelle | Spirulina | Bio", "Rode Pesto | Vegan | Bio", "Sesampasta | Tahini | Bio", "Siroop | Agave | Bio", "Smeerpasta | Amandel | Bio", "Sojasaus | Sohyu | Bio", "Tapenade | Tomaat | Bio", "Tofu | Olijven | Bio", "Tofu kurkuma | Bio", "Tofu Natuur | Bio", "Tofu Rosso | Bio", "Waterkefir | Citroen verbena | Bio", "Zongedroogde tomaten | Bio"] },
+];
+
+let list = {};
+let currentTab = 'list';
+let noteTarget = null;
+let listId = null;
+let dbRef = null;
+let collapsedCats = {};
+let toastTimer = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function getListIdFromUrl() { return new URLSearchParams(window.location.search).get('list'); }
+function setListIdInUrl(id) { const u = new URL(window.location.href); u.searchParams.set('list', id); history.replaceState({}, '', u.toString()); }
+function generateId() { return Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }
+
+function setSyncBar(state) {
+  const b = document.getElementById('syncBar');
+  b.className = 'sync-bar ' + state;
+  if (state === 'ok') setTimeout(() => b.classList.remove('ok'), 1200);
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+window.createNewList = function() {
+  const id = generateId();
+  document.getElementById('newlistModal').style.display = 'none';
+  initList(id);
+};
+
+function initList(id) {
+  listId = id;
+  setListIdInUrl(id);
+  document.getElementById('listIdLabel').textContent = id;
+  localStorage.setItem('lastListId', id);
+  dbRef = ref(db, 'lists/' + id);
+  setSyncBar('syncing');
+  onValue(dbRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    list = data.items || {};
+    if (data.name) document.getElementById('listIdLabel').textContent = data.name;
+    setSyncBar('ok');
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    render();
+  }, (err) => {
+    setSyncBar('error');
+    console.error('Firebase error:', err);
+    document.getElementById('loadingOverlay').innerHTML =
+      '<div style="padding:24px;text-align:center;max-width:340px;">' +
+      '<div style="font-size:40px;margin-bottom:12px;">⚠️</div>' +
+      '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">Verbindingsfout</div>' +
+      '<div style="font-size:12px;color:#e31e24;background:#ffeaea;border-radius:10px;padding:12px;word-break:break-all;text-align:left;margin-bottom:16px;font-family:monospace;">' +
+      (err.code || '') + ': ' + (err.message || JSON.stringify(err)) +
+      '</div>' +
+      '<button onclick="location.reload()" style="background:#e31e24;color:white;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;">Opnieuw proberen</button>' +
+      '</div>';
+  });
+}
+
+// ── Render ────────────────────────────────────────────────────────────
+function render() {
+  if (currentTab === 'list') renderList();
+  else renderBrowse();
+}
+
+function renderList() {
+  const main = document.getElementById('main');
+  const entries = Object.entries(list);
+  const active = entries.filter(([,i]) => !i.checked);
+  const done   = entries.filter(([,i]) => i.checked);
+
+  if (entries.length === 0) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Lijst is leeg</div><div class="empty-sub">Voeg producten toe via de zoekbalk of het tabblad Bladeren.</div></div>`;
+    return;
+  }
+
+  const byCat = {};
+  active.forEach(([id, item]) => { const c = item.catId||'other'; if(!byCat[c])byCat[c]=[]; byCat[c].push([id,item]); });
+
+  let html = ``;
+
+  CATEGORIES.forEach(cat => {
+    const catItems = byCat[cat.id];
+    if (!catItems || !catItems.length) return;
+    const col = collapsedCats[cat.id] ? 'collapsed' : '';
+    html += `<div class="category-section ${col}" id="cat-${cat.id}">
+      <div class="category-header" onclick="toggleCat('${cat.id}')">
+        <div class="cat-left"><span class="cat-emoji">${cat.emoji}</span><span class="cat-name">${cat.name}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${catItems.length}</span><span class="cat-chevron">▾</span></div>
+      </div>
+      <div class="category-items">${catItems.map(([id,item]) => renderItem(id,item)).join('')}</div>
+    </div>`;
+  });
+
+  const other = byCat['other']||[];
+  if (other.length) {
+    const col = collapsedCats['other'] ? 'collapsed' : '';
+    html += `<div class="category-section ${col}" id="cat-other">
+      <div class="category-header" onclick="toggleCat('other')">
+        <div class="cat-left"><span class="cat-emoji">📌</span><span class="cat-name">Overig</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${other.length}</span><span class="cat-chevron">▾</span></div>
+      </div>
+      <div class="category-items">${other.map(([id,item]) => renderItem(id,item)).join('')}</div>
+    </div>`;
+  }
+
+  if (done.length) {
+    html += `<div class="checked-section"><div class="checked-title">✓ In mandje (${done.length})</div>${done.map(([id,item]) => renderItem(id,item)).join('')}</div>`;
+  }
+  main.innerHTML = html;
+}
+
+function renderItem(id, item) {
+  const unit = item.unit||'aantal';
+  const qtyLabel = `${item.qty||1} ${unit==='aantal'?'×':unit}`;
+  return `<div class="item-card ${item.checked?'done':''}" id="item-${id}">
+    <div class="item-checkbox ${item.checked?'checked':''}" onclick="checkItem('${id}')"></div>
+    <div class="item-info" onclick="openDetail('${id}')" style="cursor:pointer;flex:1;min-width:0;">
+      <div class="item-name">${item.name}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
+    </div>
+    <span class="item-qty-label" onclick="openDetail('${id}')" style="cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;font-weight:500;">${qtyLabel}</span>
+    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-regular fa-trash-can" style="color:#777;"></i></button>
+  </div>`;
+}
+
+function renderBrowse() {
+  const main = document.getElementById('main');
+  let html = `<div class="browse-grid">`;
+  CATEGORIES.forEach(cat => {
+    const count = Object.values(list).filter(i => i.catId===cat.id && !i.checked).length;
+    html += `<div class="browse-card" onclick="openPanel('${cat.id}')">
+      <div class="bc-emoji">${cat.emoji}</div>
+      <div class="bc-name">${cat.name}</div>
+      ${count ? `<div style="margin-top:6px;"><span class="cat-count">${count}</span></div>` : ''}
+    </div>`;
+  });
+  html += `</div>`;
+  main.innerHTML = html;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────
+window.toggleCat = function(catId) {
+  collapsedCats[catId] = !collapsedCats[catId];
+  const el = document.getElementById('cat-'+catId);
+  if (el) el.classList.toggle('collapsed', collapsedCats[catId]);
+};
+
+window.checkItem = function(id) {
+  const item = list[id]; if(!item) return;
+  setSyncBar('syncing');
+  if (!item.checked) {
+    const el = document.getElementById('item-'+id);
+    if (el) el.classList.add('checking');
+    setTimeout(() => update(ref(db,'lists/'+listId+'/items/'+id), {checked:true}), 300);
+  } else {
+    update(ref(db,'lists/'+listId+'/items/'+id), {checked:false});
+  }
+};
+
+window.changeQty = function(id, delta) {
+  const item = list[id]; if(!item) return;
+  const newQty = Math.max(1, (item.qty||1)+delta);
+  const el = document.querySelector(`#item-${id} .qty-num`);
+  if (el) el.textContent = newQty;
+  setSyncBar('syncing');
+  update(ref(db,'lists/'+listId+'/items/'+id), {qty:newQty});
+};
+
+// ── Usage history (persisted locally) ─────────────────────────────────
+const HISTORY_KEY = 'dlz_used_products';
+function loadHistory() {
+  try { return new Set(JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')); } catch { return new Set(); }
+}
+function saveHistory(h) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify([...h].slice(-500))); } catch {}
+}
+function recordUsed(name, catId) {
+  const h = loadHistory();
+  h.add(name + '|' + catId);
+  saveHistory(h);
+}
+
+window.removeItem = function(id) {
+  const item = list[id];
+  if (item) recordUsed(item.name, item.catId);
+  setSyncBar('syncing');
+  remove(ref(db,'lists/'+listId+'/items/'+id));
+};
+
+function addProduct(name, catId) {
+  recordUsed(name, catId);
+  const existing = Object.entries(list).find(([,i]) => i.name===name && i.catId===catId && !i.checked);
+  setSyncBar('syncing');
+  if (existing) {
+    const [id, item] = existing;
+    update(ref(db,'lists/'+listId+'/items/'+id), {qty:(item.qty||1)+1});
+    showToast(`+1 ${name}`);
+  } else {
+    const newRef = push(ref(db,'lists/'+listId+'/items'));
+    set(newRef, {name, catId:catId||'other', qty:1, note:'', checked:false});
+    showToast(`${name} toegevoegd ✓`);
+  }
+}
+
+// ── Product detail modal ───────────────────────────────────────────────
+window.openDetail = window.openNote = function(id) {
+  noteTarget = id;
+  const item = list[id]; if (!item) return;
+  document.getElementById('detailTitle').textContent = item.name.split('|')[0].trim();
+  document.getElementById('noteInput').value = item.note||'';
+  document.getElementById('detailQty').textContent = item.qty||1;
+  selectUnit(item.unit||'aantal', false);
+  document.getElementById('noteModal').classList.add('show');
+};
+window.closeNote = function() { noteTarget=null; document.getElementById('noteModal').classList.remove('show'); };
+
+window.detailChangeQty = function(delta) {
+  const el = document.getElementById('detailQty');
+  el.textContent = Math.max(1, parseInt(el.textContent)+delta);
+};
+
+let _selectedUnit = 'aantal';
+window.selectUnit = function(unit, updateBtn=true) {
+  _selectedUnit = unit;
+  if (updateBtn) {
+    ['aantal','kg','g','l'].forEach(u => {
+      const b = document.getElementById('unit-'+u);
+      if (b) b.classList.toggle('active', u===unit);
+    });
+  } else {
+    ['aantal','kg','g','l'].forEach(u => {
+      const b = document.getElementById('unit-'+u);
+      if (b) b.classList.toggle('active', u===unit);
+    });
+  }
+};
+
+window.saveNote = function() {
+  if (!noteTarget) return;
+  setSyncBar('syncing');
+  const qty = parseInt(document.getElementById('detailQty').textContent)||1;
+  const note = document.getElementById('noteInput').value.trim();
+  update(ref(db,'lists/'+listId+'/items/'+noteTarget), {note, qty, unit:_selectedUnit});
+  closeNote();
+};
+
+// ── Custom product ─────────────────────────────────────────────────────
+window.openCustom = function() {
+  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('customName').value = '';
+  document.getElementById('customModal').classList.add('show');
+  setTimeout(() => document.getElementById('customName').focus(), 100);
+};
+window.closeCustom = function() { document.getElementById('customModal').classList.remove('show'); };
+window.saveCustom = function() {
+  const name = document.getElementById('customName').value.trim();
+  const catId = document.getElementById('customCat').value;
+  if (!name) return;
+  addProduct(name, catId); closeCustom();
+};
+
+// ── Browse panel ───────────────────────────────────────────────────────
+window.openPanel = function(catId) {
+  const cat = CATEGORIES.find(c=>c.id===catId); if(!cat) return;
+  document.getElementById('panelTitle').textContent = cat.emoji+' '+cat.name;
+  const products = document.getElementById('panelProducts');
+  products.innerHTML = cat.products.map(p => {
+    const inList = Object.values(list).find(i=>i.name===p&&i.catId===catId&&!i.checked);
+    const k = catId+'_'+p.replace(/\W/g,'_');
+    return `<div class="product-item">
+      <span class="pi-name">${p}</span>
+      <button class="pi-add ${inList?'added':''}" id="pibtn-${k}" onclick="panelAdd('${catId}','${p.replace(/'/g,"\\'")}','${k}')">
+        ${inList?'✓ In lijst':'+ Voeg toe'}
+      </button>
+    </div>`;
+  }).join('');
+  document.getElementById('productsPanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('show');
+};
+window.closePanel = function() {
+  document.getElementById('productsPanel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('show');
+  if (currentTab==='browse') renderBrowse();
+};
+window.panelAdd = function(catId, name, k) {
+  addProduct(name, catId);
+  const btn = document.getElementById('pibtn-'+k);
+  if (btn) { btn.textContent='✓ In lijst'; btn.classList.add('added'); }
+};
+
+// ── Search ─────────────────────────────────────────────────────────────
+let searchTimeout = null;
+window.onSearch = function(val) { clearTimeout(searchTimeout); searchTimeout = setTimeout(()=>doSearch(val),120); };
+
+function doSearch(val) {
+  const q = val.trim().toLowerCase();
+  const dropdown = document.getElementById('searchDropdown');
+  const results  = document.getElementById('searchResults');
+  if (!q) { dropdown.classList.remove('show'); return; }
+  let matches = [];
+  CATEGORIES.forEach(cat => cat.products.forEach(p => { if(p.toLowerCase().includes(q)) matches.push({name:p,cat:cat.name,catId:cat.id,emoji:cat.emoji}); }));
+  if (!matches.length) {
+    results.innerHTML = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
+      <div class="search-result-item" onclick="openCustomFromSearch('${val.replace(/'/g,"\\'")}')">
+        <div class="sri-info"><div class="sri-name">➕ "${val}" toevoegen</div><div class="sri-cat">Eigen product</div></div>
+      </div>`;
+  } else {
+    results.innerHTML = matches.slice(0,12).map(m => {
+      const inList = Object.values(list).find(i=>i.name===m.name&&i.catId===m.catId&&!i.checked);
+      const k = 'sr_'+m.catId+'_'+m.name.replace(/\W/g,'_');
+      return `<div class="search-result-item">
+        <div class="sri-info"><div class="sri-name">${m.emoji} ${m.name}</div><div class="sri-cat">${m.cat}</div></div>
+        <button class="sri-add ${inList?'added':''}" id="${k}" onclick="searchAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')">
+          ${inList?'✓':'+ Voeg toe'}
+        </button>
+      </div>`;
+    }).join('');
+  }
+  dropdown.classList.add('show');
+}
+
+window.searchAdd = function(catId, name, k) {
+  addProduct(name, catId);
+  const btn = document.getElementById(k);
+  if (btn) { btn.textContent='✓'; btn.classList.add('added'); }
+};
+window.showDropdown = function() { const v=document.getElementById('searchInput').value; if(v.trim()) doSearch(v); };
+window.openCustomFromSearch = function(val) {
+  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('customName').value = val;
+  document.getElementById('customModal').classList.add('show');
+  document.getElementById('searchDropdown').classList.remove('show');
+  document.getElementById('searchInput').value = '';
+};
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchDropdown').contains(e.target) && e.target!==document.getElementById('searchInput'))
+    document.getElementById('searchDropdown').classList.remove('show');
+});
+
+// ── Tabs ───────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.getElementById('tab-list').classList.toggle('active', tab==='list');
+  document.getElementById('tab-browse').classList.toggle('active', tab==='browse');
+  render();
+};
+
+// ── Share ──────────────────────────────────────────────────────────────
+window.openShare = function() {
+  const url = window.location.href;
+  document.getElementById('shareLink').textContent = url;
+  document.getElementById('shareModal').classList.add('show');
+  window._shareUrl = url;
+};
+window.closeShare = function() { document.getElementById('shareModal').classList.remove('show'); };
+window.doShare = function(method) {
+  if (method==='copy') {
+    navigator.clipboard.writeText(window._shareUrl).then(()=>{showToast('Link gekopieerd! ✓'); closeShare();}).catch(()=>{
+      const ta=document.createElement('textarea'); ta.value=window._shareUrl; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Link gekopieerd! ✓'); closeShare();
+    });
+  } else {
+    const text = 'Bekijk mijn boodschappenlijst: '+window._shareUrl;
+    if (navigator.share) { navigator.share({title:'Boodschappenlijst',text,url:window._shareUrl}).then(closeShare).catch(()=>{}); }
+    else { window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank'); closeShare(); }
+  }
+};
+
+// ── New list ───────────────────────────────────────────────────────────
+window.confirmNewList = function() {
+  if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
+};
+
+// ── Connect to shared list ─────────────────────────────────────────────
+window.showConnectInput = function() {
+  document.getElementById('connectSection').style.display = 'none';
+  document.getElementById('connectInputSection').style.display = 'block';
+  setTimeout(() => document.getElementById('connectUrlInput').focus(), 100);
+};
+
+function extractListIdFromUrl(url) {
+  try {
+    const u = new URL(url.trim());
+    return u.searchParams.get('list');
+  } catch { return null; }
+}
+
+window.validateConnectUrl = function() {
+  const val = document.getElementById('connectUrlInput').value;
+  const id = extractListIdFromUrl(val);
+  const btn = document.getElementById('connectBtn');
+  const err = document.getElementById('connectError');
+  if (val.trim() === '') { btn.disabled = true; err.style.display = 'none'; return; }
+  if (id) { btn.disabled = false; err.style.display = 'none'; }
+  else { btn.disabled = true; err.style.display = 'block'; }
+};
+
+window.connectToList = function() {
+  const val = document.getElementById('connectUrlInput').value;
+  const id = extractListIdFromUrl(val);
+  if (!id) return;
+  document.getElementById('newlistModal').style.display = 'none';
+  initList(id);
+};
+
+// ── Boot ───────────────────────────────────────────────────────────────
+const urlListId = getListIdFromUrl();
+if (urlListId) {
+  initList(urlListId);
+} else {
+  const lastId = localStorage.getItem('lastListId');
+  if (lastId) { initList(lastId); }
+  else { document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('newlistModal').style.display='flex'; }
+}
+
+// ── FAB Search ─────────────────────────────────────────────────────────
+// Keep fab sheet above the keyboard using visualViewport
+function positionFabSheet() {
+  const modal = document.getElementById('fabSearchModal');
+  if (modal.style.display === 'none') return;
+  const vv = window.visualViewport;
+  if (vv) {
+    const offsetFromBottom = window.innerHeight - (vv.offsetTop + vv.height);
+    modal.style.bottom = offsetFromBottom + 'px';
+  }
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', positionFabSheet);
+  window.visualViewport.addEventListener('scroll', positionFabSheet);
+}
+
+window.openFabSearch = function() {
+  const trigger = document.getElementById('fabTriggerInput');
+  trigger.value = '';
+  trigger.focus({ preventScroll: true });
+
+  const modal = document.getElementById('fabSearchModal');
+  modal.style.display = 'flex';
+  modal.style.bottom = '0px';
+  document.getElementById('fabSearchBackdrop').style.display = 'block';
+  renderFabResults('');
+
+  setTimeout(() => {
+    const real = document.getElementById('fabSearchInput');
+    real.value = '';
+    real.focus({ preventScroll: true });
+    trigger.blur();
+    positionFabSheet();
+  }, 80);
+};
+window.closeFabSearch = function() {
+  const modal = document.getElementById('fabSearchModal');
+  modal.style.display = 'none';
+  modal.style.bottom = '0px';
+  document.getElementById('fabSearchBackdrop').style.display = 'none';
+  document.getElementById('fabSearchInput').value = '';
+  document.getElementById('fabSearchResults').innerHTML = '';
+};
+
+window.onFabSearch = function(val) { renderFabResults(val); };
+
+function renderFabResults(val) {
+  const q = val.trim().toLowerCase();
+  const container = document.getElementById('fabSearchResults');
+  if (!q) { container.innerHTML = ''; return; }
+
+  // Build set of previously used product names from persistent history + active list
+  const usedKeys = loadHistory();
+  Object.values(list).forEach(i => usedKeys.add(i.name + '|' + i.catId));
+
+  let matches = [];
+  CATEGORIES.forEach(cat => cat.products.forEach(p => {
+    if (p.toLowerCase().includes(q)) {
+      const used = usedKeys.has(p + '|' + cat.id);
+      matches.push({name:p, cat:cat.name, catId:cat.id, emoji:cat.emoji, used});
+    }
+  }));
+
+  // Sort: previously used first, then alphabetical
+  matches.sort((a, b) => {
+    if (a.used && !b.used) return -1;
+    if (!a.used && b.used) return 1;
+    return a.name.localeCompare(b.name, 'nl');
+  });
+
+  let html = matches.slice(0, 40).map(m => {
+    const inList = Object.values(list).find(i => i.name===m.name && i.catId===m.catId && !i.checked);
+    const k = 'fab_' + m.catId + '_' + m.name.replace(/\W/g,'_');
+    return `<div class="search-result-item" onclick="fabAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')" id="${k}" ${m.used ? 'style="background:#fafff6;"' : ''}>
+      <span class="sri-name">${m.used ? '🕐 ' : ''}${m.name}</span>
+      <span class="sri-cat">${m.emoji} ${m.cat}</span>
+    </div>`;
+  }).join('');
+
+  // "Add to catalogue" option when typing something not found
+  if (q && matches.length === 0) {
+    html = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
+      <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
+        <span class="sri-name">➕ "${val}" toevoegen</span>
+        <span class="sri-cat">Nieuw product</span>
+      </div>`;
+  } else if (q && !matches.find(m => m.name.toLowerCase() === q)) {
+    // typed something but also show "add new" at bottom
+    html += `<div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
+      <div class="sri-info">
+        <div class="sri-name">➕ "${val}" toevoegen aan catalogus</div>
+        <div class="sri-cat">Nieuw product bewaren voor later</div>
+      </div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+window.fabAdd = function(catId, name, k) {
+  addProduct(name, catId);
+  showToast(name.split('|')[0].trim() + ' toegevoegd ✓');
+  closeFabSearch();
+};
+
+window.fabAddNew = function(val) {
+  closeFabSearch();
+  // Pre-fill and open the custom modal
+  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('customName').value = val;
+  document.getElementById('customModal').classList.add('show');
+};
+
+// When saving a custom product, also add it to the CATEGORIES catalogue
+const _origSaveCustom = window.saveCustom;
+window.saveCustom = function() {
+  const name = document.getElementById('customName').value.trim();
+  const catId = document.getElementById('customCat').value;
+  if (!name) return;
+  // Add to local catalogue so it shows in future FAB searches
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (cat && !cat.products.includes(name)) {
+    cat.products.push(name);
+    cat.products.sort();
+  }
+  addProduct(name, catId);
+  closeCustom();
+};
+
+
+// ── Menu ──────────────────────────────────────────────────────────────
+window.openMenu = function() {
+  document.getElementById('menuOverlay').style.display = 'block';
+  document.getElementById('menuPopup').style.display = 'flex';
+};
+window.closeMenu = function() {
+  document.getElementById('menuOverlay').style.display = 'none';
+  document.getElementById('menuPopup').style.display = 'none';
+};
+window.menuRemoveChecked = function() {
+  closeMenu();
+  const checked = Object.entries(list).filter(([,i]) => i.checked);
+  if (!checked.length) { showToast('Geen afgevinkte items'); return; }
+  checked.forEach(([id]) => remove(ref(db,'lists/'+listId+'/items/'+id)));
+  showToast(`${checked.length} item${checked.length>1?'s':''} verwijderd`);
+};
+window.menuRefresh = function() {
+  closeMenu();
+  location.reload();
+};
+window.menuNewList = function() {
+  closeMenu();
+  if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
+};
+window.menuConnectList = function() {
+  closeMenu();
+  document.getElementById('connectModalInput').value = '';
+  document.getElementById('connectModalError').style.display = 'none';
+  document.getElementById('connectModalBtn').disabled = true;
+  document.getElementById('connectModal').classList.add('show');
+  setTimeout(() => document.getElementById('connectModalInput').focus(), 80);
+};
+window.closeConnectModal = function() { document.getElementById('connectModal').classList.remove('show'); };
+window.validateConnectModal = function() {
+  const val = document.getElementById('connectModalInput').value;
+  const id = extractListIdFromUrl(val);
+  const btn = document.getElementById('connectModalBtn');
+  const err = document.getElementById('connectModalError');
+  if (val.trim() === '') { btn.disabled = true; err.style.display = 'none'; return; }
+  if (id) { btn.disabled = false; err.style.display = 'none'; }
+  else { btn.disabled = true; err.style.display = 'block'; }
+};
+window.confirmConnectModal = function() {
+  const val = document.getElementById('connectModalInput').value;
+  const id = extractListIdFromUrl(val);
+  if (!id) return;
+  closeConnectModal();
+  initList(id);
+};
+window.menuRename = function() {
+  closeMenu();
+  const current = document.getElementById('listIdLabel').textContent;
+  document.getElementById('renameInput').value = current.startsWith('Lijst') ? '' : current;
+  document.getElementById('renameModal').classList.add('show');
+  setTimeout(() => document.getElementById('renameInput').focus(), 80);
+};
+window.closeRename = function() { document.getElementById('renameModal').classList.remove('show'); };
+window.saveRename = function() {
+  const name = document.getElementById('renameInput').value.trim();
+  if (!name) return;
+  setSyncBar('syncing');
+  update(ref(db,'lists/'+listId), {name});
+  document.getElementById('listIdLabel').textContent = name;
+  closeRename();
+  showToast('Lijst hernoemd ✓');
+};
+
+// ── Service Worker ─────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
