@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#e31e24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Delhaize Lijst">
+<title>Delhaize Boodschappenlijst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e31e24; --red-light: #ffeaea;
+    --green: #00a651;
+    --grey: #f5f5f5; --grey-mid: #e0e0e0;
+    --text: #1a1a1a; --text-muted: #888;
+    --radius: 14px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Outfit', sans-serif; background: var(--grey); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
+
+  /* Sync bar */
+  .sync-bar { height: 3px; background: var(--grey-mid); position: relative; overflow: hidden; }
+  .sync-bar.syncing::after { content:''; position:absolute; left:-40%; width:40%; height:100%; background:var(--green); animation: syncSlide 0.9s ease-in-out infinite; }
+  .sync-bar.error::after { content:''; position:absolute; inset:0; background:var(--red); }
+  .sync-bar.ok::after { content:''; position:absolute; inset:0; background:var(--green); opacity:0.5; }
+  @keyframes syncSlide { 0%{left:-40%} 100%{left:140%} }
+
+  /* Header */
+  .header { background: var(--red); color: white; padding: 0 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(227,30,36,0.25); }
+  .header-top { display:flex; align-items:center; justify-content:space-between; padding: 12px 0 8px; }
+  .logo-wrap { display:flex; flex-direction:column; gap:1px; }
+  .logo { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+  .logo span { opacity:0.7; font-weight:300; }
+  .list-id-label { font-size:10px; opacity:0.65; letter-spacing:0.04em; }
+  .header-actions { display:flex; gap:8px; }
+  .icon-btn { background:rgba(255,255,255,0.18); border:none; border-radius:10px; color:white; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; transition:background 0.15s; }
+  .icon-btn:active { background:rgba(255,255,255,0.32); }
+
+  /* Search */
+  .search-wrap { padding: 8px 0 12px; position: relative; }
+  .search-input { width:100%; background:rgba(255,255,255,0.95); border:none; border-radius:10px; padding:10px 38px 10px 14px; font-family:'Outfit',sans-serif; font-size:15px; color:var(--text); outline:none; }
+  .search-input::placeholder { color:#aaa; }
+  .search-icon { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:16px; color:#aaa; pointer-events:none; }
+
+  /* Dropdown */
+  .search-dropdown { position:fixed; top:133px; left:50%; transform:translateX(-50%); width:min(480px,100vw); background:white; border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow-lg); z-index:200; max-height:60vh; overflow-y:auto; display:none; }
+  .search-dropdown.show { display:block; }
+  .search-result-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--grey-mid); gap:10px; transition:background 0.1s; }
+  .search-result-item:last-child { border-bottom:none; }
+  .search-result-item:active { background:var(--grey); }
+  .sri-info { flex:1; min-width:0; }
+  .sri-name { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sri-cat { font-size:12px; color:var(--text-muted); }
+  .sri-add { background:var(--red); color:white; border:none; border-radius:8px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+  .sri-add.added { background:var(--green); }
+  .no-results { padding:20px; text-align:center; color:var(--text-muted); font-size:14px; }
+
+  /* Tabs */
+  .tabs { display:flex; background:white; border-bottom:2px solid var(--grey-mid); position:sticky; top:133px; z-index:90; }
+  .tab { flex:1; padding:11px 8px; text-align:center; font-size:13px; font-weight:500; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color 0.15s,border-color 0.15s; }
+  .tab.active { color:var(--red); border-color:var(--red); font-weight:700; }
+
+  main { padding: 12px 12px 100px; }
+
+  /* Loading */
+  .loading-overlay { position:fixed; inset:0; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:16px; }
+  .loading-overlay.hidden { display:none; }
+  .loading-spinner { width:42px; height:42px; border:4px solid var(--grey-mid); border-top-color:var(--red); border-radius:50%; animation:spin 0.7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { font-size:15px; color:var(--text-muted); font-weight:500; }
+
+  /* Category */
+  .category-section { margin-bottom:10px; }
+  .category-header { display:flex; align-items:center; justify-content:space-between; background:white; border-radius:var(--radius); padding:13px 16px; cursor:pointer; box-shadow:var(--shadow); user-select:none; transition:background 0.12s; }
+  .category-header:active { background:var(--grey); }
+  .cat-left { display:flex; align-items:center; gap:10px; }
+  .cat-emoji { font-size:22px; }
+  .cat-name { font-weight:600; font-size:15px; }
+  .cat-count { background:var(--red); color:white; border-radius:20px; padding:2px 8px; font-size:12px; font-weight:700; min-width:22px; text-align:center; }
+  .cat-chevron { font-size:14px; color:var(--text-muted); transition:transform 0.2s; }
+  .category-section.collapsed .cat-chevron { transform:rotate(-90deg); }
+  .category-items { margin-top:4px; display:flex; flex-direction:column; gap:4px; overflow:hidden; transition:max-height 0.3s ease; max-height:2000px; }
+  .category-section.collapsed .category-items { max-height:0; }
+
+  /* Item card */
+  .item-card { background:white; border-radius:12px; padding:12px 14px; box-shadow:var(--shadow); display:flex; align-items:flex-start; gap:12px; transition:opacity 0.3s,transform 0.3s,max-height 0.35s,padding 0.35s; }
+  .item-card.checking { opacity:0; transform:translateX(60px); pointer-events:none; max-height:0; padding:0; overflow:hidden; }
+  .item-card.done .item-name { text-decoration:line-through; color:var(--text-muted); }
+
+  .item-checkbox { width:24px; height:24px; border:2.5px solid var(--grey-mid); border-radius:7px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:1px; transition:background 0.15s,border-color 0.15s; }
+  .item-checkbox.checked { background:var(--green); border-color:var(--green); }
+  .item-checkbox.checked::after { content:'✓'; color:white; font-size:14px; font-weight:700; line-height:1; }
+
+  .item-info { flex:1; min-width:0; }
+  .item-name { font-weight:500; font-size:15px; line-height:1.3; }
+  .item-note { font-size:12px; color:var(--text-muted); margin-top:3px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .item-qty { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .qty-btn { width:28px; height:28px; border:2px solid var(--grey-mid); border-radius:8px; background:none; font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); font-weight:300; transition:border-color 0.12s,color 0.12s; }
+  .qty-btn:active { border-color:var(--red); color:var(--red); }
+  .qty-num { font-weight:700; font-size:16px; min-width:20px; text-align:center; }
+
+  .item-actions { display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
+  .item-action-btn { width:28px; height:28px; border:none; border-radius:7px; background:var(--grey); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:background 0.12s; }
+  .item-action-btn:active { background:var(--grey-mid); }
+
+  /* Empty */
+  .empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); }
+  .empty-icon { font-size:54px; margin-bottom:14px; }
+  .empty-title { font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px; }
+  .empty-sub { font-size:14px; line-height:1.5; }
+
+  /* Browse */
+  .browse-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .browse-card { background:white; border-radius:var(--radius); padding:16px 12px; box-shadow:var(--shadow); cursor:pointer; text-align:center; transition:transform 0.1s; border:2px solid transparent; }
+  .browse-card:active { transform:scale(0.97); }
+  .bc-emoji { font-size:32px; margin-bottom:6px; }
+  .bc-name { font-size:13px; font-weight:600; line-height:1.3; }
+
+  /* Panel */
+  .products-panel { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:min(480px,100vw); background:white; border-radius:20px 20px 0 0; box-shadow:0 -8px 32px rgba(0,0,0,0.14); z-index:300; max-height:65vh; display:flex; flex-direction:column; transition:transform 0.3s cubic-bezier(0.32,0.72,0,1); }
+  .products-panel.open { transform:translateX(-50%) translateY(0); }
+  .panel-handle { width:40px; height:4px; background:var(--grey-mid); border-radius:2px; margin:10px auto 0; flex-shrink:0; }
+  .panel-header { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--grey-mid); flex-shrink:0; }
+  .panel-title { font-size:16px; font-weight:700; }
+  .panel-close { width:30px; height:30px; border:none; background:var(--grey); border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; }
+  .panel-products { overflow-y:auto; flex:1; padding:8px 12px 24px; }
+  .product-item { display:flex; align-items:center; justify-content:space-between; padding:11px 12px; border-bottom:1px solid var(--grey); gap:10px; }
+  .product-item:last-child { border-bottom:none; }
+  .pi-name { font-size:14px; font-weight:500; flex:1; }
+  .pi-add { background:var(--red); color:white; border:none; border-radius:8px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
+  .pi-add.added { background:var(--green); }
+  .panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:299; display:none; }
+  .panel-overlay.show { display:block; }
+
+  /* Modals */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+  .modal-overlay.show { display:flex; }
+  .modal-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 40px; width:min(480px,100vw); }
+  .modal-title { font-size:17px; font-weight:700; margin-bottom:14px; }
+  .modal-input { width:100%; border:2px solid var(--grey-mid); border-radius:10px; padding:12px 14px; font-family:'Outfit',sans-serif; font-size:15px; outline:none; resize:none; color:var(--text); }
+  .modal-input:focus { border-color:var(--red); }
+  .modal-btns { display:flex; gap:10px; margin-top:12px; }
+  .btn { flex:1; padding:12px; border-radius:10px; border:none; font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
+  .btn-primary { background:var(--red); color:white; }
+  .btn-secondary { background:var(--grey); color:var(--text); }
+
+  /* Share modal */
+  .share-modal { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; display:none; align-items:flex-end; justify-content:center; }
+  .share-modal.show { display:flex; }
+  .share-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 48px; width:min(480px,100vw); }
+  .share-title { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .share-sub { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+  .share-link-box { background:var(--grey); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--text-muted); word-break:break-all; margin-bottom:14px; border:2px solid var(--grey-mid); font-family:monospace; }
+  .share-options { display:flex; gap:10px; flex-direction:column; }
+  .share-btn { display:flex; align-items:center; gap:12px; background:var(--grey); border:none; border-radius:12px; padding:14px 16px; font-family:'Outfit',sans-serif; font-size:15px; font-weight:500; cursor:pointer; text-align:left; transition:background 0.12s; }
+  .share-btn:active { background:var(--grey-mid); }
+  .share-btn-icon { font-size:22px; width:28px; }
+
+  /* FAB */
+  .fab { position:fixed; bottom:24px; right:max(24px, calc(50% - 240px + 24px)); background:var(--red); color:white; border:none; border-radius:20px; padding:14px 22px; font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 20px rgba(227,30,36,0.45); display:flex; align-items:center; gap:8px; z-index:80; transition:transform 0.15s; }
+  .fab:active { transform:scale(0.96); }
+
+  .add-custom-btn { width:100%; background:white; border:2px dashed var(--grey-mid); border-radius:var(--radius); padding:14px; font-family:'Outfit',sans-serif; font-size:14px; color:var(--text-muted); cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:500; transition:border-color 0.15s,color 0.15s; }
+  .add-custom-btn:active { border-color:var(--red); color:var(--red); }
+
+  .checked-section { margin-top:16px; }
+  .checked-title { font-size:13px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; padding:0 4px 8px; }
+
+  /* Toast */
+  .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); background:#222; color:white; padding:10px 20px; border-radius:10px; font-size:14px; font-weight:500; z-index:500; opacity:0; transition:opacity 0.2s,transform 0.2s; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* New list modal */
+  .newlist-modal { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:600; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .newlist-box { background:white; border-radius:20px; padding:28px 24px; width:100%; max-width:400px; text-align:center; }
+  .newlist-box h2 { font-size:22px; font-weight:700; margin-bottom:8px; }
+  .newlist-box p { font-size:14px; color:var(--text-muted); margin-bottom:24px; line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Verbinden met lijst...</div>
+</div>
+
+<div class="newlist-modal" id="newlistModal" style="display:none;">
+  <div class="newlist-box">
+    <div style="font-size:48px;margin-bottom:12px;">🛒</div>
+    <h2>Lionlist</h2>
+    <p>Maak een nieuwe gedeelde boodschappenlijst aan. Iedereen met de link kan live mee bewerken.</p>
+    <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:16px;">➕ Nieuwe lijst aanmaken</button>
+  </div>
+</div>
+
+<div class="sync-bar" id="syncBar"></div>
+
+<header class="header">
+  <div class="header-top">
+    <div class="logo-wrap">
+      <div class="logo">lion<span>list</span></div>
+      <div class="list-id-label" id="listIdLabel">Verbinden...</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst">📤</button>
+      <button class="icon-btn" onclick="confirmNewList()" title="Nieuwe lijst">🆕</button>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" type="text" placeholder="Zoek producten van Delhaize..." id="searchInput" oninput="onSearch(this.value)" onfocus="showDropdown()" autocomplete="off">
+    <span class="search-icon">🔍</span>
+  </div>
+</header>
+
+<div class="search-dropdown" id="searchDropdown"><div id="searchResults"></div></div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-list" onclick="switchTab('list')">📋 Mijn lijst</div>
+  <div class="tab" id="tab-browse" onclick="switchTab('browse')">🛒 Bladeren</div>
+</div>
+
+<main id="main"></main>
+
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="products-panel" id="productsPanel">
+  <div class="panel-handle"></div>
+  <div class="panel-header">
+    <span class="panel-title" id="panelTitle">Producten</span>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-products" id="panelProducts"></div>
+</div>
+
+<div class="modal-overlay" id="noteModal">
+  <div class="modal-box">
+    <div class="modal-title">📝 Notitie toevoegen</div>
+    <textarea class="modal-input" id="noteInput" rows="3" placeholder="Bijv: biologisch, huismerk ok, rijp genoeg..."></textarea>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeNote()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveNote()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customModal">
+  <div class="modal-box">
+    <div class="modal-title">➕ Product toevoegen</div>
+    <input type="text" class="modal-input" id="customName" placeholder="Productnaam..." style="margin-bottom:10px;">
+    <select class="modal-input" id="customCat"></select>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeCustom()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveCustom()">Toevoegen</button>
+    </div>
+  </div>
+</div>
+
+<div class="share-modal" id="shareModal">
+  <div class="share-box">
+    <div class="share-title">📤 Lijst delen</div>
+    <div class="share-sub">Iedereen met de link kan live producten toevoegen en afvinken.</div>
+    <div class="share-link-box" id="shareLink"></div>
+    <div class="share-options">
+      <button class="share-btn" onclick="doShare('copy')">
+        <span class="share-btn-icon">🔗</span>
+        <div><strong>Link kopiëren</strong><br><small style="color:#888;font-size:12px;">Plak in WhatsApp, iMessage, e-mail...</small></div>
+      </button>
+      <button class="share-btn" onclick="doShare('native')">
+        <span class="share-btn-icon">📱</span>
+        <div><strong>Delen via...</strong><br><small style="color:#888;font-size:12px;">WhatsApp, SMS, e-mail en meer</small></div>
+      </button>
+      <button class="share-btn" onclick="closeShare()" style="background:transparent;color:#aaa;justify-content:center;">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<button class="fab" onclick="openCustom()">➕ Product toevoegen</button>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD29JPhRCjywdu6RuTfIADfHFOdJMzejNs",
+  authDomain: "shopping-list-app-7b680.firebaseapp.com",
+  databaseURL: "https://shopping-list-app-7b680-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "shopping-list-app-7b680",
+  storageBucket: "shopping-list-app-7b680.firebasestorage.app",
+  messagingSenderId: "476561112723",
+  appId: "1:476561112723:web:3e7bb2e1e3653c05f19766"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+
+const CATEGORIES = [
+  { id:'fru', name:"Verse groenten en fruit", emoji:'🥦', products:["Aardappelen | Nicola", "Avocado | Bio", "Blauwe bessen | Schaal", "Bloemige Aardappelen | Primeur", "Bloemkool", "Druiven | Rode | Pitloos", "Eetsinaas | 4ST", "Frambozen", "Jonagold | 6ST", "Jonge uien | Bussel", "Kiwi | Geel | 6st", "Komkommer | Snack", "Prinsessenbonen", "Smaaktrostomaten", "Tomaten | Datterino", "Trostomaten | Bio", "Verpakte | kookvaste aardappelen.", "Witloof | Hydrocultuur", "Wortelen", "Wortelen | Bio"] },
+  { id:'mea', name:"Vlees, vis en vegetarisch", emoji:'🥩', products:["Ambachtelijke beenham | Glutenvrij", "Beenham | Gekookt | Ambachtelijk | Sneden", "Croc | Kip | Ham en kaas", "Filet | Kip", "Filet | Kip | Bio", "Filetblokjes | Kip", "Filethaasjes | Kip | Extra fijn", "Gehakt | Kip | Gekruid", "Haasjes | Kip", "Herta Hesp | Superieur | Sneden", "Hesp | Superieur | Sneden", "Kabeljauwhaasje", "Kipfilet | Sneden", "Ontvette | Kookham", "Schnitzel  Gouda | Veggie", "Schouderham in sneetjes", "Spekjes | Gerookt", "Valess Schnitzel  Gouda | Veggie", "Zalm | Gerookt", "Zalm | Gerookt | Noors", "Zalmfilet | Met vel", "Zalmfilet | Zonder vel"] },
+  { id:'dai', name:"Zuivel, kaas en plantaardig", emoji:'🧀', products:["Bladerdeeg | Vers", "Eieren | Medium | Vrije uitloop", "Eieren | Mix kaliber | Bio", "Fondue | Zwitsers", "Kaas | Raclette | Sneden", "Kruimeldeeg | Vers", "Mascarpone", "Mousse | Koffie", "Mousse | Melkchocolade", "Mozzarella | Classica | Mini-bolletjes", "Parmigiano reggiano | BOB", "Pizzadeeg | Vers", "Ricotta | Classico", "Room 20%", "Room 35%", "Room | 20% V.G.", "Room | Light 7%", "Room | Zuur | 15 % V.G.", "Room | Zuur | 30% V.G.", "Slagroom"] },
+  { id:'con', name:"Snel en smakelijk", emoji:'🍝', products:["365 Lasagne | Bolognese", "Aardappelgratin | Met Gehakt en Spinazie", "Aardappelschijfjes", "Alvalle Gazpacho | Tomaten", "Bertagni Ravioli | Spinazie-Ricotta", "Bertagni Ravioli|Gegrilde tomaat-Mozzarella-Basilicum", "Bertagni Tortelloni | Rauwe ham", "Bertagni Triangoloni | Eekhoorntjesbrood-Truffels", "Cheeseburgers", "Come A Casa Macaroni | Gratin | Ham-Kaas", "Dr. oetker Piadina | Diavola", "Dr. oetker Pizza | 4 formaggi", "Dr. oetker Pizza | Margherita | Con basilico", "Dr. oetker Pizza | Mozzarella", "Frieten | Vers | Voorgebakken", "Gazpacho | Tomaten", "Iglo Aardappelgratin | Met Gehakt en Spinazie", "Iglo Macaroni  | Met Ham en Kaas", "Krieltjes", "Lasagne | Bolognese", "Maaltijdbox | Moussaka", "Macaroni  | Met Ham en Kaas", "Macaroni | Gratin | Ham-Kaas", "Piadina | Diavola", "Pizza | 4 formaggi", "Pizza | Margherita | Bio", "Pizza | Margherita | Con basilico", "Pizza | Mozzarella", "Ravioli | Spinazie-Ricotta", "Ravioli|Gegrilde tomaat-Mozzarella-Basilicum", "Tortelloni ricotta met spinazie", "Tortelloni | Rauwe ham", "Triangoloni | Eekhoorntjesbrood-Truffels"] },
+  { id:'ape', name:"Apero en voorgerechten", emoji:'🥂', products:["Ajuin & Fijne Kruiden | Snacks | Chips", "Alvalle Gazpacho | Tomaten", "Cheetos Chips | Chipito | Fromage", "Chips | Chipito | Fromage", "Chips | Honing | Barbecue", "Chips | Ketchup", "Chips | Nacho Cheese", "Chips | Naturel", "Chips | Original", "Chips | Paprika", "Chips | Zout en Zwart Peper Smaak", "Crackers | Original | Toastjes | Zout", "Droge worsten | Mini sticks", "Duyvis Paprika | Nuts | Nootjes", "Gazpacho | Tomaten", "Gerookt | Snacks | Chips", "Guacamole | Mild", "Hummus", "Kettle Chips | Honing | Barbecue", "LU Crackers | Original | Toastjes | Zout", "Lay's Ajuin & Fijne Kruiden | Snacks | Chips", "Lay's Chips | Ketchup", "Lay's Chips | Nacho Cheese", "Lay's Chips | Naturel", "Lay's Chips | Paprika", "Lay's Chips | Zout en Zwart Peper Smaak", "Lay's Gerookt | Snacks | Chips", "Lay's Paprika Kaas | Snacks | Chips", "Lorenz Chips | Original", "Olijven met kaas", "Paprika Kaas | Snacks | Chips", "Paprika | Nuts | Nootjes"] },
+  { id:'bak', name:"Bakkerij en banket", emoji:'🥐', products:["100% mie | Volkoren", "Boerenbrood | Bruin", "Boerenbrood | Wit", "Brood | 100% mie | Natuur", "Brood | Breughel | Bruin", "Brood | Bruin | Vierkant", "Brood | Equiform | Meergranen | Glutenvrij", "Brood | Extra zacht | Zonder toegevoegde suikers", "Brood | Toast | Volkoren", "Brood | Toast | Wit", "Brood | Volkoren | Vierkant", "Ciabatta natuur", "Equiform Brood | Equiform | Meergranen | Glutenvrij", "Harrys 100% mie | Volkoren", "Harrys Brood | 100% mie | Natuur", "Harrys Brood | Extra zacht | Zonder toegevoegde suikers", "Harrys Maxi burger", "Harrys Sandwiches", "La Lorraine Boerenbrood | Bruin", "La Lorraine Boerenbrood | Wit", "La Lorraine Brood | Breughel | Bruin", "La Lorraine Brood | Bruin | Vierkant", "La Lorraine Brood | Volkoren | Vierkant", "La Lorraine Sandwich met boter 10 x 45g", "La Lorraine Vierkant brood | Wit", "Maxi burger", "Melkbroodjes | 10st", "Sandwich met boter 10 x 45g", "Sandwiches", "Sandwiches | Boter", "Stokbrood | Op steen gebakken", "Vierkant brood | Wit"] },
+  { id:'swe', name:"Zoete kruidenierswaren", emoji:'🍫', products:["Chocolade | Biscuit | Crunch", "Chocolade | Melkchocolade", "Chocolade | Wit | Krokante rijstkorrels", "Chocolade | Wit | Tablet", "Chocolade | Witte | Chocoladereep", "Chocoladebonbons | Wit | Krokante granen", "Chocoladepasta | Choco-hazelnoten", "Côte d'Or Chocolade | Melkchocolade", "Douwe Egberts Koffie | Dessert | Vacuüm pack | Gemalen", "Galak Chocolade | Wit | Krokante rijstkorrels", "Galak Chocolade | Wit | Tablet", "Galak Chocolade | Witte | Chocoladereep", "Galak Chocoladebonbons | Wit | Krokante granen", "Koeken | Moelleux | Amandel | Abrikoos", "Koeken | Moelleux | Appel | Abrikoos", "Koekjes | Chocolade | Wafeltjes | 12 Repen", "Koekjes | Granenkoekje | Granen", "Koekjes | Moelleux | Chocolade", "Koffie | Dessert | Vacuüm pack | Gemalen", "LU Koeken | Moelleux | Amandel | Abrikoos", "LU Koeken | Moelleux | Appel | Abrikoos", "LU Koekjes | Granenkoekje | Granen", "LU Koekjes | Moelleux | Chocolade", "Lotus Peperkoek | Honing Karamel", "Lotus Peperkoek | Minder suiker", "Lotus Peperkoek | Natuur", "Lotus Peperkoek | Noten", "Lotus Peperkoek | Parelsuiker", "Milka Koekjes | Chocolade | Wafeltjes | 12 Repen", "Nestlé Chocolade | Biscuit | Crunch", "Nutella Chocoladepasta | Choco-hazelnoten", "Nàkd Repen | Fruit&Fibre | Aardbei-framboos", "Nàkd Repen | Fruit&Fibre | Appel-kaneel", "Peperkoek | Honing Karamel", "Peperkoek | Minder suiker", "Peperkoek | Natuur", "Peperkoek | Noten", "Peperkoek | Parelsuiker", "Repen | Fruit&Fibre | Aardbei-framboos", "Repen | Fruit&Fibre | Appel-kaneel"] },
+  { id:'sal', name:"Zoute kruidenierswaren", emoji:'🫙', products:["Barilla Pasta | Spaghetti n.5", "Cheetos Chips | Chipito | Fromage", "Chips | Chipito | Fromage", "Chips | Nacho Cheese", "Chips | Naturel", "Chips | Paprika", "Chips | Zout en Zwart Peper Smaak", "Crackers | Original | Toastjes | Zout", "De Cecco Pasta | Spaghetti n.12", "Devos & Lemmens Mayonaise | Plantaardig", "Devos & Lemmens Saus | Andalouse | Squeeze", "Devos & Lemmens Saus | Cocktail | Squeeze", "Duyvis Paprika | Nuts | Nootjes", "Gerookt | Snacks | Chips", "Heinz Ketchup", "Ketchup", "LU Crackers | Original | Toastjes | Zout", "Lay's Chips | Nacho Cheese", "Lay's Chips | Naturel", "Lay's Chips | Paprika", "Lay's Chips | Zout en Zwart Peper Smaak", "Lay's Gerookt | Snacks | Chips", "Mayonaise | Plantaardig", "Natuurazijn", "Olijfolie | Culinaire", "Paprika | Nuts | Nootjes", "Pasta | Spaghetti", "Pasta | Spaghetti n.12", "Pasta | Spaghetti n.5", "Santa Maria Wrap tortilla | Original", "Saus | Andalouse | Squeeze", "Saus | Cocktail | Squeeze", "Wrap tortilla | Original"] },
+  { id:'fro', name:"Diepvries", emoji:'🧊', products:["Allumettes Frieten | Oven & Airfryer", "Belviva Allumettes Frieten | Oven & Airfryer", "Belviva Frieten | Belgische | Oven", "Belviva Frieten | Oven | M size", "Belviva Puree | Bintje", "Broccoli", "Erwten | Bio", "Extra fijne Boontjes", "Fish & Fun | Gepaneerde vis", "Fish Sticks Omega 3 | 10 stuks", "Fish Sticks | 28 stuks", "Flapjes | Ham | Kaas", "Frieten | Belgische | Oven", "Frieten | Oven | M size", "Garnalen | L 16/20 | Asc", "Gehakte spinazie met room", "Gepelde garnalen 21/25", "Gesneden ajuinen", "Gigi Pompoen | Banaan | Kaneel", "Gratin Dauphinois", "Iglo Fish & Fun | Gepaneerde vis", "Iglo Fish Sticks Omega 3 | 10 stuks", "Iglo Fish Sticks | 28 stuks", "Iglo Flapjes | Ham | Kaas", "Kipnuggets", "Mini-eclairs", "Pompoen | Banaan | Kaneel", "Puree | Bintje", "Roomsoesjes"] },
+  { id:'spe', name:"Bewuste voeding", emoji:'🌱', products:["Alpro Amandel | Geroosterd | Zonder Suikers", "Alpro Mango | Plantaadig alternatief voor yoghurt | Zonder toegevoegde suiker", "Alpro Plantaardige drank | Amandelen | Suikervrij", "Alpro Plantaardige drank | Geroosterde | Amandelen", "Alpro Plantaardige drank | Haver", "Alpro Plantaardige drank | Haver | Suikervrij", "Alpro Plantaardige drank | Haver | This is Not M*lk | Halfvol 1.8%", "Alpro Plantaardige drank | Haver| This is Not M*lk | Vol 3.5%", "Alpro Plantaardige drank | Hazelnoten", "Alpro Soja | Chocolade | 100 Kalorieën", "Amandel | Geroosterd | Zonder Suikers", "Amandel | Suikervrij | Bio", "Ambachtelijke beenham | Glutenvrij", "Brood | Equiform | Meergranen | Glutenvrij", "Dilea Emmental | Geraspt", "Dilea Gouda | Sneden", "Dilea Melk | Halfvol | Zonder lactose", "Emmental | Geraspt", "Equiform Brood | Equiform | Meergranen | Glutenvrij", "Gouda | Sneden", "Haverdrink | Barista Edition | Eco", "Haverdrink | Bio | Eco", "Mango | Plantaadig alternatief voor yoghurt | Zonder toegevoegde suiker", "Melk | Halfvol | Zonder lactose", "Melk | Halfvolle | Lactosevrij", "Oatly Haverdrink | Barista Edition | Eco", "Oatly Haverdrink | Bio | Eco", "Ovengebakken ham | Glutenvrij", "Plantaardige drank | Amandelen | Suikervrij", "Plantaardige drank | Geroosterde | Amandelen", "Plantaardige drank | Haver", "Plantaardige drank | Haver | Suikervrij", "Plantaardige drank | Haver | This is Not M*lk | Halfvol 1.8%", "Plantaardige drank | Haver| This is Not M*lk | Vol 3.5%", "Plantaardige drank | Hazelnoten", "Soja | Chocolade | 100 Kalorieën"] },
+  { id:'win', name:"Wijn en bubbels", emoji:'🍷', products:["Anna Perenna Prosecco | Brut", "Cava | Bio | Brut", "Cava | Ecológica | Bio | Brut", "Champagne | Brut", "Champagne | Premier Cru | Brut", "Chardonnay", "Circum Montepulciano d'Abruzzo", "Codorniu Cava | Ecológica | Bio | Brut", "Connetable Talbot 2023 Rood", "Corvezzo Prosecco | Bio | Brut", "Crémant d'Alsace | Brut", "Dark Red", "Diablo Dark Red", "Diablo Volcanic | Cabernet Sauvignon", "Duval-Leroy Champagne | Brut", "France Connetable Talbot 2023 Rood", "Hola Cava | Bio | Brut", "Lab Vinho Verde", "Malbec", "Mionetto Prosecco DOCG | Brut", "Montepulciano d'Abruzzo", "Pays d'Oc | Chardonnay | 2022", "Prosecco DOCG | Brut", "Prosecco | Bio | Brut", "Prosecco | Brut", "Prunus Dulcis Pays d'Oc | Chardonnay | 2022", "Reserve | Chardonnay", "Reserve | Malbec", "Trivento Reserve | Chardonnay", "Trivento Reserve | Malbec", "Vinas Del Vero Chardonnay", "Vinho Verde", "Viré-Clessé", "Volcanic | Cabernet Sauvignon", "Vranken Champagne | Premier Cru | Brut", "Vranken Demoiselle Champagne | Brut", "Ziegler Crémant d'Alsace | Brut", "Zuccardi Malbec"] },
+  { id:'dri', name:"Koude en warme dranken", emoji:'☕', products:["7Up Limoen & Citroen | Limonade | Frisdrank | 33Cl", "Cola | Zero | Lemon | Sleek Can", "Daiqui", "Energy drink | Ultra fiësta | Mango | Blik", "Fanta Lemon | Blik", "Fanta Limonade | Cassis", "Fentimans Indian Tonic Water | Light", "Indian Tonic Water | Light", "Innocent Sap | Bubbles | Citroen | Limoen", "Innocent Sap | Bubbles | Framboos | Zwarte bes", "Koffie | Mushroom | Bio", "Lemon | Blik", "Limoen & Citroen | Limonade | Frisdrank | 33Cl", "Limonade | Bruisend | Lemon-Cactus | PET", "Limonade | Cassis", "Limonade | Grenadine | Bruisend | Pet", "Maison Perrier Daiqui", "Maison Perrier Pina Fizz", "Mango-Passievrucht", "Mineraalwater | Bruisend | PET", "Monster Energy drink | Ultra fiësta | Mango | Blik", "Nalu Zero Sugar | Energiser", "Natuurlijk mineraalwater | licht bruisend | PET", "Oasis Mango-Passievrucht", "Pepsi Cola | Zero | Lemon | Sleek Can", "Pina Fizz", "Purasana Koffie | Mushroom | Bio", "Purasana Thee | Curcuma Latte | Poeder | Bio", "Purasana Thee | Matcha Latte | Poeder | Bio", "Purasana Thee | Matcha | Poeder | Bio", "San Pellegrino Natuurlijk mineraalwater | licht bruisend | PET", "Sap | Bubbles | Citroen | Limoen", "Sap | Bubbles | Framboos | Zwarte bes", "Spa Limonade | Bruisend | Lemon-Cactus | PET", "Spa Limonade | Grenadine | Bruisend | Pet", "Spa Mineraalwater | Bruisend | PET", "Thee | Curcuma Latte | Poeder | Bio", "Thee | Matcha Latte | Poeder | Bio", "Thee | Matcha | Poeder | Bio", "Zero Sugar | Energiser"] },
+  { id:'alc', name:"Bier, alcohol en alcoholvrij", emoji:'🍺', products:["Abdijbier | Blond | 6,6% alc | Fles", "Baileys Likeur | Irish Cream | 17% ALC.", "Bellini | Sprankelend Cocktail | Rosé", "Bier | Pils | 5,2% ALC. | Blik", "Blond Bier | Pils | 5,2% Alc. | Bak", "Blond Bier | Pils | 5,2% Alc. | Blik", "Blond Bier | Pils | 5,2% alc. | Bak", "Blond Bier | Pils | 5,2% alc. | Blik", "Blond Bier | Pils | 5,2% alc. | Jumbo | Bak", "Blond Bier | Pils | alcoholvrij | 0% alc. | Blik", "Blond bier | 8,5%", "Blond bier | 8,5% Alc. | Fles", "Blond bier | Tripel | 8,4% alc. |  Fles", "Duvel Blond bier | 8,5%", "Eristoff Vodka | Wit | 37,5% ALC.", "Fentimans Indian Tonic Water | Light", "Gin | London dry | 37,5% ALC.", "Gordon's Gin | London dry | 37,5% ALC.", "Indian Tonic Water | Light", "J&B Whisky | Scotch | 40% ALC.", "Johnnie Walker Red Label | Whisky | Blended | 40% Alc", "Jupiler Blond Bier | Pils | 5,2% alc. | Bak", "Jupiler Blond Bier | Pils | 5,2% alc. | Blik", "Jupiler Blond Bier | Pils | 5,2% alc. | Jumbo | Bak", "Jupiler Blond Bier | Pils | alcoholvrij | 0% alc. | Blik", "Leffe Abdijbier | Blond | 6,6% alc | Fles", "Likeur | Irish Cream | 17% ALC.", "Maes Bier | Pils | 5,2% ALC. | Blik", "Martini Bellini | Sprankelend Cocktail | Rosé", "Red Label | Whisky | Blended | 40% Alc", "Stella Artois Blond Bier | Pils | 5,2% Alc. | Bak", "Stella Artois Blond Bier | Pils | 5,2% Alc. | Blik", "Tripel Karmeliet Blond bier | Tripel | 8,4% alc. |  Fles", "Victoria Blond bier | 8,5% Alc. | Fles", "Vodka | Wit | 37,5% ALC.", "Whisky | Scotch | 40% ALC."] },
+  { id:'cle', name:"Onderhoud en huishouden", emoji:'🧹', products:["All In One | Capsules | Citroen | 1+1", "Bruxelles - Brussel Gemeentelijke vuilzakken | Geel | 30L", "Bruxelles - Brussel Gemeentelijke vuilzakken | Wit | 60L", "Bruxelles - Brussel PMD zakken | Blauw | 50L", "Cosynel Toiletpapier | Blauw | Eco", "Cosynel Toiletpapier | Jumbo Pack | Wit | Eco", "Dreft All In One | Capsules | Citroen | 1+1", "Gemeentelijke vuilzakken | Geel | 30L", "Gemeentelijke vuilzakken | Wit | 60L", "Keukenpapier | 3 lagen | Eco", "Keukenpapier | Adapt | Eco", "Keukenpapier | Decor | Eco", "Keukenpapier | Original | Eco", "Keukenpapier | Ultra | Decor | 3 lagen | Eco", "Nalys Toiletpapier | Bamboo | Eco", "Nalys Toiletpapier | Excellence | Eco", "Nalys Toiletpapier | Soft | Eco | Family Pack", "Nalys Toiletpapier | Ultra soft | Eco", "Okay Keukenpapier | Adapt | Eco", "Okay Keukenpapier | Decor | Eco", "Okay Keukenpapier | Original | Eco", "PMD zakken | Blauw | 50L", "Pedaalemmerzak | Scheurvast & Lekvrij Handvat | 20st | 20L", "Schoonmaakazijn", "Swirl Pedaalemmerzak | Scheurvast & Lekvrij Handvat | 20st | 20L", "Toiletpapier | Bamboo | Eco", "Toiletpapier | Blauw | Eco", "Toiletpapier | Excellence | Eco", "Toiletpapier | Gerecycleerd | 2 lagen | Eco", "Toiletpapier | Jumbo Pack | Wit | Eco", "Toiletpapier | Soft | Eco | Family Pack", "Toiletpapier | Ultra soft | Eco", "Toiletreiniger | Ontkalker", "WC Net Toiletreiniger | Ontkalker"] },
+  { id:'non', name:"Keuken, wonen en vrije tijd", emoji:'🏠', products:["9 dagen brander | rood", "Aanmaakblokjes | Houtwol | Eco", "Aanmaakhout | Ovendroog | Eco", "Aanmaaklucifers", "Balpennen | Blauw | Medium", "Batterijen | Specialty | 2032", "Bic Balpennen | Blauw | Medium", "Bolsius 9 dagen brander | rood", "Canard WC Fresh Disc | Houder + Navul. | Marine", "Canvas met print", "Correctielinten | 4,2mm x 5m", "Corvers Aanmaakhout | Ovendroog | Eco", "Cylinder 60L | Eco", "Diepvriesetiketten | 35 mm x 21 mm", "Discovery Papier | A4 | Eco", "Duracell Batterijen | Specialty | 2032", "Ei | Ruimte", "Ei | Strandvakantie", "FIK | Spray | 400ml", "Herbruikbaar wijnglas | plastic | 18cl", "Hoesjes | Multi-geperforeerd | A4", "Houtskool", "Insecticide|Ti-tox total|Vliegend & kruipend", "Keukenpapier | Blitz | Extra large | Eco", "Loctite Secondelijm | Universal | Water resistant", "MDF konijnendecor", "Mand van konijnenvilt", "Nalys Keukenpapier | Blitz | Extra large | Eco", "Paaseend | 23cm", "Paasfiguren verf set", "Papier | A4 | Eco", "QuickConnect Cylinder 60L | Eco", "Secondelijm | Universal | Water resistant", "Sodastream Cylinder 60L | Eco", "Sodastream QuickConnect Cylinder 60L | Eco", "Theelichten | 8 Uren", "Theelichtje | Geurend | Geschenkset", "Ti-Tox Insecticide|Ti-tox total|Vliegend & kruipend", "Union Match Aanmaaklucifers", "Vapona FIK | Spray | 400ml", "WC Fresh Disc | Houder + Navul. | Marine", "Wijndoos Vrolijk Pasen", "Zip Aanmaakblokjes | Houtwol | Eco", "Zittend konijn T-shirt"] },
+  { id:'hyg', name:"Hygiëne en verzorging", emoji:'🧴', products:["Always Inlegkruisjes | Large", "Always Inlegkruisjes | Urineverlies | Long", "Always Verbanden | Urineverlies | Small", "Demak'Up Ontschminkschijfjes | Expert", "Demak'Up Ontschminkschijfjes | Sensitive", "Douchegel | Mango/passievrucht", "Garnier Masker | Sinaasappelsap", "Handcrème | Spf 20", "Inlegkruisjes | Large", "Inlegkruisjes | Urineverlies | Long", "Kleenex Zakdoeken | Balsam | Box | Duo | Eco", "Kleenex Zakdoeken | Box | Family Pack | Eco", "Kleenex Zakdoeken | Original | Box | Duo | Eco", "Kleenex Zakdoeken | The Original | Hanks | Eco", "Kleenex Zakdoeken | Ultra soft | Box | Eco", "Le Petit Marseillais Douchegel | Mango/passievrucht", "Lotus Oorstaafjes | navulling", "Masker | Sinaasappelsap", "Nachtverbanden| Maxi", "Neutrogena Handcrème | Spf 20", "Neutrogena Noorse Formule | Snel Absorberend | Handcrème", "Noorse Formule | Snel Absorberend | Handcrème", "Ontschminkschijfjes | Expert", "Ontschminkschijfjes | Sensitive", "Oorstaafjes | navulling", "Protect|Urineverlies |matig tot zwaar | Maxi |Extra+ | Aloe Vera|10 pc", "Tempo Zakdoeken | Original | 4lagen", "Tena Nachtverbanden| Maxi", "Verbanden | Urineverlies | Small", "Zakdoeken | Balsam | Box | Duo | Eco", "Zakdoeken | Box", "Zakdoeken | Box | Family Pack | Eco", "Zakdoeken | Original | 4lagen", "Zakdoeken | Original | Box | Duo | Eco", "Zakdoeken | The Original | Hanks | Eco", "Zakdoeken | Ultra soft | Box | Eco"] },
+  { id:'bab', name:"Baby", emoji:'👶', products:["6x1L Groeidrink | Rijst | 1-3 Jaar", "Babydoekjes | Baby | Vochtig | Sensitive", "Babydoekjes | Baby | Vochtig | Sensitive | Maxi pack", "Bambix 6x1L Groeidrink | Rijst | 1-3 Jaar", "Doekjes | Vochtig", "Ella's Kitchen Knijpzakje | Aardbei Appel | 4M | Bio", "Ella's Kitchen Maïsknabbels | Banaan Aardbei | 6M | Bio", "Groeimelk | 1-3", "Groeimelk | Poeder | vanaf 1 jaar", "Groeimelk | Poeder | vanaf 2 jaar", "Groeimelk | Vloeibaar | 2+", "Groeimelk | Vloeibaar | vanaf 1 jaar", "Groeimelk | Vloeibaar | vanaf 2 jaar", "Huggies Doekjes | Vochtig", "Knijpzakje | Aardbei Appel | 4M | Bio", "Koekjes | 12M", "LU Koekjes | 12M", "LU Pletkoekjes voor papjes | 6M", "Luiers | Maat 4 | Eco", "Luiers | Maat 5 | Eco", "Luiers | Maat 6 | Eco", "Maïsknabbels | Banaan Aardbei | 6M | Bio", "Melkdessert | Aardbei | 6 maanden", "Melkdessert | Vanille | Baby | 6 maanden", "Nestlé Groeimelk | Poeder | vanaf 1 jaar", "Nestlé Groeimelk | Poeder | vanaf 2 jaar", "Nestlé Groeimelk | Vloeibaar | 2+", "Nestlé Groeimelk | Vloeibaar | vanaf 1 jaar", "Nestlé Groeimelk | Vloeibaar | vanaf 2 jaar", "Nestlé Melkdessert | Aardbei | 6 maanden", "Nestlé Melkdessert | Vanille | Baby | 6 maanden", "Nestlé Opvolgmelk | poeder | baby | 6-12 maanden", "Opvolgmelk | poeder | baby | 6-12 maanden", "Pletkoekjes voor papjes | 6M"] },
+  { id:'pet', name:"Huisdieren", emoji:'🐾', products:["365 Kattenvoeding | Terrine | Konijn", "Bifensis | Kattenvoeding | Adult | Coat & Hairball | Kip", "Bifensis | Kattenvoeding | Senior | Brokjes", "Bifensis | Kattenvoeding | Sterilised | Sterilised | Rund |800g", "Catsan Kattenbakvulling | Klontervormend", "Catsan Kattenbakvulling | Klontvormend | Active Fresh", "Catsan Kattenbakvulling | Niet-klontervormend", "Felix Kattenvoeding | Adult | Gelei | Vlees", "Gourmet Kattenvoeding | Adult | Saus | Volaille", "Gourmet Kattenvoeding | Mousse | Vlees/Vis", "Hondensnacks | Sticks | Small | Mix vlees", "Kattenbakvulling | Klontervormend", "Kattenbakvulling | Klontvormend | Active Fresh", "Kattenbakvulling | Niet-klontervormend", "Kattenmelk", "Kattenvoeding | Adult | Gelei | Vlees", "Kattenvoeding | Adult | Saus | Volaille", "Kattenvoeding | Mousse | Vlees/Vis", "Kattenvoeding | Saus | Adult | Mix vlees", "Kattenvoeding | Saus | Kip", "Kattenvoeding | Saus | Mix vlees", "Kattenvoeding | Sterilised | Pâté | Zalm & Kalkoen", "Kattenvoeding | Terrine | Kip", "Kattenvoeding | Terrine | Konijn", "Kattenvoeding | Terrine | Rund", "Kattenvoeding | Terrine | Zalm", "Purina ONE Bifensis | Kattenvoeding | Adult | Coat & Hairball | Kip", "Purina ONE Bifensis | Kattenvoeding | Senior | Brokjes", "Purina ONE Bifensis | Kattenvoeding | Sterilised | Sterilised | Rund |800g", "Purina ONE Kattenvoeding | Sterilised | Pâté | Zalm & Kalkoen", "Sheba Kattenvoeding | Saus | Mix vlees", "Sheba Kattenvoeding | Terrine | Kip", "Sheba Kattenvoeding | Terrine | Zalm", "Whiskas Kattenmelk", "Whiskas Kattenvoeding | Saus | Kip"] },
+  { id:'spo', name:"Sport en gezondheid", emoji:'💪', products:["Biover Energie+ | 20 bruistabletten", "Biover Hoestsiroop | 120ml", "Biover Triple Energy | 20tabs", "Biover Vitamine C | Bruistabletten", "Biover Vitamine D3 | Caps", "Crusty snack | Pure chocolade", "Davitamon Junior Multivitamine | Framboos", "Dextro Energy Tabletten | Direct energy | Citroen", "Dextro Energy Tabletten | Direct energy | Natuur", "Drinkmaaltijd | Chocolade", "Drinkmaaltijd | Ijskoffie", "Drinkmaaltijd | Vanille", "Energie+ | 20 bruistabletten", "Gerlinéa Crusty snack | Pure chocolade", "Gerlinéa Drinkmaaltijd | Chocolade", "Gerlinéa Drinkmaaltijd | Ijskoffie", "Gerlinéa Drinkmaaltijd | Vanille", "Gerlinéa Reep | Choco crisp | Maaltijdvervangend", "Gerlinéa Reep | Chocolade-Hazelnoot", "Gerlinéa Reep | Melkchocolade", "Gerlinéa Reep | Pinda nougat | Maaltijdvervangend", "High energy | Banaan", "High protein bar | Hazelnoot", "Hoestsiroop | 120ml", "Hydrate&Perform | Sinaaspoeder", "Isostar High energy | Banaan", "Isostar High protein bar | Hazelnoot", "Isostar Hydrate&Perform | Sinaaspoeder", "Isostar Reep |  Chocolade", "Junior Multivitamine | Framboos", "Reep |  Chocolade", "Reep | Choco crisp | Maaltijdvervangend", "Reep | Chocolade-Hazelnoot", "Reep | Melkchocolade", "Reep | Pinda nougat | Maaltijdvervangend", "Tabletten | Direct energy | Citroen", "Tabletten | Direct energy | Natuur", "Triple Energy | 20tabs", "Vitamine C | Bruistabletten", "Vitamine D3 | Caps"] },
+];
+
+let list = {};
+let currentTab = 'list';
+let noteTarget = null;
+let listId = null;
+let dbRef = null;
+let collapsedCats = {};
+let toastTimer = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function getListIdFromUrl() { return new URLSearchParams(window.location.search).get('list'); }
+function setListIdInUrl(id) { const u = new URL(window.location.href); u.searchParams.set('list', id); history.replaceState({}, '', u.toString()); }
+function generateId() { return Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }
+
+function setSyncBar(state) {
+  const b = document.getElementById('syncBar');
+  b.className = 'sync-bar ' + state;
+  if (state === 'ok') setTimeout(() => b.classList.remove('ok'), 1200);
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+window.createNewList = function() {
+  const id = generateId();
+  document.getElementById('newlistModal').style.display = 'none';
+  initList(id);
+};
+
+function initList(id) {
+  listId = id;
+  setListIdInUrl(id);
+  document.getElementById('listIdLabel').textContent = 'Lijst: ' + id;
+  localStorage.setItem('lastListId', id);
+  dbRef = ref(db, 'lists/' + id + '/items');
+  setSyncBar('syncing');
+  onValue(dbRef, (snapshot) => {
+    list = snapshot.val() || {};
+    setSyncBar('ok');
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    render();
+  }, (err) => {
+    setSyncBar('error');
+    console.error('Firebase error:', err);
+    document.getElementById('loadingOverlay').innerHTML =
+      '<div style="padding:24px;text-align:center;max-width:340px;">' +
+      '<div style="font-size:40px;margin-bottom:12px;">⚠️</div>' +
+      '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">Verbindingsfout</div>' +
+      '<div style="font-size:12px;color:#e31e24;background:#ffeaea;border-radius:10px;padding:12px;word-break:break-all;text-align:left;margin-bottom:16px;font-family:monospace;">' +
+      (err.code || '') + ': ' + (err.message || JSON.stringify(err)) +
+      '</div>' +
+      '<button onclick="location.reload()" style="background:#e31e24;color:white;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;">Opnieuw proberen</button>' +
+      '</div>';
+  });
+}
+
+// ── Render ────────────────────────────────────────────────────────────
+function render() {
+  if (currentTab === 'list') renderList();
+  else renderBrowse();
+}
+
+function renderList() {
+  const main = document.getElementById('main');
+  const entries = Object.entries(list);
+  const active = entries.filter(([,i]) => !i.checked);
+  const done   = entries.filter(([,i]) => i.checked);
+
+  if (entries.length === 0) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Lijst is leeg</div><div class="empty-sub">Voeg producten toe via de zoekbalk of het tabblad Bladeren.</div></div>`;
+    return;
+  }
+
+  const byCat = {};
+  active.forEach(([id, item]) => { const c = item.catId||'other'; if(!byCat[c])byCat[c]=[]; byCat[c].push([id,item]); });
+
+  let html = `<button class="add-custom-btn" onclick="openCustom()">➕ Product toevoegen</button>`;
+
+  CATEGORIES.forEach(cat => {
+    const catItems = byCat[cat.id];
+    if (!catItems || !catItems.length) return;
+    const col = collapsedCats[cat.id] ? 'collapsed' : '';
+    html += `<div class="category-section ${col}" id="cat-${cat.id}">
+      <div class="category-header" onclick="toggleCat('${cat.id}')">
+        <div class="cat-left"><span class="cat-emoji">${cat.emoji}</span><span class="cat-name">${cat.name}</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${catItems.length}</span><span class="cat-chevron">▾</span></div>
+      </div>
+      <div class="category-items">${catItems.map(([id,item]) => renderItem(id,item)).join('')}</div>
+    </div>`;
+  });
+
+  const other = byCat['other']||[];
+  if (other.length) {
+    const col = collapsedCats['other'] ? 'collapsed' : '';
+    html += `<div class="category-section ${col}" id="cat-other">
+      <div class="category-header" onclick="toggleCat('other')">
+        <div class="cat-left"><span class="cat-emoji">📌</span><span class="cat-name">Overig</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${other.length}</span><span class="cat-chevron">▾</span></div>
+      </div>
+      <div class="category-items">${other.map(([id,item]) => renderItem(id,item)).join('')}</div>
+    </div>`;
+  }
+
+  if (done.length) {
+    html += `<div class="checked-section"><div class="checked-title">✓ In mandje (${done.length})</div>${done.map(([id,item]) => renderItem(id,item)).join('')}</div>`;
+  }
+  main.innerHTML = html;
+}
+
+function renderItem(id, item) {
+  return `<div class="item-card ${item.checked?'done':''}" id="item-${id}">
+    <div class="item-checkbox ${item.checked?'checked':''}" onclick="checkItem('${id}')"></div>
+    <div class="item-info">
+      <div class="item-name">${item.name}</div>
+      ${item.note ? `<div class="item-note">📝 ${item.note}</div>` : ''}
+    </div>
+    <div class="item-qty">
+      <button class="qty-btn" onclick="changeQty('${id}',-1)">−</button>
+      <span class="qty-num">${item.qty||1}</span>
+      <button class="qty-btn" onclick="changeQty('${id}',1)">+</button>
+    </div>
+    <div class="item-actions">
+      <button class="item-action-btn" onclick="openNote('${id}')">📝</button>
+      <button class="item-action-btn" onclick="removeItem('${id}')">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function renderBrowse() {
+  const main = document.getElementById('main');
+  let html = `<button class="add-custom-btn" onclick="openCustom()">➕ Eigen product toevoegen</button><div class="browse-grid">`;
+  CATEGORIES.forEach(cat => {
+    const count = Object.values(list).filter(i => i.catId===cat.id && !i.checked).length;
+    html += `<div class="browse-card" onclick="openPanel('${cat.id}')">
+      <div class="bc-emoji">${cat.emoji}</div>
+      <div class="bc-name">${cat.name}</div>
+      ${count ? `<div style="margin-top:6px;"><span class="cat-count">${count}</span></div>` : ''}
+    </div>`;
+  });
+  html += `</div>`;
+  main.innerHTML = html;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────
+window.toggleCat = function(catId) {
+  collapsedCats[catId] = !collapsedCats[catId];
+  const el = document.getElementById('cat-'+catId);
+  if (el) el.classList.toggle('collapsed', collapsedCats[catId]);
+};
+
+window.checkItem = function(id) {
+  const item = list[id]; if(!item) return;
+  setSyncBar('syncing');
+  if (!item.checked) {
+    const el = document.getElementById('item-'+id);
+    if (el) el.classList.add('checking');
+    setTimeout(() => update(ref(db,'lists/'+listId+'/items/'+id), {checked:true}), 300);
+  } else {
+    update(ref(db,'lists/'+listId+'/items/'+id), {checked:false});
+  }
+};
+
+window.changeQty = function(id, delta) {
+  const item = list[id]; if(!item) return;
+  const newQty = Math.max(1, (item.qty||1)+delta);
+  const el = document.querySelector(`#item-${id} .qty-num`);
+  if (el) el.textContent = newQty;
+  setSyncBar('syncing');
+  update(ref(db,'lists/'+listId+'/items/'+id), {qty:newQty});
+};
+
+window.removeItem = function(id) {
+  setSyncBar('syncing');
+  remove(ref(db,'lists/'+listId+'/items/'+id));
+};
+
+function addProduct(name, catId) {
+  const existing = Object.entries(list).find(([,i]) => i.name===name && i.catId===catId && !i.checked);
+  setSyncBar('syncing');
+  if (existing) {
+    const [id, item] = existing;
+    update(ref(db,'lists/'+listId+'/items/'+id), {qty:(item.qty||1)+1});
+    showToast(`+1 ${name}`);
+  } else {
+    const newRef = push(ref(db,'lists/'+listId+'/items'));
+    set(newRef, {name, catId:catId||'other', qty:1, note:'', checked:false});
+    showToast(`${name} toegevoegd ✓`);
+  }
+}
+
+// ── Note ──────────────────────────────────────────────────────────────
+window.openNote = function(id) {
+  noteTarget = id;
+  const item = list[id];
+  document.getElementById('noteInput').value = item?(item.note||''):'';
+  document.getElementById('noteModal').classList.add('show');
+  setTimeout(() => document.getElementById('noteInput').focus(), 100);
+};
+window.closeNote = function() { noteTarget=null; document.getElementById('noteModal').classList.remove('show'); };
+window.saveNote = function() {
+  if (!noteTarget) return;
+  setSyncBar('syncing');
+  update(ref(db,'lists/'+listId+'/items/'+noteTarget), {note:document.getElementById('noteInput').value.trim()});
+  closeNote();
+};
+
+// ── Custom product ─────────────────────────────────────────────────────
+window.openCustom = function() {
+  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('customName').value = '';
+  document.getElementById('customModal').classList.add('show');
+  setTimeout(() => document.getElementById('customName').focus(), 100);
+};
+window.closeCustom = function() { document.getElementById('customModal').classList.remove('show'); };
+window.saveCustom = function() {
+  const name = document.getElementById('customName').value.trim();
+  const catId = document.getElementById('customCat').value;
+  if (!name) return;
+  addProduct(name, catId); closeCustom();
+};
+
+// ── Browse panel ───────────────────────────────────────────────────────
+window.openPanel = function(catId) {
+  const cat = CATEGORIES.find(c=>c.id===catId); if(!cat) return;
+  document.getElementById('panelTitle').textContent = cat.emoji+' '+cat.name;
+  const products = document.getElementById('panelProducts');
+  products.innerHTML = cat.products.map(p => {
+    const inList = Object.values(list).find(i=>i.name===p&&i.catId===catId&&!i.checked);
+    const k = catId+'_'+p.replace(/\W/g,'_');
+    return `<div class="product-item">
+      <span class="pi-name">${p}</span>
+      <button class="pi-add ${inList?'added':''}" id="pibtn-${k}" onclick="panelAdd('${catId}','${p.replace(/'/g,"\\'")}','${k}')">
+        ${inList?'✓ In lijst':'+ Voeg toe'}
+      </button>
+    </div>`;
+  }).join('');
+  document.getElementById('productsPanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('show');
+};
+window.closePanel = function() {
+  document.getElementById('productsPanel').classList.remove('open');
+  document.getElementById('panelOverlay').classList.remove('show');
+  if (currentTab==='browse') renderBrowse();
+};
+window.panelAdd = function(catId, name, k) {
+  addProduct(name, catId);
+  const btn = document.getElementById('pibtn-'+k);
+  if (btn) { btn.textContent='✓ In lijst'; btn.classList.add('added'); }
+};
+
+// ── Search ─────────────────────────────────────────────────────────────
+let searchTimeout = null;
+window.onSearch = function(val) { clearTimeout(searchTimeout); searchTimeout = setTimeout(()=>doSearch(val),120); };
+
+function doSearch(val) {
+  const q = val.trim().toLowerCase();
+  const dropdown = document.getElementById('searchDropdown');
+  const results  = document.getElementById('searchResults');
+  if (!q) { dropdown.classList.remove('show'); return; }
+  let matches = [];
+  CATEGORIES.forEach(cat => cat.products.forEach(p => { if(p.toLowerCase().includes(q)) matches.push({name:p,cat:cat.name,catId:cat.id,emoji:cat.emoji}); }));
+  if (!matches.length) {
+    results.innerHTML = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
+      <div class="search-result-item" onclick="openCustomFromSearch('${val.replace(/'/g,"\\'")}')">
+        <div class="sri-info"><div class="sri-name">➕ "${val}" toevoegen</div><div class="sri-cat">Eigen product</div></div>
+      </div>`;
+  } else {
+    results.innerHTML = matches.slice(0,12).map(m => {
+      const inList = Object.values(list).find(i=>i.name===m.name&&i.catId===m.catId&&!i.checked);
+      const k = 'sr_'+m.catId+'_'+m.name.replace(/\W/g,'_');
+      return `<div class="search-result-item">
+        <div class="sri-info"><div class="sri-name">${m.emoji} ${m.name}</div><div class="sri-cat">${m.cat}</div></div>
+        <button class="sri-add ${inList?'added':''}" id="${k}" onclick="searchAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')">
+          ${inList?'✓':'+ Voeg toe'}
+        </button>
+      </div>`;
+    }).join('');
+  }
+  dropdown.classList.add('show');
+}
+
+window.searchAdd = function(catId, name, k) {
+  addProduct(name, catId);
+  const btn = document.getElementById(k);
+  if (btn) { btn.textContent='✓'; btn.classList.add('added'); }
+};
+window.showDropdown = function() { const v=document.getElementById('searchInput').value; if(v.trim()) doSearch(v); };
+window.openCustomFromSearch = function(val) {
+  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  document.getElementById('customName').value = val;
+  document.getElementById('customModal').classList.add('show');
+  document.getElementById('searchDropdown').classList.remove('show');
+  document.getElementById('searchInput').value = '';
+};
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchDropdown').contains(e.target) && e.target!==document.getElementById('searchInput'))
+    document.getElementById('searchDropdown').classList.remove('show');
+});
+
+// ── Tabs ───────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+  currentTab = tab;
+  document.getElementById('tab-list').classList.toggle('active', tab==='list');
+  document.getElementById('tab-browse').classList.toggle('active', tab==='browse');
+  render();
+};
+
+// ── Share ──────────────────────────────────────────────────────────────
+window.openShare = function() {
+  const url = window.location.href;
+  document.getElementById('shareLink').textContent = url;
+  document.getElementById('shareModal').classList.add('show');
+  window._shareUrl = url;
+};
+window.closeShare = function() { document.getElementById('shareModal').classList.remove('show'); };
+window.doShare = function(method) {
+  if (method==='copy') {
+    navigator.clipboard.writeText(window._shareUrl).then(()=>{showToast('Link gekopieerd! ✓'); closeShare();}).catch(()=>{
+      const ta=document.createElement('textarea'); ta.value=window._shareUrl; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Link gekopieerd! ✓'); closeShare();
+    });
+  } else {
+    const text = 'Bekijk mijn boodschappenlijst: '+window._shareUrl;
+    if (navigator.share) { navigator.share({title:'Boodschappenlijst',text,url:window._shareUrl}).then(closeShare).catch(()=>{}); }
+    else { window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank'); closeShare(); }
+  }
+};
+
+// ── New list ───────────────────────────────────────────────────────────
+window.confirmNewList = function() {
+  if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
+};
+
+// ── Boot ───────────────────────────────────────────────────────────────
+const urlListId = getListIdFromUrl();
+if (urlListId) {
+  initList(urlListId);
+} else {
+  const lastId = localStorage.getItem('lastListId');
+  if (lastId) { initList(lastId); }
+  else { document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('newlistModal').style.display='flex'; }
+}
+</script>
+</body>
+</html>
