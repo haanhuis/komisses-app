@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://cdn.lineicons.com/5.1/line/lineicons.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -199,9 +199,34 @@
 <div class="newlist-modal" id="newlistModal" style="display:none;">
   <div class="newlist-box">
     <div style="font-size:48px;margin-bottom:12px;">🛒</div>
-    <h2>Lionlist</h2>
-    <p>Maak een nieuwe gedeelde boodschappenlijst aan. Iedereen met de link kan live mee bewerken.</p>
-    <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:16px;">➕ Nieuwe lijst aanmaken</button>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Komisses</h2>
+    <p style="color:#666;font-size:14px;margin-bottom:24px;">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
+
+    <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:15px;margin-bottom:12px;">
+      <i class="lni lni-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
+    </button>
+
+    <div style="position:relative;display:flex;align-items:center;margin-bottom:12px;">
+      <div style="flex:1;height:1px;background:var(--grey-mid);"></div>
+      <span style="padding:0 12px;color:#aaa;font-size:12px;">of</span>
+      <div style="flex:1;height:1px;background:var(--grey-mid);"></div>
+    </div>
+
+    <div id="connectSection">
+      <button class="btn btn-secondary" onclick="showConnectInput()" style="width:100%;padding:14px;font-size:15px;">
+        <i class="lni lni-share-alt" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
+      </button>
+    </div>
+    <div id="connectInputSection" style="display:none;">
+      <input type="url" id="connectUrlInput" class="modal-input" placeholder="Plak de gedeelde link hier..." autocomplete="off" autocorrect="off" spellcheck="false"
+        style="margin-bottom:10px;"
+        oninput="validateConnectUrl()"
+        onkeydown="if(event.key==='Enter') connectToList()">
+      <div id="connectError" style="color:#e74c3c;font-size:13px;margin-bottom:8px;display:none;">Ongeldige link. Plak de volledige URL.</div>
+      <button class="btn btn-primary" id="connectBtn" onclick="connectToList()" style="width:100%;padding:13px;font-size:15px;" disabled>
+        Verbinden
+      </button>
+    </div>
   </div>
 </div>
 
@@ -214,8 +239,8 @@
       <div class="list-id-label" id="listIdLabel">Verbinden...</div>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-regular fa-share-nodes"></i></button>
-      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-regular fa-ellipsis"></i></button>
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-alt"></i></button>
+      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="lni lni-more-alt"></i></button>
     </div>
   </div>
 </header>
@@ -279,10 +304,10 @@
 
 <div id="menuOverlay" style="display:none;position:fixed;inset:0;z-index:450;" onclick="closeMenu()"></div>
 <div id="menuPopup" style="display:none;position:fixed;top:60px;right:max(12px,calc(50% - 228px));z-index:451;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:220px;overflow:hidden;flex-direction:column;">
-  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-regular fa-trash" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
-  <button class="menu-item" onclick="menuRefresh()"><i class="fa-regular fa-arrows-rotate" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
-  <button class="menu-item" onclick="menuRename()"><i class="fa-regular fa-pen" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
-  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="fa-regular fa-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
+  <button class="menu-item" onclick="menuRemoveChecked()"><i class="lni lni-trash" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
+  <button class="menu-item" onclick="menuRefresh()"><i class="lni lni-reload" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
+  <button class="menu-item" onclick="menuRename()"><i class="lni lni-pencil" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
+  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="lni lni-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
 </div>
 
 <div class="modal-overlay" id="renameModal">
@@ -324,7 +349,7 @@
 </div>
 <div id="fabSearchBackdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeFabSearch()"></div>
 
-<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-regular fa-plus"></i></label>
+<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;bottom:50px;right:50px;" autocomplete="off">
 <div class="toast" id="toast"></div>
 
@@ -490,7 +515,7 @@ function renderItem(id, item) {
       <div class="item-name">${item.name}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
     </div>
     <span class="item-qty-label" onclick="openDetail('${id}')" style="cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;font-weight:500;">${qtyLabel}</span>
-    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-regular fa-trash" style="color:#777;"></i></button>
+    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="lni lni-trash" style="color:#777;"></i></button>
   </div>`;
 }
 
@@ -740,6 +765,38 @@ window.doShare = function(method) {
 // ── New list ───────────────────────────────────────────────────────────
 window.confirmNewList = function() {
   if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
+};
+
+// ── Connect to shared list ─────────────────────────────────────────────
+window.showConnectInput = function() {
+  document.getElementById('connectSection').style.display = 'none';
+  document.getElementById('connectInputSection').style.display = 'block';
+  setTimeout(() => document.getElementById('connectUrlInput').focus(), 100);
+};
+
+function extractListIdFromUrl(url) {
+  try {
+    const u = new URL(url.trim());
+    return u.searchParams.get('list');
+  } catch { return null; }
+}
+
+window.validateConnectUrl = function() {
+  const val = document.getElementById('connectUrlInput').value;
+  const id = extractListIdFromUrl(val);
+  const btn = document.getElementById('connectBtn');
+  const err = document.getElementById('connectError');
+  if (val.trim() === '') { btn.disabled = true; err.style.display = 'none'; return; }
+  if (id) { btn.disabled = false; err.style.display = 'none'; }
+  else { btn.disabled = true; err.style.display = 'block'; }
+};
+
+window.connectToList = function() {
+  const val = document.getElementById('connectUrlInput').value;
+  const id = extractListIdFromUrl(val);
+  if (!id) return;
+  document.getElementById('newlistModal').style.display = 'none';
+  initList(id);
 };
 
 // ── Boot ───────────────────────────────────────────────────────────────
