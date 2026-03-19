@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
 <style>
   :root {
     --red: #0057ff; --red-light: #e8f0ff;
@@ -204,7 +206,7 @@
     <p style="color:#666;font-size:14px;margin-bottom:24px;">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
 
     <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:15px;margin-bottom:12px;">
-      <i class="fa-regular fa-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
+      <i class="fa-solid fa-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
     </button>
 
     <div style="position:relative;display:flex;align-items:center;margin-bottom:12px;">
@@ -215,7 +217,7 @@
 
     <div id="connectSection">
       <button class="btn btn-secondary" onclick="showConnectInput()" style="width:100%;padding:14px;font-size:15px;">
-        <i class="fa-regular fa-share-from-square" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
+        <i class="fa-solid fa-share-from-square" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
       </button>
     </div>
     <div id="connectInputSection" style="display:none;">
@@ -240,8 +242,8 @@
       <div class="logo">Komisses</div>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-regular fa-share-from-square"></i></button>
-      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-regular fa-ellipsis"></i></button>
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-solid fa-share-from-square"></i></button>
+      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-solid fa-ellipsis"></i></button>
     </div>
   </div>
 </header>
@@ -306,12 +308,12 @@
 <div id="menuOverlay" style="display:none;position:fixed;inset:0;z-index:450;" onclick="closeMenu()"></div>
 <div id="menuPopup" style="display:none;position:fixed;top:60px;right:max(12px,calc(50% - 228px));z-index:451;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:220px;overflow:hidden;flex-direction:column;">
   <div style="padding:12px 18px 10px;border-bottom:1px solid var(--grey-mid);font-size:12px;color:var(--text-muted);font-weight:500;">Huidige lijst<br><span id="listIdLabel" style="font-weight:700;color:var(--text);font-size:14px;"> style="font-weight:700;color:var(--text);">Verbinden...</span></div>
-  <button class="menu-item" onclick="menuCheckAll()"><i class="fa-regular fa-circle-check" style="width:18px;margin-right:8px;color:#777;"></i> Alles afvinken</button>
-  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-regular fa-trash-can" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
-  <button class="menu-item" onclick="menuRefresh()"><i class="fa-regular fa-arrows-rotate" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
-  <button class="menu-item" onclick="menuRename()"><i class="fa-regular fa-pen" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
-  <button class="menu-item" onclick="menuConnectList()"><i class="fa-regular fa-link" style="width:18px;margin-right:8px;color:#777;"></i> Verbinden met andere lijst</button>
-  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="fa-regular fa-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
+  <button class="menu-item" onclick="menuCheckAll()"><i class="fa-solid fa-circle-check" style="width:18px;margin-right:8px;color:#777;"></i> Alles afvinken</button>
+  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-solid fa-trash-can" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
+  <button class="menu-item" onclick="menuRefresh()"><i class="fa-solid fa-arrows-rotate" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
+  <button class="menu-item" onclick="menuRename()"><i class="fa-solid fa-pen" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
+  <button class="menu-item" onclick="menuConnectList()"><i class="fa-solid fa-link" style="width:18px;margin-right:8px;color:#777;"></i> Verbinden met andere lijst</button>
+  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="fa-solid fa-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
 </div>
 
 <div class="modal-overlay" id="renameModal">
@@ -327,7 +329,7 @@
 
 <div class="modal-overlay" id="connectModal">
   <div class="modal-box">
-    <div class="modal-title"><i class="fa-regular fa-link" style="margin-right:8px;"></i>Verbinden met lijst</div>
+    <div class="modal-title"><i class="fa-solid fa-link" style="margin-right:8px;"></i>Verbinden met lijst</div>
     <input type="url" class="modal-input" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
       autocomplete="off" autocorrect="off" spellcheck="false"
       oninput="validateConnectModal()"
@@ -369,7 +371,7 @@
 </div>
 <div id="fabSearchBackdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeFabSearch()"></div>
 
-<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-regular fa-plus"></i></label>
+<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-solid fa-plus"></i></label>
 <input id="fabTriggerInput" type="text" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;bottom:50px;right:50px;" autocomplete="off">
 <div class="toast" id="toast"></div>
 
@@ -555,7 +557,7 @@ function renderItem(id, item) {
       <div class="item-name">${item.name}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
     </div>
     ${showQty ? `<span class="item-qty-label" onclick="openDetail('${id}')" style="cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;font-weight:500;">${qtyLabel}</span>` : ''}
-    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-regular fa-trash-can" style="color:#777;"></i></button>
+    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can" style="color:#777;"></i></button>
   </div>`;
 }
 
