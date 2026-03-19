@@ -11,13 +11,13 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="lineicons-free-regular-font/lineicons-free.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
 <style>
   :root {
-    --red: #0057ff; --red-light: #e8f0ff;
+    --brandColor: #0057ff; --brandColor-light: #e8f0ff;
     --green: #00a651;
     --grey: #f5f5f5; --grey-mid: #e0e0e0;
     --text: #1a1a1a; --text-muted: #888;
@@ -33,12 +33,12 @@
   .sync-bar { height: 0; background: transparent; position: relative; overflow: hidden; flex-shrink: 0; transition: height 0.2s; }
   .sync-bar.syncing, .sync-bar.error { height: 3px; }
   .sync-bar.syncing::after { content:''; position:absolute; left:-40%; width:40%; height:100%; background:var(--green); animation: syncSlide 0.9s ease-in-out infinite; }
-  .sync-bar.error::after { content:''; position:absolute; inset:0; background:var(--red); }
+  .sync-bar.error::after { content:''; position:absolute; inset:0; background:transparent; }
   .sync-bar.ok::after { content:''; position:absolute; inset:0; background:var(--green); opacity:0.5; }
   @keyframes syncSlide { 0%{left:-40%} 100%{left:140%} }
 
   /* Header */
-  .header { background: var(--red); color: white; padding: 0 16px; flex-shrink: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,87,255,0.25); }
+  .header { background: var(--brandColor); color: white; padding: 0 16px; flex-shrink: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,87,255,0.25); }
   .header-top { display:flex; align-items:center; justify-content:space-between; padding: 12px 0 8px; }
   .logo-wrap { display:flex; flex-direction:row; align-items:center; gap:10px; }
   .logo-icon { width:28px; height:28px; flex-shrink:0; filter:brightness(0) invert(1); }
@@ -67,14 +67,14 @@
   /* Tabs */
   .tabs { display:none; }
   .tab { flex:1; padding:11px 8px; text-align:center; font-size:13px; font-weight:500; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color 0.15s,border-color 0.15s; }
-  .tab.active { color:var(--red); border-color:var(--red); font-weight:700; }
+  .tab.active { color:var(--brandColor); border-color:var(--brandColor); font-weight:700; }
 
   main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 100px; }
 
   /* Loading */
   .loading-overlay { position:fixed; inset:0; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:16px; }
   .loading-overlay.hidden { display:none; }
-  .loading-spinner { width:42px; height:42px; border:4px solid var(--grey-mid); border-top-color:var(--red); border-radius:50%; animation:spin 0.7s linear infinite; }
+  .loading-spinner { width:42px; height:42px; border:4px solid var(--grey-mid); border-top-color:var(--brandColor); border-radius:50%; animation:spin 0.7s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
   .loading-text { font-size:15px; color:var(--text-muted); font-weight:500; }
 
@@ -106,14 +106,14 @@
 
   .item-qty { display:flex; align-items:center; gap:8px; flex-shrink:0; }
   .qty-btn { width:28px; height:28px; border:2px solid var(--grey-mid); border-radius:8px; background:none; font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); font-weight:300; transition:border-color 0.12s,color 0.12s; }
-  .qty-btn:active { border-color:var(--red); color:var(--red); }
+  .qty-btn:active { border-color:var(--brandColor); color:var(--brandColor); }
   .qty-num { font-weight:700; font-size:16px; min-width:20px; text-align:center; }
 
   .item-action-btn { width:28px; height:28px; border:none; border-radius:7px; background:var(--grey); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:background 0.12s; }
   .item-action-btn:active { background:var(--grey-mid); }
 
   /* Empty */
-  .empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); }
+  .empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .empty-icon { font-size:54px; margin-bottom:14px; }
   .empty-title { font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px; }
   .empty-sub { font-size:14px; line-height:1.5; }
@@ -136,7 +136,7 @@
   .product-item { display:flex; align-items:center; justify-content:space-between; padding:11px 12px; border-bottom:1px solid var(--grey); gap:10px; }
   .product-item:last-child { border-bottom:none; }
   .pi-name { font-size:14px; font-weight:500; flex:1; }
-  .pi-add { background:var(--red); color:white; border:none; border-radius:8px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
+  .pi-add { background:var(--brandColor); color:white; border:none; border-radius:8px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
   .pi-add.added { background:var(--green); }
   .panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:299; display:none; }
   .panel-overlay.show { display:block; }
@@ -147,10 +147,10 @@
   .modal-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 40px; width:min(480px,100vw); }
   .modal-title { font-size:17px; font-weight:700; margin-bottom:14px; }
   .modal-input { width:100%; border:2px solid var(--grey-mid); border-radius:10px; padding:12px 14px; font-family:'Outfit',sans-serif; font-size:15px; outline:none; resize:none; color:var(--text); }
-  .modal-input:focus { border-color:var(--red); }
+  .modal-input:focus { border-color:var(--brandColor); }
   .modal-btns { display:flex; gap:10px; margin-top:12px; }
   .btn { flex:1; padding:12px; border-radius:10px; border:none; font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
-  .btn-primary { background:var(--red); color:white; }
+  .btn-primary { background:var(--brandColor); color:white; }
   .btn-secondary { background:var(--grey); color:var(--text); }
 
   /* Share modal */
@@ -166,11 +166,11 @@
   .share-btn-icon { font-size:22px; width:28px; }
 
   /* FAB */
-  .fab { position:fixed; bottom:24px; right:max(24px, calc(50% - 240px + 24px)); background:var(--red); color:#ffffff; border:none; border-radius:50%; width:52px; height:52px; font-size:20px; cursor:pointer; box-shadow:0 4px 20px rgba(0,87,255,0.45); display:flex; align-items:center; justify-content:center; z-index:80; transition:transform 0.15s; }
+  .fab { position:fixed; bottom:24px; right:max(24px, calc(50% - 240px + 24px)); background:var(--brandColor); color:#ffffff; border:none; border-radius:50%; width:52px; height:52px; font-size:20px; cursor:pointer; box-shadow:0 4px 20px rgba(0,87,255,0.45); display:flex; align-items:center; justify-content:center; z-index:80; transition:transform 0.15s; }
   .fab:active { transform:scale(0.96); }
 
   .add-custom-btn { width:100%; background:white; border:2px dashed var(--grey-mid); border-radius:var(--radius); padding:14px; font-family:'Outfit',sans-serif; font-size:14px; color:var(--text-muted); cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:500; transition:border-color 0.15s,color 0.15s; }
-  .add-custom-btn:active { border-color:var(--red); color:var(--red); }
+  .add-custom-btn:active { border-color:var(--brandColor); color:var(--brandColor); }
 
   .checked-section { margin-top:16px; }
   .checked-title { font-size:13px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; padding:0 4px 8px; }
@@ -186,10 +186,12 @@
   .newlist-box p { font-size:14px; color:var(--text-muted); margin-bottom:24px; line-height:1.5; }
 
   .unit-btn { padding:5px 10px; border:2px solid var(--grey-mid); border-radius:8px; background:white; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-muted); transition:all 0.12s; }
-  .unit-btn.active { border-color:var(--red); color:var(--red); background:#fff5f5; }
+  .unit-btn.active { border-color:var(--brandColor); color:var(--brandColor); background:#fff5f5; }
 
   .menu-item { display:block; width:100%; padding:14px 18px; background:none; border:none; text-align:left; font-family:'Outfit',sans-serif; font-size:14px; font-weight:500; color:var(--text); cursor:pointer; transition:background 0.1s; }
   .menu-item:active { background:var(--grey); }
+
+  .lni { display:inline-flex; align-items:center; justify-content:center; font-size: 1.4em; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -206,7 +208,7 @@
     <p style="color:#666;font-size:14px;margin-bottom:24px;">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
 
     <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:15px;margin-bottom:12px;">
-      <i class="fa-solid fa-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
+      <i class="lni lni-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
     </button>
 
     <div style="position:relative;display:flex;align-items:center;margin-bottom:12px;">
@@ -217,7 +219,7 @@
 
     <div id="connectSection">
       <button class="btn btn-secondary" onclick="showConnectInput()" style="width:100%;padding:14px;font-size:15px;">
-        <i class="fa-solid fa-share-from-square" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
+        <i class="lni lni-share-1" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
       </button>
     </div>
     <div id="connectInputSection" style="display:none;">
@@ -242,8 +244,8 @@
       <div class="logo">Komisses</div>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="fa-solid fa-share-from-square"></i></button>
-      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="fa-solid fa-ellipsis"></i></button>
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
+      <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="lni lni-menu-meatballs-1"></i></button>
     </div>
   </div>
 </header>
@@ -308,12 +310,23 @@
 <div id="menuOverlay" style="display:none;position:fixed;inset:0;z-index:450;" onclick="closeMenu()"></div>
 <div id="menuPopup" style="display:none;position:fixed;top:60px;right:max(12px,calc(50% - 228px));z-index:451;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:220px;overflow:hidden;flex-direction:column;">
   <div style="padding:12px 18px 10px;border-bottom:1px solid var(--grey-mid);font-size:12px;color:var(--text-muted);font-weight:500;">Huidige lijst<br><span id="listIdLabel" style="font-weight:700;color:var(--text);font-size:14px;"> style="font-weight:700;color:var(--text);">Verbinden...</span></div>
-  <button class="menu-item" onclick="menuCheckAll()"><i class="fa-solid fa-circle-check" style="width:18px;margin-right:8px;color:#777;"></i> Alles afvinken</button>
-  <button class="menu-item" onclick="menuRemoveChecked()"><i class="fa-solid fa-trash-can" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
-  <button class="menu-item" onclick="menuRefresh()"><i class="fa-solid fa-arrows-rotate" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
-  <button class="menu-item" onclick="menuRename()"><i class="fa-solid fa-pen" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
-  <button class="menu-item" onclick="menuConnectList()"><i class="fa-solid fa-link" style="width:18px;margin-right:8px;color:#777;"></i> Verbinden met andere lijst</button>
-  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="fa-solid fa-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
+  <button class="menu-item" onclick="menuCheckAll()"><i class="lni lni-check-circle-1" style="width:18px;margin-right:8px;color:#777;"></i> Alles afvinken</button>
+  <button class="menu-item" onclick="menuRemoveChecked()"><i class="lni lni-trash-3" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
+  <button class="menu-item" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
+  <button class="menu-item" onclick="menuRename()"><i class="lni lni-pencil-1" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
+  <button class="menu-item" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right" style="width:18px;margin-right:8px;color:#777;"></i> Verbinden met andere lijst</button>
+  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="lni lni-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
+  <button class="menu-item" onclick="menuNerdStuff()" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> Nerd stuff</button>
+</div>
+
+<div class="modal-overlay" id="nerdModal">
+  <div class="modal-box" style="max-height:70vh;display:flex;flex-direction:column;">
+    <div class="modal-title">🤓 Nerd stuff</div>
+    <div id="nerdContent" style="overflow-y:auto;flex:1;font-size:12px;font-family:monospace;color:var(--text-muted);white-space:pre-wrap;word-break:break-all;"></div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="btn btn-secondary" onclick="closeNerd()">Sluiten</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="renameModal">
@@ -329,7 +342,7 @@
 
 <div class="modal-overlay" id="connectModal">
   <div class="modal-box">
-    <div class="modal-title"><i class="fa-solid fa-link" style="margin-right:8px;"></i>Verbinden met lijst</div>
+    <div class="modal-title"><i class="lni lni-link-2-angular-right" style="margin-right:8px;"></i>Verbinden met lijst</div>
     <input type="url" class="modal-input" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
       autocomplete="off" autocorrect="off" spellcheck="false"
       oninput="validateConnectModal()"
@@ -362,7 +375,7 @@
   </div>
 </div>
 
-<div id="fabSearchModal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;max-height:50vh;background:white;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.15);flex-direction:column;">
+<div id="fabSearchModal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;max-height:66vh;background:white;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.15);flex-direction:column;">
   <div style="padding:14px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--grey-mid);display:flex;align-items:center;gap:10px;">
     <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
     <button onclick="closeFabSearch()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;padding:4px;flex-shrink:0;">✕</button>
@@ -371,7 +384,7 @@
 </div>
 <div id="fabSearchBackdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeFabSearch()"></div>
 
-<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="fa-solid fa-plus"></i></label>
+<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;bottom:50px;right:50px;" autocomplete="off">
 <div class="toast" id="toast"></div>
 
@@ -409,19 +422,24 @@ const CAT_META = {
 let CATEGORIES = [];
 
 async function loadCatalog() {
-  const resp = await fetch('bring_catalog.json');
-  const data = await resp.json();
-  const map = {}, order = [];
-  for (const {product, categorie} of data) {
-    if (!map[categorie]) { map[categorie] = []; order.push(categorie); }
-    map[categorie].push(product);
+  try {
+    const resp = await fetch('bring_catalog.json');
+    const data = await resp.json();
+    const map = {}, order = [];
+    for (const {product, categorie} of data) {
+      if (!map[categorie]) { map[categorie] = []; order.push(categorie); }
+      map[categorie].push(product);
+    }
+    CATEGORIES = order.map(name => ({
+      id: CAT_META[name].id,
+      name,
+      emoji: CAT_META[name].emoji,
+      products: map[name]
+    }));
+    catalogLoaded = true;
+  } catch(err) {
+    errorLog.push('[' + new Date().toISOString() + '] Catalog: ' + err.message);
   }
-  CATEGORIES = order.map(name => ({
-    id: CAT_META[name].id,
-    name,
-    emoji: CAT_META[name].emoji,
-    products: map[name]
-  }));
 }
 
 let list = {};
@@ -429,6 +447,10 @@ let currentTab = 'list';
 let noteTarget = null;
 let listId = null;
 let dbRef = null;
+let errorLog = [];
+let syncStatus = 'pending';
+let catalogLoaded = false;
+let firebaseConnected = false;
 let collapsedCats = { '__done__': true };
 let toastTimer = null;
 
@@ -438,6 +460,8 @@ function setListIdInUrl(id) { const u = new URL(window.location.href); u.searchP
 function generateId() { return Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }
 
 function setSyncBar(state) {
+  syncStatus = state;
+  if (state === 'ok') firebaseConnected = true;
   const b = document.getElementById('syncBar');
   b.className = 'sync-bar ' + state;
   if (state === 'ok') setTimeout(() => b.classList.remove('ok'), 1200);
@@ -473,16 +497,11 @@ function initList(id) {
     render();
   }, (err) => {
     setSyncBar('error');
+    const msg = (err.code || '') + ': ' + (err.message || JSON.stringify(err));
+    errorLog.push('[' + new Date().toISOString() + '] Firebase: ' + msg);
     console.error('Firebase error:', err);
-    document.getElementById('loadingOverlay').innerHTML =
-      '<div style="padding:24px;text-align:center;max-width:340px;">' +
-      '<div style="font-size:40px;margin-bottom:12px;">⚠️</div>' +
-      '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">Verbindingsfout</div>' +
-      '<div style="font-size:12px;color:#e31e24;background:#ffeaea;border-radius:10px;padding:12px;word-break:break-all;text-align:left;margin-bottom:16px;font-family:monospace;">' +
-      (err.code || '') + ': ' + (err.message || JSON.stringify(err)) +
-      '</div>' +
-      '<button onclick="location.reload()" style="background:#e31e24;color:white;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;">Opnieuw proberen</button>' +
-      '</div>';
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showToast('Verbindingsfout – zie Nerd stuff');
   });
 }
 
@@ -499,7 +518,7 @@ function renderList() {
   const done   = entries.filter(([,i]) => i.checked);
 
   if (entries.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Lijst is leeg</div><div class="empty-sub">Voeg producten toe via de zoekbalk of het tabblad Bladeren.</div></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Lijst is leeg</div><div class="empty-sub">Voeg producten toe via de plus knop.</div></div>`;
     return;
   }
 
@@ -557,7 +576,7 @@ function renderItem(id, item) {
       <div class="item-name">${item.name}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
     </div>
     ${showQty ? `<span class="item-qty-label" onclick="openDetail('${id}')" style="cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;font-weight:500;">${qtyLabel}</span>` : ''}
-    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="fa-solid fa-trash-can" style="color:#777;"></i></button>
+    <button class="item-action-btn" onclick="removeItem('${id}')"><i class="lni lni-trash-3" style="color:#777;"></i></button>
   </div>`;
 }
 
@@ -910,16 +929,18 @@ function renderFabResults(val) {
 
   let matches = [];
   CATEGORIES.forEach(cat => cat.products.forEach(p => {
-    if (p.toLowerCase().includes(q)) {
-      const used = usedKeys.has(p + '|' + cat.id);
-      matches.push({name:p, cat:cat.name, catId:cat.id, emoji:cat.emoji, used});
-    }
+    const pl = p.toLowerCase();
+    if (!pl.includes(q)) return;
+    const used = usedKeys.has(p + '|' + cat.id);
+    // 0 = starts with query, 1 = word starts with query, 2 = substring
+    const rank = pl.startsWith(q) ? 0 : /(?:^|\s)/.test(pl.slice(pl.search(new RegExp('\\b' + q)))) ? 1 : 2;
+    matches.push({name:p, cat:cat.name, catId:cat.id, emoji:cat.emoji, used, rank});
   }));
 
-  // Sort: previously used first, then alphabetical
+  // Sort: previously used first, then by rank (start > word-start > substring), then alphabetical
   matches.sort((a, b) => {
-    if (a.used && !b.used) return -1;
-    if (!a.used && b.used) return 1;
+    if (a.used !== b.used) return a.used ? -1 : 1;
+    if (a.rank !== b.rank) return a.rank - b.rank;
     return a.name.localeCompare(b.name, 'nl');
   });
 
@@ -932,21 +953,12 @@ function renderFabResults(val) {
     </div>`;
   }).join('');
 
-  // "Add to catalogue" option when typing something not found
   if (q && matches.length === 0) {
     html = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
       <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
         <span class="sri-name">➕ "${val}" toevoegen</span>
         <span class="sri-cat">Nieuw product</span>
       </div>`;
-  } else if (q && !matches.find(m => m.name.toLowerCase() === q)) {
-    // typed something but also show "add new" at bottom
-    html += `<div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
-      <div class="sri-info">
-        <div class="sri-name">➕ "${val}" toevoegen aan catalogus</div>
-        <div class="sri-cat">Nieuw product bewaren voor later</div>
-      </div>
-    </div>`;
   }
 
   container.innerHTML = html;
@@ -1014,6 +1026,26 @@ window.menuNewList = function() {
   closeMenu();
   if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
 };
+window.menuNerdStuff = function() {
+  closeMenu();
+  const itemCount = Object.keys(list).length;
+  const catCount = CATEGORIES.length;
+  const productCount = CATEGORIES.reduce((s, c) => s + c.products.length, 0);
+  const lines = [
+    '=== Status ===',
+    'Firebase:  ' + (firebaseConnected ? '✅ verbonden' : '❌ niet verbonden'),
+    'Sync:      ' + syncStatus,
+    'Catalog:   ' + (catalogLoaded ? '✅ geladen (' + catCount + ' cat, ' + productCount + ' prod)' : '❌ niet geladen'),
+    'Lijst ID:  ' + (listId || '—'),
+    'Items:     ' + itemCount,
+    '',
+    '=== Fouten (' + errorLog.length + ') ===',
+    ...(errorLog.length ? errorLog : ['Geen fouten']),
+  ];
+  document.getElementById('nerdContent').textContent = lines.join('\n');
+  document.getElementById('nerdModal').classList.add('show');
+};
+window.closeNerd = function() { document.getElementById('nerdModal').classList.remove('show'); };
 window.menuConnectList = function() {
   closeMenu();
   document.getElementById('connectModalInput').value = '';
