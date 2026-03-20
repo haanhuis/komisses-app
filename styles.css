@@ -1262,3 +1262,8 @@ main {
     padding-left: 18px;
     padding-right: 18px;
 }
+
+.lni{
+    display: inline-flex;
+    align-items: center;
+}
