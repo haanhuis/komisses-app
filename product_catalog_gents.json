@@ -1,0 +1,44 @@
+{
+  "_comment": "Gents dialect overrides. Key = Dutch product name, value = Gents dialect name. Dutch name is automatically added as a search alias.",
+
+  "Brood": "Bruut",
+  "Gesneden brood": "Gesneden bruut",
+  "Stokbrood": "Stokbruut",
+
+  "Aardappelen": "Patatten",
+  "Zoete aardappelen": "Zoete patatten",
+
+  "Kaas": "Koas",
+  "Blauwe kaas": "Blauwe koas",
+  "Geraspte kaas": "Geraspte koas",
+  "Roomkaas": "Roomkoas",
+  "Smeerkaas": "Smeerkoas",
+  "Parmezaanse Kaas": "Parmezaanse koas",
+
+  "Ham": "Espe",
+  "Kip": "Oender",
+  "Kippenvleugels": "Oenderpuutjes",
+  "Gehakt": "Gekapt",
+
+  "Ajuin": "Andzjuun",
+  "Wortelen": "Penen",
+  "Bloemkool": "Bloemkuule",
+  "Erwten": "Ertsjes",
+  "Bonen": "Boontses",
+  "Peren": "Peere",
+  "Aardbeien": "Eirbeize",
+  "Sinaasappelen": "Appelsiene",
+  "Citroen": "Citroene",
+
+  "Boter": "Booter",
+  "Eieren": "Aaiers",
+  "Bloem": "Blome",
+  "Frieten": "Frietkens",
+  "Knoflook": "Look",
+
+  "Koffie": "Kaffie",
+  "Bier": "Pintse",
+  "Warme chocomelk": "Chokomelke",
+  "Chocolade": "Sjokola",
+  "Suiker": "Sukker"
+}

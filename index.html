@@ -20,17 +20,17 @@
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Verbinden met lijst...</div>
+  <div class="loading-text" id="loadingText">Verbinden met lijst...</div>
 </div>
 
 <div class="newlist-modal hidden-init" id="newlistModal">
   <div class="newlist-box">
     <div class="emoji-xl">🛒</div>
     <h2 class="mb-8">Komisses</h2>
-    <p class="description-text mb-16">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
+    <p class="description-text mb-16" id="newlistDesc">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
 
-    <button class="btn btn-primary w-full mb-12" style="padding:14px;font-size:15px;">
-      <i class="lni lni-plus icon-sm" onclick="createNewList()"></i>Nieuwe lijst aanmaken
+    <button class="btn btn-primary w-full mb-12" id="newlistCreateBtn" style="padding:14px;font-size:15px;" onclick="createNewList()">
+      <i class="lni lni-plus icon-sm"></i><span id="newlistCreateText">Nieuwe lijst aanmaken</span>
     </button>
 
     <div class="flex-center relative mb-12">
@@ -41,7 +41,7 @@
 
     <div id="connectSection">
       <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px;">
-        <i class="lni lni-share-1 icon-sm"></i><span onclick="showConnectInput()">Verbinden met gedeelde lijst</span>
+        <i class="lni lni-share-1 icon-sm"></i><span id="newlistConnectText" onclick="showConnectInput()">Verbinden met gedeelde lijst</span>
       </button>
     </div>
     <div id="connectInputSection" class="hidden-init">
@@ -65,6 +65,19 @@
       <div class="logo">Komisses</div>
     </div>
     <div class="header-actions">
+      <div class="locale-wrap" id="localeWrap">
+        <button class="icon-btn locale-btn" id="localeBtn" onclick="openLocaleDropdown(event)">
+          <span id="localeBtnLabel">NL</span><span class="locale-chevron">▾</span>
+        </button>
+        <div class="locale-dropdown hidden-init" id="localeDropdown">
+          <button class="locale-option" id="localeOptNl" onclick="selectLocale('nl')">
+            <span class="locale-opt-code">NL</span><span class="locale-opt-name">Nederlands</span>
+          </button>
+          <button class="locale-option" id="localeOptGents" onclick="selectLocale('gents')">
+            <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gents</span>
+          </button>
+        </div>
+      </div>
       <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
       <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="lni lni-menu-meatballs-1"></i></button>
     </div>
@@ -109,20 +122,20 @@
     <textarea class="modal-input" id="noteInput" rows="3" placeholder="Notitie: biologisch, huismerk ok, rijp genoeg..."></textarea>
 
     <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeNote()">Annuleren</button>
-      <button class="btn btn-primary" onclick="saveNote()">Opslaan</button>
+      <button class="btn btn-secondary" onclick="closeNote()" id="noteCancelBtn">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveNote()" id="noteSaveBtn">Opslaan</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="customModal">
   <div class="modal-box">
-    <div class="modal-title">➕ Product toevoegen</div>
+    <div class="modal-title" id="customModalTitle">➕ Product toevoegen</div>
     <input type="text" class="modal-input mb-10" id="customName" placeholder="Productnaam...">
     <select class="modal-input" id="customCat"></select>
     <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeCustom()">Annuleren</button>
-      <button class="btn btn-primary" onclick="saveCustom()">Toevoegen</button>
+      <button class="btn btn-secondary" onclick="closeCustom()" id="customCancelBtn">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveCustom()" id="customSaveBtn">Toevoegen</button>
     </div>
   </div>
 </div>
@@ -130,47 +143,47 @@
 
 <div id="menuOverlay" class="fixed-overlay hidden-init" onclick="closeMenu()"></div>
 <div id="menuPopup" class="menu-popup hidden-init">
-  <div class="menu-header">Huidge lijst<br><span id="listIdLabel" class="list-id-display">Verbinden...</span></div>
-  <button class="menu-item" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> Alles afvinken</button>
-  <button class="menu-item" onclick="menuRemoveChecked()"><i class="lni lni-trash-3 icon-colored"></i> Verwijder afgevinkte items</button>
-  <button class="menu-item" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> Lijst vernieuwen</button>
-  <button class="menu-item" onclick="menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> Lijst hernoemen</button>
-  <button class="menu-item" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> Verbinden met andere lijst</button>
-  <button class="menu-item" style="border-top:1px solid var(--grey-mid);" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> Nieuwe lijst</button>
-  <button class="menu-item" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> Nerd stuff</button>
+  <div class="menu-header" id="menuHeader">Huidige lijst<br><span id="listIdLabel" class="list-id-display">Verbinden...</span></div>
+  <button class="menu-item" id="menuItemCheckAll" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> <span>Alles afvinken</span></button>
+  <button class="menu-item" id="menuItemRemove" onclick="menuRemoveChecked()"><i class="lni lni-trash-3 icon-colored"></i> <span>Verwijder afgevinkte items</span></button>
+  <button class="menu-item" id="menuItemRefresh" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>Lijst vernieuwen</span></button>
+  <button class="menu-item" id="menuItemRename" onclick="menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> <span>Lijst hernoemen</span></button>
+  <button class="menu-item" id="menuItemConnect" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> <span>Verbinden met andere lijst</span></button>
+  <button class="menu-item" id="menuItemNewList" style="border-top:1px solid var(--grey-mid);" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
+  <button class="menu-item" id="menuItemNerd" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> <span>Nerd stuff</span></button>
 </div>
 
 <div class="modal-overlay" id="nerdModal">
   <div class="modal-box nerd-modal-style">
-    <div class="modal-title">🤓 Nerd stuff</div>
+    <div class="modal-title" id="nerdTitle">🤓 Nerd stuff</div>
     <div id="nerdContent" class="nerd-modal-content"></div>
     <div class="modal-btns" style="margin-top:16px;">
-      <button class="btn btn-secondary" onclick="closeNerd()">Sluiten</button>
+      <button class="btn btn-secondary" id="nerdCloseBtn" onclick="closeNerd()">Sluiten</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="renameModal">
   <div class="modal-box">
-    <div class="modal-title">✏️ Lijst hernoemen</div>
+    <div class="modal-title" id="renameModalTitle">✏️ Lijst hernoemen</div>
     <input type="text" class="modal-input" id="renameInput" placeholder="Naam van de lijst..." autocomplete="off">
     <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeRename()">Annuleren</button>
-      <button class="btn btn-primary" onclick="saveRename()">Opslaan</button>
+      <button class="btn btn-secondary" id="renameCancelBtn" onclick="closeRename()">Annuleren</button>
+      <button class="btn btn-primary" id="renameSaveBtn" onclick="saveRename()">Opslaan</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="connectModal">
   <div class="modal-box">
-    <div class="modal-title"><i class="lni lni-link-2-angular-right icon-sm"></i>Verbinden met lijst</div>
+    <div class="modal-title" id="connectModalTitle"><i class="lni lni-link-2-angular-right icon-sm"></i><span id="connectModalTitleText">Verbinden met lijst</span></div>
     <input type="url" class="modal-input mb-10" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
       autocomplete="off" autocorrect="off" spellcheck="false"
       oninput="validateConnectModal()"
       onkeydown="if(event.key==='Enter') confirmConnectModal()">
     <div id="connectModalError" class="error-text mb-8">Ongeldige link. Plak de volledige URL.</div>
     <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeConnectModal()">Annuleren</button>
+      <button class="btn btn-secondary" id="connectModalCancelBtn" onclick="closeConnectModal()">Annuleren</button>
       <button class="btn btn-primary" id="connectModalBtn" onclick="confirmConnectModal()" disabled>Verbinden</button>
     </div>
   </div>
@@ -178,19 +191,19 @@
 
 <div class="share-modal" id="shareModal">
   <div class="share-box">
-    <div class="share-title">📤 Lijst delen</div>
-    <div class="share-sub">Iedereen met de link kan live producten toevoegen en afvinken.</div>
+    <div class="share-title" id="shareTitle">📤 Lijst delen</div>
+    <div class="share-sub" id="shareSub">Iedereen met de link kan live producten toevoegen en afvinken.</div>
     <div class="share-link-box" id="shareLink"></div>
     <div class="share-options">
-      <button class="share-btn" onclick="doShare('copy')">
+      <button class="share-btn" id="shareCopyBtn" onclick="doShare('copy')">
         <span class="share-btn-icon">🔗</span>
-        <div><strong>Link kopiëren</strong><br><small class="share-btn-desc">Plak in WhatsApp, iMessage, e-mail...</small></div>
+        <div><strong id="shareCopyLabel">Link kopiëren</strong><br><small class="share-btn-desc" id="shareCopyDesc">Plak in WhatsApp, iMessage, e-mail...</small></div>
       </button>
-      <button class="share-btn" onclick="doShare('native')">
+      <button class="share-btn" id="shareViaBtn" onclick="doShare('native')">
         <span class="share-btn-icon">📱</span>
-        <div><strong>Delen via...</strong><br><small class="share-btn-desc">WhatsApp, SMS, e-mail en meer</small></div>
+        <div><strong id="shareViaLabel">Delen via...</strong><br><small class="share-btn-desc" id="shareViaDesc">WhatsApp, SMS, e-mail en meer</small></div>
       </button>
-      <button class="share-btn share-btn-cancel" onclick="closeShare()">Annuleren</button>
+      <button class="share-btn share-btn-cancel" id="shareCancelBtn" onclick="closeShare()">Annuleren</button>
     </div>
   </div>
 </div>
@@ -225,6 +238,231 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 
+// ── Locales ───────────────────────────────────────────────────────────
+const LOCALES = {
+  nl: {
+    loading: 'Verbinden met lijst...',
+    newlist_desc: 'Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.',
+    newlist_create: 'Nieuwe lijst aanmaken',
+    newlist_connect: 'Verbinden met gedeelde lijst',
+    connect_placeholder: 'Plak de gedeelde link hier...',
+    connect_error: 'Ongeldige link. Plak de volledige URL.',
+    btn_connect: 'Verbinden',
+    btn_cancel: 'Annuleren',
+    btn_save: 'Opslaan',
+    btn_add: 'Toevoegen',
+    btn_close: 'Sluiten',
+    tab_list: 'Mijn lijst',
+    tab_browse: 'Bladeren',
+    list_empty_title: 'Lijst is leeg',
+    list_empty_sub: 'Voeg producten toe via de plus knop.',
+    cat_done: 'In mandje',
+    cat_other: 'Overig',
+    panel_title: 'Producten',
+    recent: 'Recent toegevoegd',
+    pi_add: '+ Voeg toe',
+    pi_inlist: '✓ In lijst',
+    search_placeholder: 'Zoek of typ een product...',
+    search_noresults: 'Geen resultaten voor',
+    search_add_custom: '➕ "{q}" toevoegen',
+    search_own: 'Eigen product',
+    search_new: 'Nieuw product',
+    modal_product: 'Product',
+    note_placeholder: 'Notitie: biologisch, huismerk ok, rijp genoeg...',
+    custom_title: '➕ Product toevoegen',
+    custom_placeholder: 'Productnaam...',
+    rename_title: '✏️ Lijst hernoemen',
+    rename_placeholder: 'Naam van de lijst...',
+    connect_modal_title: 'Verbinden met lijst',
+    share_title: '📤 Lijst delen',
+    share_sub: 'Iedereen met de link kan live producten toevoegen en afvinken.',
+    share_copy: 'Link kopiëren',
+    share_copy_desc: 'Plak in WhatsApp, iMessage, e-mail...',
+    share_via: 'Delen via...',
+    share_via_desc: 'WhatsApp, SMS, e-mail en meer',
+    share_text: 'Bekijk mijn boodschappenlijst: {url}',
+    share_cancel: 'Annuleren',
+    menu_header: 'Huidige lijst',
+    menu_checkall: 'Alles afvinken',
+    menu_remove: 'Verwijder afgevinkte items',
+    menu_refresh: 'Lijst vernieuwen',
+    menu_rename: 'Lijst hernoemen',
+    menu_connect: 'Verbinden met andere lijst',
+    menu_newlist: 'Nieuwe lijst',
+    menu_nerd: 'Nerd stuff',
+    nerd_title: '🤓 Nerd stuff',
+    nerd_errors_none: 'Geen fouten',
+    toast_copied: 'Link gekopieerd! ✓',
+    toast_renamed: 'Lijst hernoemd ✓',
+    toast_all_checked: 'Alles al afgevinkt',
+    toast_no_checked: 'Geen afgevinkte items',
+    toast_added: '{name} toegevoegd ✓',
+    toast_error: 'Verbindingsfout – zie Nerd stuff',
+    confirm_newlist: 'Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.',
+    categories: {
+      dri: 'Dranken', bak: 'Brood & gebak', fro: 'Gereed- en diepvriesproducten',
+      fru: 'Fruit & Groenten', gra: 'Graanproducten', cle: 'Huishouden',
+      hyg: 'Verzorging & Gezondheid', ing: 'Ingrediënten & Kruiden',
+      mea: 'Vlees & Vis', dai: 'Zuivel', pet: 'Dierenvoeding',
+      swe: 'Snacks & Snoep', ont: 'Ontbijt',
+    },
+  },
+  gents: {
+    loading: 'Verbinden met de lijstse...',
+    newlist_desc: 'Maak ne neie lijstse aan of verbind met ne bestaande gedeelde lijstse.',
+    newlist_create: 'Neie lijstse aanmaken',
+    newlist_connect: 'Verbinden met gedeelde lijstse',
+    connect_placeholder: 'Plak de gedeelde link hier...',
+    connect_error: 'Ongeldige link. Plak de volledige URL.',
+    btn_connect: 'Verbinden',
+    btn_cancel: 'Annuleren',
+    btn_save: 'Bewaren',
+    btn_add: 'Bijdoen',
+    btn_close: 'Sluiten',
+    tab_list: 'Mijn lijstse',
+    tab_browse: 'Rondkijken',
+    list_empty_title: 'Uw lijstse is leege',
+    list_empty_sub: 'Smijt er wa gerief op via de plus-knoppe.',
+    cat_done: 'In ne mand',
+    cat_other: 'Andere',
+    panel_title: 'Artikelen',
+    recent: 'Pas bijgevoegd',
+    pi_add: '+ Bijdoen',
+    pi_inlist: '✓ Op de lijstse',
+    search_placeholder: 'Zoek noar boodschoapp\'n...',
+    search_noresults: 'Niets gevonden voor',
+    search_add_custom: '➕ "{q}" bijdoen',
+    search_own: 'Eigen artikel',
+    search_new: 'Neuw artikel',
+    modal_product: 'Artikel',
+    note_placeholder: 'Nota: bio, huismerk ok, rijp genoeg...',
+    custom_title: '➕ Artikel bijdoen',
+    custom_placeholder: 'Naam van t artikel...',
+    rename_title: '✏️ Lijstse hernoemen',
+    rename_placeholder: 'Naam van de lijstse...',
+    connect_modal_title: 'Verbinden met lijstse',
+    share_title: '📤 Lijstse delen',
+    share_sub: 'Iedereen met de link kan live artikelen bijdoen en afvinken.',
+    share_copy: 'Link kopiëren',
+    share_copy_desc: 'Plak in WhatsApp, iMessage, e-mail...',
+    share_via: 'Delen via...',
+    share_via_desc: 'WhatsApp, SMS, e-mail en meer',
+    share_text: 'Bekijk mijn boadschappelijstse: {url}',
+    share_cancel: 'Annuleren',
+    menu_header: 'Huidige lijstse',
+    menu_checkall: 'Alles afvinken',
+    menu_remove: 'Verwijder afgevinkte artikelen',
+    menu_refresh: 'Lijstse vernieuwen',
+    menu_rename: 'Lijstse hernoemen',
+    menu_connect: 'Verbinden met andere lijstse',
+    menu_newlist: 'Neie lijstse',
+    menu_nerd: 'Nerdig gedoe',
+    nerd_title: '🤓 Nerdig gedoe',
+    nerd_errors_none: 'Geen fouten',
+    toast_copied: 'Link gekopieerd! ✓',
+    toast_renamed: 'Lijstse hernoemd ✓',
+    toast_all_checked: 'Alles al afgevinkt',
+    toast_no_checked: 'Geen afgevinkte artikelen',
+    toast_added: '{name} bijgevoegd ✓',
+    toast_error: 'Verbindingsfout – zie Nerdig gedoe',
+    confirm_newlist: 'Neie lege lijstse aanmaken? De huidige lijstse blijft beschikbaar via de gedeelde link.',
+    categories: {
+      dri: 'Drank', bak: 'Bruut & gebak', fro: 'Klaar- en diepvriesproducten',
+      fru: 'Fruit & Groensel', gra: 'Graanproducten', cle: 'Huishouden',
+      hyg: 'Verzorging & Gezondheid', ing: 'Ingrediënten & Kruiden',
+      mea: 'Vlees & Vis', dai: 'Zuivel', pet: 'Dierenvoeding',
+      swe: 'Snacks & Snoep', ont: 'Ontbijt',
+    },
+  },
+};
+
+let currentLocale = localStorage.getItem('locale') || 'nl';
+function t(key) { return LOCALES[currentLocale]?.[key] ?? LOCALES.nl[key] ?? key; }
+function catName(catId) { return LOCALES[currentLocale]?.categories?.[catId] ?? LOCALES.nl.categories[catId] ?? catId; }
+
+function applyLocaleToDOM() {
+  const isGents = currentLocale === 'gents';
+  // Locale button
+  const lbl = document.getElementById('localeBtnLabel');
+  if (lbl) lbl.textContent = isGents ? 'GE' : 'NL';
+  document.getElementById('localeOptNl')?.classList.toggle('active', !isGents);
+  document.getElementById('localeOptGents')?.classList.toggle('active', isGents);
+  // Loading
+  const lt = document.getElementById('loadingText'); if (lt) lt.textContent = t('loading');
+  // Newlist modal
+  const nd = document.getElementById('newlistDesc'); if (nd) nd.textContent = t('newlist_desc');
+  const nc = document.getElementById('newlistCreateText'); if (nc) nc.textContent = t('newlist_create');
+  const nct = document.getElementById('newlistConnectText'); if (nct) nct.textContent = t('newlist_connect');
+  const cui = document.getElementById('connectUrlInput'); if (cui) cui.placeholder = t('connect_placeholder');
+  const ce = document.getElementById('connectError'); if (ce) ce.textContent = t('connect_error');
+  const cb = document.getElementById('connectBtn'); if (cb) cb.textContent = t('btn_connect');
+  // Tabs
+  const tl = document.getElementById('tab-list'); if (tl) tl.textContent = t('tab_list');
+  const tb = document.getElementById('tab-browse'); if (tb) tb.textContent = t('tab_browse');
+  // Note modal
+  const ni = document.getElementById('noteInput'); if (ni) ni.placeholder = t('note_placeholder');
+  const ncb = document.getElementById('noteCancelBtn'); if (ncb) ncb.textContent = t('btn_cancel');
+  const nsb = document.getElementById('noteSaveBtn'); if (nsb) nsb.textContent = t('btn_save');
+  // Custom modal
+  const cmt = document.getElementById('customModalTitle'); if (cmt) cmt.textContent = t('custom_title');
+  const cn = document.getElementById('customName'); if (cn) cn.placeholder = t('custom_placeholder');
+  const ccb = document.getElementById('customCancelBtn'); if (ccb) ccb.textContent = t('btn_cancel');
+  const csb = document.getElementById('customSaveBtn'); if (csb) csb.textContent = t('btn_add');
+  // Menu
+  const mh = document.getElementById('menuHeader');
+  if (mh) { const lbl = document.getElementById('listIdLabel'); mh.innerHTML = t('menu_header') + '<br>'; if (lbl) mh.appendChild(lbl); }
+  const setMenuItem = (id, key) => { const el = document.getElementById(id); if (el) el.querySelector('span').textContent = t(key); };
+  setMenuItem('menuItemCheckAll', 'menu_checkall');
+  setMenuItem('menuItemRemove', 'menu_remove');
+  setMenuItem('menuItemRefresh', 'menu_refresh');
+  setMenuItem('menuItemRename', 'menu_rename');
+  setMenuItem('menuItemConnect', 'menu_connect');
+  setMenuItem('menuItemNewList', 'menu_newlist');
+  setMenuItem('menuItemNerd', 'menu_nerd');
+  // Nerd modal
+  const nt = document.getElementById('nerdTitle'); if (nt) nt.textContent = t('nerd_title');
+  const ncls = document.getElementById('nerdCloseBtn'); if (ncls) ncls.textContent = t('btn_close');
+  // Rename modal
+  const rmt = document.getElementById('renameModalTitle'); if (rmt) rmt.textContent = t('rename_title');
+  const ri = document.getElementById('renameInput'); if (ri) ri.placeholder = t('rename_placeholder');
+  const rcb = document.getElementById('renameCancelBtn'); if (rcb) rcb.textContent = t('btn_cancel');
+  const rsb = document.getElementById('renameSaveBtn'); if (rsb) rsb.textContent = t('btn_save');
+  // Connect modal
+  const cmtt = document.getElementById('connectModalTitleText'); if (cmtt) cmtt.textContent = t('connect_modal_title');
+  const cmi = document.getElementById('connectModalInput'); if (cmi) cmi.placeholder = t('connect_placeholder');
+  const cme = document.getElementById('connectModalError'); if (cme) cme.textContent = t('connect_error');
+  const cmcb = document.getElementById('connectModalCancelBtn'); if (cmcb) cmcb.textContent = t('btn_cancel');
+  const cmbtn = document.getElementById('connectModalBtn'); if (cmbtn) cmbtn.textContent = t('btn_connect');
+  // Share modal
+  const st = document.getElementById('shareTitle'); if (st) st.textContent = t('share_title');
+  const ss = document.getElementById('shareSub'); if (ss) ss.textContent = t('share_sub');
+  const scl = document.getElementById('shareCopyLabel'); if (scl) scl.textContent = t('share_copy');
+  const scd = document.getElementById('shareCopyDesc'); if (scd) scd.textContent = t('share_copy_desc');
+  const svl = document.getElementById('shareViaLabel'); if (svl) svl.textContent = t('share_via');
+  const svd = document.getElementById('shareViaDesc'); if (svd) svd.textContent = t('share_via_desc');
+  const scb = document.getElementById('shareCancelBtn'); if (scb) scb.textContent = t('share_cancel');
+  // FAB search
+  const fsi = document.getElementById('fabSearchInput'); if (fsi) fsi.placeholder = t('search_placeholder');
+}
+
+window.openLocaleDropdown = function(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('localeDropdown');
+  dd.classList.toggle('hidden-init');
+};
+window.selectLocale = function(locale) {
+  currentLocale = locale;
+  localStorage.setItem('locale', locale);
+  document.getElementById('localeDropdown').classList.add('hidden-init');
+  buildCatalog();
+  applyLocaleToDOM();
+  if (listId) render();
+};
+document.addEventListener('click', () => {
+  document.getElementById('localeDropdown')?.classList.add('hidden-init');
+});
+
+// ── Catalog ───────────────────────────────────────────────────────────
 const CAT_META = {
   'Dranken':                       {id:'dri', emoji:'🍺'},
   'Brood & gebak':                 {id:'bak', emoji:'🍞'},
@@ -241,30 +479,51 @@ const CAT_META = {
   'Ontbijt':                       {id:'ont', emoji:'🥣'},
 };
 let CATEGORIES = [];
-let ALIASES = []; // [{alias, name, catId}]
+let ALIASES = [];
+let catalogRaw = [];
+let catalogGentsOverrides = {};
+
+function buildCatalog() {
+  const isGents = currentLocale === 'gents';
+  const map = {}, order = [];
+  ALIASES = [];
+  for (const item of catalogRaw) {
+    if (!item.product) continue;
+    const {product, categorie, aliases} = item;
+    const catMeta = CAT_META[categorie];
+    if (!catMeta) continue;
+    const catId = catMeta.id;
+    const displayName = isGents && catalogGentsOverrides[product] ? catalogGentsOverrides[product] : product;
+    if (!map[categorie]) { map[categorie] = []; order.push(categorie); }
+    map[categorie].push(displayName);
+    if (aliases) aliases.forEach(a => ALIASES.push({alias: a.toLowerCase(), name: displayName, catId}));
+    // Cross-locale alias so users can search either way
+    if (catalogGentsOverrides[product]) {
+      const altName = isGents ? product : catalogGentsOverrides[product];
+      ALIASES.push({alias: altName.toLowerCase(), name: displayName, catId});
+    }
+  }
+  CATEGORIES = order.map(name => ({
+    id: CAT_META[name].id,
+    name: catName(CAT_META[name].id),
+    emoji: CAT_META[name].emoji,
+    products: map[name]
+  }));
+}
 
 async function loadCatalog() {
   try {
-    const resp = await fetch('product_catalog.json');
-    const data = await resp.json();
-    const map = {}, order = [];
-    for (const item of data) {
-      if (!item.product) continue; // Skip comment markers
-      const {product, categorie, aliases} = item;
-      if (!map[categorie]) { map[categorie] = []; order.push(categorie); }
-      map[categorie].push(product);
-      if (aliases) aliases.forEach(a => ALIASES.push({alias: a.toLowerCase(), name: product, catId: CAT_META[categorie]?.id || 'other'}));
-    }
-    CATEGORIES = order.map(name => ({
-      id: CAT_META[name].id,
-      name,
-      emoji: CAT_META[name].emoji,
-      products: map[name]
-    }));
-    catalogLoaded = true;
+    const [catResp, gentsResp] = await Promise.all([
+      fetch('product_catalog.json'),
+      fetch('product_catalog_gents.json').catch(() => null),
+    ]);
+    catalogRaw = await catResp.json();
+    if (gentsResp) catalogGentsOverrides = await gentsResp.json();
   } catch(err) {
     errorLog.push('[' + new Date().toISOString() + '] Catalog: ' + err.message);
   }
+  buildCatalog();
+  catalogLoaded = true;
 }
 
 let list = {};
@@ -326,7 +585,7 @@ function initList(id) {
     errorLog.push('[' + new Date().toISOString() + '] Firebase: ' + msg);
     console.error('Firebase error:', err);
     document.getElementById('loadingOverlay').classList.add('hidden');
-    showToast('Verbindingsfout – zie Nerd stuff');
+    showToast(t('toast_error'));
   });
 }
 
@@ -343,7 +602,7 @@ function renderList() {
   const done   = entries.filter(([,i]) => i.checked);
 
   if (entries.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Lijst is leeg</div><div class="empty-sub">Voeg producten toe via de plus knop.</div></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">${t('list_empty_title')}</div><div class="empty-sub">${t('list_empty_sub')}</div></div>`;
     return;
   }
 
@@ -370,7 +629,7 @@ function renderList() {
     const col = collapsedCats['other'] ? 'collapsed' : '';
     html += `<div class="category-section ${col}" id="cat-other">
       <div class="category-header" onclick="toggleCat('other')">
-        <div class="cat-left"><span class="cat-emoji">📌</span><span class="cat-name">Overig</span></div>
+        <div class="cat-left"><span class="cat-emoji">📌</span><span class="cat-name">${t('cat_other')}</span></div>
         <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${other.length}</span><span class="cat-chevron">▾</span></div>
       </div>
       <div class="category-items">${other.map(([id,item]) => renderItem(id,item)).join('')}</div>
@@ -381,7 +640,7 @@ function renderList() {
     const doneCol = collapsedCats['__done__'] !== false ? 'collapsed' : '';
     html += `<div class="checked-section category-section ${doneCol}" id="cat-__done__">
       <div class="category-header" onclick="toggleCat('__done__')">
-        <div class="cat-left"><span class="cat-emoji">✓</span><span class="cat-name">In mandje</span></div>
+        <div class="cat-left"><span class="cat-emoji">✓</span><span class="cat-name">${t('cat_done')}</span></div>
         <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${done.length}</span><span class="cat-chevron">▾</span></div>
       </div>
       <div class="category-items">${done.map(([id,item]) => renderItem(id,item)).join('')}</div>
@@ -480,7 +739,7 @@ function addProduct(name, catId) {
   } else {
     const newRef = push(ref(db,'lists/'+listId+'/items'));
     set(newRef, {name, catId:catId||'other', qty:1, note:'', checked:false});
-    showToast(`${name} toegevoegd ✓`);
+    showToast(t('toast_added').replace('{name}', name));
   }
 }
 
@@ -563,7 +822,7 @@ window.openPanel = function(catId) {
     return `<div class="product-item">
       <span class="pi-name">${p}</span>
       <button class="pi-add ${inList?'added':''}" id="pibtn-${k}" onclick="panelAdd('${catId}','${p.replace(/'/g,"\\'")}','${k}')">
-        ${inList?'✓ In lijst':'+ Voeg toe'}
+        ${inList?t('pi_inlist'):t('pi_add')}
       </button>
     </div>`;
   }).join('');
@@ -578,7 +837,7 @@ window.closePanel = function() {
 window.panelAdd = function(catId, name, k) {
   addProduct(name, catId);
   const btn = document.getElementById('pibtn-'+k);
-  if (btn) { btn.textContent='✓ In lijst'; btn.classList.add('added'); }
+  if (btn) { btn.textContent=t('pi_inlist'); btn.classList.add('added'); }
 };
 
 // ── Search ─────────────────────────────────────────────────────────────
@@ -600,9 +859,9 @@ function doSearch(val) {
     if (cat) { matches.push({name:a.name, cat:cat.name, catId:cat.id, emoji:cat.emoji}); matchedNames.add(a.name+'|'+a.catId); }
   });
   if (!matches.length) {
-    results.innerHTML = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
+    results.innerHTML = `<div class="no-results">${t('search_noresults')} "<strong>${val}</strong>"</div>
       <div class="search-result-item" onclick="openCustomFromSearch('${val.replace(/'/g,"\\'")}')">
-        <div class="sri-info"><div class="sri-name">➕ "${val}" toevoegen</div><div class="sri-cat">Eigen product</div></div>
+        <div class="sri-info"><div class="sri-name">${t('search_add_custom').replace('{q}',val)}</div><div class="sri-cat">${t('search_own')}</div></div>
       </div>`;
   } else {
     results.innerHTML = matches.slice(0,12).map(m => {
@@ -611,7 +870,7 @@ function doSearch(val) {
       return `<div class="search-result-item">
         <div class="sri-info"><div class="sri-name">${m.emoji} ${m.name}</div><div class="sri-cat">${m.cat}</div></div>
         <button class="sri-add ${inList?'added':''}" id="${k}" onclick="searchAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')">
-          ${inList?'✓':'+ Voeg toe'}
+          ${inList?'✓':t('pi_add')}
         </button>
       </div>`;
     }).join('');
@@ -622,7 +881,7 @@ function doSearch(val) {
 window.searchAdd = function(catId, name, k) {
   addProduct(name, catId);
   const btn = document.getElementById(k);
-  if (btn) { btn.textContent='✓'; btn.classList.add('added'); }
+  if (btn) { btn.textContent = '✓'; btn.classList.add('added'); }
 };
 window.showDropdown = function() { const v=document.getElementById('searchInput').value; if(v.trim()) doSearch(v); };
 window.openCustomFromSearch = function(val) {
@@ -656,12 +915,12 @@ window.openShare = function() {
 window.closeShare = function() { document.getElementById('shareModal').classList.remove('show'); };
 window.doShare = function(method) {
   if (method==='copy') {
-    navigator.clipboard.writeText(window._shareUrl).then(()=>{showToast('Link gekopieerd! ✓'); closeShare();}).catch(()=>{
+    navigator.clipboard.writeText(window._shareUrl).then(()=>{showToast(t('toast_copied')); closeShare();}).catch(()=>{
       const ta=document.createElement('textarea'); ta.value=window._shareUrl; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-      showToast('Link gekopieerd! ✓'); closeShare();
+      showToast(t('toast_copied')); closeShare();
     });
   } else {
-    const text = 'Bekijk mijn boodschappenlijst: '+window._shareUrl;
+    const text = t('share_text').replace('{url}', window._shareUrl);
     if (navigator.share) { navigator.share({title:'Boodschappenlijst',text,url:window._shareUrl}).then(closeShare).catch(()=>{}); }
     else { window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank'); closeShare(); }
   }
@@ -669,7 +928,7 @@ window.doShare = function(method) {
 
 // ── New list ───────────────────────────────────────────────────────────
 window.confirmNewList = function() {
-  if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
+  if (confirm(t('confirm_newlist'))) createNewList();
 };
 
 // ── Connect to shared list ─────────────────────────────────────────────
@@ -706,6 +965,7 @@ window.connectToList = function() {
 
 // ── Boot ───────────────────────────────────────────────────────────────
 loadCatalog().then(() => {
+  applyLocaleToDOM();
   const urlListId = getListIdFromUrl();
   if (urlListId) {
     initList(urlListId);
@@ -777,7 +1037,7 @@ function renderFabResults(val) {
       container.innerHTML = '';
       modal.classList.remove('with-results');
     } else {
-      container.innerHTML = '<div class="fab-section-label">Recent toegevoegd</div>' +
+      container.innerHTML = `<div class="fab-section-label">${t('recent')}</div>` +
         recent.map(([, i]) => {
           const k = 'fab_recent_' + (i.catId||'other') + '_' + i.name.replace(/\W/g,'_');
           return `<div class="search-result-item" onclick="fabAdd('${i.catId||'other'}','${i.name.replace(/'/g,"\\'")}','${k}')" id="${k}">
@@ -832,10 +1092,10 @@ function renderFabResults(val) {
 
   let hasResults = false;
   if (q && matches.length === 0) {
-    html = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
+    html = `<div class="no-results">${t('search_noresults')} "<strong>${val}</strong>"</div>
       <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
-        <span class="sri-name">➕ "${val}" toevoegen</span>
-        <span class="sri-cat">Nieuw product</span>
+        <span class="sri-name">${t('search_add_custom').replace('{q}',val)}</span>
+        <span class="sri-cat">${t('search_new')}</span>
       </div>`;
     hasResults = true;
   } else if (matches.length > 0) {
@@ -853,7 +1113,7 @@ function renderFabResults(val) {
 
 window.fabAdd = function(catId, name, k) {
   addProduct(name, catId);
-  showToast(name.split('|')[0].trim() + ' toegevoegd ✓');
+  showToast(t('toast_added').replace('{name}', name.split('|')[0].trim()));
   // Keep modal open for adding more products
   const input = document.getElementById('fabSearchInput');
   setTimeout(() => input.focus({ preventScroll: true }), 0);
@@ -895,14 +1155,14 @@ window.closeMenu = function() {
 window.menuCheckAll = function() {
   closeMenu();
   const unchecked = Object.entries(list).filter(([,i]) => !i.checked);
-  if (!unchecked.length) { showToast('Alles al afgevinkt'); return; }
+  if (!unchecked.length) { showToast(t('toast_all_checked')); return; }
   unchecked.forEach(([id]) => update(ref(db,'lists/'+listId+'/items/'+id), {checked:true}));
   showToast(`${unchecked.length} item${unchecked.length>1?'s':''} afgevinkt`);
 };
 window.menuRemoveChecked = function() {
   closeMenu();
   const checked = Object.entries(list).filter(([,i]) => i.checked);
-  if (!checked.length) { showToast('Geen afgevinkte items'); return; }
+  if (!checked.length) { showToast(t('toast_no_checked')); return; }
   checked.forEach(([id]) => remove(ref(db,'lists/'+listId+'/items/'+id)));
   showToast(`${checked.length} item${checked.length>1?'s':''} verwijderd`);
 };
@@ -912,7 +1172,7 @@ window.menuRefresh = function() {
 };
 window.menuNewList = function() {
   closeMenu();
-  if (confirm('Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.')) createNewList();
+  if (confirm(t('confirm_newlist'))) createNewList();
 };
 window.menuNerdStuff = function() {
   closeMenu();
@@ -924,11 +1184,12 @@ window.menuNerdStuff = function() {
     'Firebase:  ' + (firebaseConnected ? '✅ verbonden' : '❌ niet verbonden'),
     'Sync:      ' + syncStatus,
     'Catalog:   ' + (catalogLoaded ? '✅ geladen (' + catCount + ' cat, ' + productCount + ' prod)' : '❌ niet geladen'),
+    'Locale:    ' + currentLocale,
     'Lijst ID:  ' + (listId || '—'),
     'Items:     ' + itemCount,
     '',
     '=== Fouten (' + errorLog.length + ') ===',
-    ...(errorLog.length ? errorLog : ['Geen fouten']),
+    ...(errorLog.length ? errorLog : [t('nerd_errors_none')]),
   ];
   document.getElementById('nerdContent').textContent = lines.join('\n');
   document.getElementById('nerdModal').classList.add('show');
@@ -974,7 +1235,7 @@ window.saveRename = function() {
   update(ref(db,'lists/'+listId), {name});
   document.getElementById('listIdLabel').textContent = name;
   closeRename();
-  showToast('Lijst hernoemd ✓');
+  showToast(t('toast_renamed'));
 };
 
 // ── Service Worker ─────────────────────────────────────────────────────
