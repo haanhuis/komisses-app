@@ -226,7 +226,7 @@
 <div id="fabSearchModal" class="bottom-sheet fab-search-modal">
   <div class="sheet-handle"></div>
   <div class="fab-search-header">
-    <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
+    <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" inputmode="search">
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
   <div id="fabSearchResults" class="fab-search-results"></div>
