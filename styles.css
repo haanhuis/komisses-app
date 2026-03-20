@@ -1316,11 +1316,11 @@ main {
 }
 
 .fab-search-modal {
-    max-height: 72vh;
+    max-height: 30vh;
 }
 
 .fab-search-modal.with-results {
-    height: 50vh;
+    height: 30vh;
 }
 
 .fab-search-header {
