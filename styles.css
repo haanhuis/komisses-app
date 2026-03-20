@@ -158,6 +158,29 @@ body {
     background: rgba(255,255,255,0.32);
 }
 
+.locale-btn {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.45);
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.04em;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    height: 28px;
+}
+.locale-btn.active {
+    background: rgba(255,255,255,0.22);
+    border-color: white;
+    color: white;
+}
+.locale-btn:active {
+    background: rgba(255,255,255,0.32);
+}
+
 /* Search */
 .search-input {
     width: 100%;
