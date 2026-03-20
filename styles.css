@@ -175,17 +175,7 @@ body {
     opacity: 0.75;
     margin-left: 1px;
 }
-.locale-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    overflow: hidden;
-    min-width: 150px;
-    z-index: 300;
-}
+/* (locale-dropdown removed — now a bottom sheet) */
 .locale-option {
     display: flex;
     align-items: center;
@@ -308,27 +298,63 @@ body {
     font-size: 14px;
 }
 
-/* Tabs */
-.tabs {
-    display: none;
+/* Bottom navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: max(0px, calc(50% - 240px));
+    right: max(0px, calc(50% - 240px));
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: white;
+    border-top: 1px solid var(--grey-mid);
+    display: flex;
+    z-index: 100;
 }
 
-.tab {
+.bottom-tab {
     flex: 1;
-    padding: 11px 8px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.15s, border-color 0.15s;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 8px 0;
+    transition: color 0.15s;
 }
 
-.tab.active {
+.bottom-tab i {
+    font-size: 22px;
+}
+
+.bottom-tab-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tab-count {
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--grey-mid);
+    border-radius: 8px;
+    padding: 1px 5px;
+    line-height: 1.4;
+}
+
+.bottom-tab.active .tab-count {
+    background: color-mix(in srgb, var(--brandColor) 15%, transparent);
+}
+
+.bottom-tab.active {
     color: var(--brandColor);
-    border-color: var(--brandColor);
     font-weight: 700;
 }
 
@@ -336,7 +362,7 @@ main {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 0 0 100px;
+    padding: 0 0 calc(100px + 60px + env(safe-area-inset-bottom));
 }
 
 /* Loading */
@@ -910,7 +936,7 @@ main {
 /* FAB */
 .fab {
     position: fixed;
-    bottom: 24px;
+    bottom: calc(24px + 60px + env(safe-area-inset-bottom));
     right: max(24px, calc(50% - 240px + 24px));
     background: var(--brandColor);
     color: #ffffff;
@@ -1064,18 +1090,54 @@ main {
     background: var(--grey);
 }
 
-.menu-popup {
-    display: none;
+/* Sheet overlay */
+.sheet-overlay {
     position: fixed;
-    z-index: 451;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 450;
+    display: none;
+}
+.sheet-overlay.show {
+    display: block;
+}
+
+/* Bottom sheets */
+.bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: max(0px, calc(50% - 240px));
+    right: max(0px, calc(50% - 240px));
     background: white;
-    border-radius: 14px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    min-width: 220px;
-    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.14);
+    z-index: 451;
+    display: flex;
     flex-direction: column;
-    top: 60px;
-    right: max(12px, calc(50% - 228px));
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+.bottom-sheet.open {
+    transform: translateY(0);
+}
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--grey-mid);
+    border-radius: 2px;
+    margin: 10px auto 6px;
+    flex-shrink: 0;
+}
+.sheet-title {
+    padding: 2px 18px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--grey-mid);
+    flex-shrink: 0;
 }
 
 .menu-header {
@@ -1251,7 +1313,7 @@ main {
 
 .fab-search-modal {
     position: fixed;
-    bottom: 0;
+    bottom: calc(60px + env(safe-area-inset-bottom));
     left: 0;
     right: 0;
     z-index: 500;

@@ -66,20 +66,9 @@
     </div>
     <div class="header-actions">
       <div class="locale-wrap" id="localeWrap">
-        <button class="icon-btn locale-btn" id="localeBtn" onclick="openLocaleDropdown(event)">
+        <button class="icon-btn locale-btn" id="localeBtn" onclick="openLocaleSheet()">
           <span id="localeBtnLabel">NL</span><span class="locale-chevron">▾</span>
         </button>
-        <div class="locale-dropdown hidden-init" id="localeDropdown">
-          <button class="locale-option" id="localeOptNl" onclick="selectLocale('nl')">
-            <span class="locale-opt-code">NL</span><span class="locale-opt-name">Nederlands</span>
-          </button>
-          <button class="locale-option" id="localeOptGents" onclick="selectLocale('gents')">
-            <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gents</span>
-          </button>
-          <button class="locale-option" id="localeOptOi" onclick="selectLocale('oi')">
-            <span class="locale-opt-code">OI</span><span class="locale-opt-name">Oilsjters</span>
-          </button>
-        </div>
       </div>
       <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
       <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="lni lni-menu-meatballs-1"></i></button>
@@ -87,10 +76,16 @@
   </div>
 </header>
 
-<div class="tabs">
-  <div class="tab active" id="tab-list" onclick="switchTab('list')">Mijn lijst</div>
-  <div class="tab" id="tab-browse" onclick="switchTab('browse')">Bladeren</div>
-</div>
+<nav class="bottom-nav">
+  <button class="bottom-tab active" id="tab-list" onclick="switchTab('list')">
+    <i class="lni lni-basket-shopping-3"></i>
+    <span class="bottom-tab-label"><span id="tabListText">Lijstje</span><span class="tab-count hidden" id="listCount"></span></span>
+  </button>
+  <button class="bottom-tab" id="tab-browse" onclick="switchTab('browse')">
+    <i class="lni lni-eye"></i>
+    <span>Bladeren</span>
+  </button>
+</nav>
 
 <main id="main"></main>
 
@@ -144,8 +139,24 @@
 </div>
 
 
-<div id="menuOverlay" class="fixed-overlay hidden-init" onclick="closeMenu()"></div>
-<div id="menuPopup" class="menu-popup hidden-init">
+<div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
+
+<div id="localeSheet" class="bottom-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Taal / Dialect</div>
+  <button class="locale-option" id="localeOptNl" onclick="selectLocale('nl')">
+    <span class="locale-opt-code">NL</span><span class="locale-opt-name">Nederlands</span>
+  </button>
+  <button class="locale-option" id="localeOptGents" onclick="selectLocale('gents')">
+    <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gents</span>
+  </button>
+  <button class="locale-option" id="localeOptOi" onclick="selectLocale('oi')">
+    <span class="locale-opt-code">OI</span><span class="locale-opt-name">Oilsjters</span>
+  </button>
+</div>
+
+<div id="menuPopup" class="bottom-sheet">
+  <div class="sheet-handle"></div>
   <div class="menu-header" id="menuHeader">Huidige lijst<br><span id="listIdLabel" class="list-id-display">Verbinden...</span></div>
   <button class="menu-item" id="menuItemCheckAll" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> <span>Alles afvinken</span></button>
   <button class="menu-item" id="menuItemRemove" onclick="menuRemoveChecked()"><i class="lni lni-trash-3 icon-colored"></i> <span>Verwijder afgevinkte items</span></button>
@@ -281,8 +292,8 @@ function applyLocaleToDOM() {
   const ce = document.getElementById('connectError'); if (ce) ce.textContent = t('connect_error');
   const cb = document.getElementById('connectBtn'); if (cb) cb.textContent = t('btn_connect');
   // Tabs
-  const tl = document.getElementById('tab-list'); if (tl) tl.textContent = t('tab_list');
-  const tb = document.getElementById('tab-browse'); if (tb) tb.textContent = t('tab_browse');
+  const tl = document.getElementById('tabListText'); if (tl) tl.textContent = t('tab_list');
+  const tb = document.getElementById('tab-browse')?.querySelector('span'); if (tb) tb.textContent = t('tab_browse');
   // Note modal
   const ni = document.getElementById('noteInput'); if (ni) ni.placeholder = t('note_placeholder');
   const ncb = document.getElementById('noteCancelBtn'); if (ncb) ncb.textContent = t('btn_cancel');
@@ -329,22 +340,22 @@ function applyLocaleToDOM() {
   const fsi = document.getElementById('fabSearchInput'); if (fsi) fsi.placeholder = t('search_placeholder');
 }
 
-window.openLocaleDropdown = function(e) {
-  e.stopPropagation();
-  const dd = document.getElementById('localeDropdown');
-  dd.classList.toggle('hidden-init');
+window.openLocaleSheet = function() {
+  document.getElementById('sheetOverlay').classList.add('show');
+  document.getElementById('localeSheet').classList.add('open');
+};
+window.closeLocaleSheet = function() {
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('localeSheet').classList.remove('open');
 };
 window.selectLocale = function(locale) {
   currentLocale = locale;
   localStorage.setItem('locale', locale);
-  document.getElementById('localeDropdown').classList.add('hidden-init');
+  closeLocaleSheet();
   buildCatalog();
   applyLocaleToDOM();
   if (listId) render();
 };
-document.addEventListener('click', () => {
-  document.getElementById('localeDropdown')?.classList.add('hidden-init');
-});
 
 // ── Catalog ───────────────────────────────────────────────────────────
 const CAT_META = {
@@ -482,6 +493,12 @@ function initList(id) {
 function render() {
   if (currentTab === 'list') renderList();
   else renderBrowse();
+  const count = Object.keys(list).length;
+  const countEl = document.getElementById('listCount');
+  if (countEl) {
+    countEl.textContent = count > 0 ? ' ' + count : '';
+    countEl.classList.toggle('hidden', count === 0);
+  }
 }
 
 function renderList() {
@@ -507,7 +524,7 @@ function renderList() {
     html += `<div class="category-section ${col}" id="cat-${cat.id}">
       <div class="category-header" onclick="toggleCat('${cat.id}')">
         <div class="cat-left"><span class="cat-emoji">${cat.emoji}</span><span class="cat-name">${cat.name}</span></div>
-        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${catItems.length}</span><span class="cat-chevron">▾</span></div>
+        <span class="cat-chevron">▾</span>
       </div>
       <div class="category-items">${catItems.map(([id,item]) => renderItem(id,item)).join('')}</div>
     </div>`;
@@ -519,7 +536,7 @@ function renderList() {
     html += `<div class="category-section ${col}" id="cat-other">
       <div class="category-header" onclick="toggleCat('other')">
         <div class="cat-left"><span class="cat-emoji">📌</span><span class="cat-name">${t('cat_other')}</span></div>
-        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${other.length}</span><span class="cat-chevron">▾</span></div>
+        <span class="cat-chevron">▾</span>
       </div>
       <div class="category-items">${other.map(([id,item]) => renderItem(id,item)).join('')}</div>
     </div>`;
@@ -530,7 +547,7 @@ function renderList() {
     html += `<div class="checked-section category-section ${doneCol}" id="cat-__done__">
       <div class="category-header" onclick="toggleCat('__done__')">
         <div class="cat-left"><span class="cat-emoji">✓</span><span class="cat-name">${t('cat_done')}</span></div>
-        <div style="display:flex;align-items:center;gap:8px;"><span class="cat-count">${done.length}</span><span class="cat-chevron">▾</span></div>
+        <span class="cat-chevron">▾</span>
       </div>
       <div class="category-items">${done.map(([id,item]) => renderItem(id,item)).join('')}</div>
     </div>`;
@@ -557,11 +574,9 @@ function renderBrowse() {
   const main = document.getElementById('main');
   let html = `<div class="browse-grid">`;
   CATEGORIES.forEach(cat => {
-    const count = Object.values(list).filter(i => i.catId===cat.id && !i.checked).length;
     html += `<div class="browse-card" onclick="openPanel('${cat.id}')">
       <div class="bc-emoji">${cat.emoji}</div>
       <div class="bc-name">${cat.name}</div>
-      ${count ? `<div style="margin-top:6px;"><span class="cat-count">${count}</span></div>` : ''}
     </div>`;
   });
   html += `</div>`;
@@ -1034,12 +1049,16 @@ window.saveCustom = function() {
 
 // ── Menu ──────────────────────────────────────────────────────────────
 window.openMenu = function() {
-  document.getElementById('menuOverlay').style.display = 'block';
-  document.getElementById('menuPopup').style.display = 'flex';
+  document.getElementById('sheetOverlay').classList.add('show');
+  document.getElementById('menuPopup').classList.add('open');
 };
 window.closeMenu = function() {
-  document.getElementById('menuOverlay').style.display = 'none';
-  document.getElementById('menuPopup').style.display = 'none';
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('menuPopup').classList.remove('open');
+};
+window.closeAllSheets = function() {
+  closeLocaleSheet();
+  closeMenu();
 };
 window.menuCheckAll = function() {
   closeMenu();
