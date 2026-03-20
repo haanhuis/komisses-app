@@ -48,6 +48,8 @@
   "menu_connect": "Verbinden met andere lijstse",
   "menu_newlist": "Neie lijstse",
   "menu_nerd": "Nerdig gedoe",
+  "menu_hide_done": "Afgevinkte komisses wegsteke",
+  "menu_show_done": "Toon afgevinkte komisses",
   "nerd_title": "🤓 Nerdig gedoe",
   "nerd_errors_none": "Geen fouten",
   "toast_copied": "Link gekopieerd! ✓",

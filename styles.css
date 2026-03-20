@@ -987,6 +987,10 @@ main {
     margin-top: 16px;
 }
 
+.checked-section .category-header {
+    background: transparent;
+}
+
 .checked-title {
     font-size: 13px;
     font-weight: 600;

@@ -48,6 +48,8 @@
   "menu_connect": "Verbinden met andere lijst",
   "menu_newlist": "Nieuwe lijst",
   "menu_nerd": "Nerd stuff",
+  "menu_hide_done": "Verberg afgevinkte items",
+  "menu_show_done": "Toon afgevinkte items",
   "nerd_title": "🤓 Nerd stuff",
   "nerd_errors_none": "Geen fouten",
   "toast_copied": "Link gekopieerd! ✓",

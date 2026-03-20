@@ -163,6 +163,7 @@
   <button class="menu-item" id="menuItemRefresh" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>Lijst vernieuwen</span></button>
   <button class="menu-item" id="menuItemRename" onclick="menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> <span>Lijst hernoemen</span></button>
   <button class="menu-item" id="menuItemConnect" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> <span>Verbinden met andere lijst</span></button>
+  <button class="menu-item" id="menuItemToggleDone" onclick="menuToggleDone()"><i class="lni lni-eye icon-colored"></i> <span>Verberg afgevinkte items</span></button>
   <button class="menu-item" id="menuItemNewList" style="border-top:1px solid var(--grey-mid);" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
   <button class="menu-item" id="menuItemNerd" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> <span>Nerd stuff</span></button>
 </div>
@@ -314,6 +315,7 @@ function applyLocaleToDOM() {
   setMenuItem('menuItemConnect', 'menu_connect');
   setMenuItem('menuItemNewList', 'menu_newlist');
   setMenuItem('menuItemNerd', 'menu_nerd');
+  setMenuItem('menuItemToggleDone', hideDone ? 'menu_show_done' : 'menu_hide_done');
   // Nerd modal
   const nt = document.getElementById('nerdTitle'); if (nt) nt.textContent = t('nerd_title');
   const ncls = document.getElementById('nerdCloseBtn'); if (ncls) ncls.textContent = t('btn_close');
@@ -436,6 +438,7 @@ let syncStatus = 'pending';
 let catalogLoaded = false;
 let firebaseConnected = false;
 let collapsedCats = { '__done__': true };
+let hideDone = localStorage.getItem('hideDone') !== 'false';
 let toastTimer = null;
 
 // ── Helpers ───────────────────────────────────────────────────────────
@@ -493,7 +496,7 @@ function initList(id) {
 function render() {
   if (currentTab === 'list') renderList();
   else renderBrowse();
-  const count = Object.keys(list).length;
+  const count = Object.values(list).filter(i => !i.checked).length;
   const countEl = document.getElementById('listCount');
   if (countEl) {
     countEl.textContent = count > 0 ? ' ' + count : '';
@@ -542,11 +545,11 @@ function renderList() {
     </div>`;
   }
 
-  if (done.length) {
+  if (done.length && !hideDone) {
     const doneCol = collapsedCats['__done__'] !== false ? 'collapsed' : '';
     html += `<div class="checked-section category-section ${doneCol}" id="cat-__done__">
       <div class="category-header" onclick="toggleCat('__done__')">
-        <div class="cat-left"><span class="cat-emoji">✓</span><span class="cat-name">${t('cat_done')}</span></div>
+        <div class="cat-left"><span class="cat-name">${t('cat_done')}</span></div>
         <span class="cat-chevron">▾</span>
       </div>
       <div class="category-items">${done.map(([id,item]) => renderItem(id,item)).join('')}</div>
@@ -1078,6 +1081,14 @@ window.menuRemoveChecked = function() {
 window.menuRefresh = function() {
   closeMenu();
   location.reload();
+};
+window.menuToggleDone = function() {
+  hideDone = !hideDone;
+  localStorage.setItem('hideDone', hideDone);
+  const el = document.getElementById('menuItemToggleDone');
+  if (el) el.querySelector('span').textContent = t(hideDone ? 'menu_show_done' : 'menu_hide_done');
+  closeMenu();
+  render();
 };
 window.menuNewList = function() {
   closeMenu();
