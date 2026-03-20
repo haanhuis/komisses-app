@@ -95,7 +95,7 @@
     <!-- Quantity + unit -->
     <div class="flex-center gap-12 mb-14" style="">
       <button class="qty-btn" onclick="detailChangeQty(-1)" style="width:36px;height:36px;font-size:22px;">−</button>
-      <input type="number" id="detailQty" min="1" value="1" style="font-size:22px;font-weight:700;width:50px;text-align:center;border:none;outline:none;background:transparent;font-family:inherit;">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" id="detailQty" min="1" value="1" style="font-size:22px;font-weight:700;width:68px;height:36px;box-sizing:border-box;text-align:center;border:1px solid #ccc;border-radius:5px;outline:none;background:transparent;font-family:inherit;">
       <button class="qty-btn" onclick="detailChangeQty(1)" style="width:36px;height:36px;font-size:22px;">+</button>
       <div class="flex-end gap-6" style="flex:1;">
         <button class="unit-btn active" id="unit-aantal" onclick="selectUnit('aantal')">×</button>
