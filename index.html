@@ -426,7 +426,6 @@ async function loadCatalog() {
   } catch(err) {
     errorLog.push('[' + new Date().toISOString() + '] Catalog: ' + err.message);
   }
-  buildCatalog();
   catalogLoaded = true;
 }
 
@@ -874,6 +873,7 @@ window.connectToList = function() {
 
 // ── Boot ───────────────────────────────────────────────────────────────
 Promise.all([loadLocales(), loadCatalog()]).then(() => {
+  buildCatalog();
   applyLocaleToDOM();
   const urlListId = getListIdFromUrl();
   if (urlListId) {
