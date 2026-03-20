@@ -423,7 +423,7 @@ let CATEGORIES = [];
 
 async function loadCatalog() {
   try {
-    const resp = await fetch('bring_catalog.json');
+    const resp = await fetch('product_catalog.json');
     const data = await resp.json();
     const map = {}, order = [];
     for (const {product, categorie} of data) {
