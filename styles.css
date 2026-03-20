@@ -1312,21 +1312,11 @@ main {
 }
 
 .fab-search-modal {
-    position: fixed;
-    bottom: calc(60px + env(safe-area-inset-bottom));
-    left: 0;
-    right: 0;
-    z-index: 500;
-    max-height: 66vh;
-    background: white;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
-    flex-direction: column;
-    height: auto;
+    max-height: 72vh;
 }
 
 .fab-search-modal.with-results {
-    height: 30vh;
+    height: 50vh;
 }
 
 .fab-search-header {

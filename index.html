@@ -222,14 +222,14 @@
   </div>
 </div>
 
-<div id="fabSearchModal" class="hidden-init fab-search-modal">
+<div id="fabSearchModal" class="bottom-sheet fab-search-modal">
+  <div class="sheet-handle"></div>
   <div class="fab-search-header">
     <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
   <div id="fabSearchResults" class="fab-search-results"></div>
 </div>
-<div id="fabSearchBackdrop" class="fixed-overlay hidden-init" onclick="closeFabSearch()"></div>
 
 <label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" class="hidden-input" autocomplete="off">
@@ -884,7 +884,7 @@ Promise.all([loadLocales(), loadCatalog()]).then(() => {
 // Keep fab sheet above the keyboard using visualViewport
 function positionFabSheet() {
   const modal = document.getElementById('fabSearchModal');
-  if (modal.style.display === 'none') return;
+  if (!modal.classList.contains('open')) return;
   const vv = window.visualViewport;
   if (vv) {
     const offsetFromBottom = window.innerHeight - (vv.offsetTop + vv.height);
@@ -902,9 +902,9 @@ window.openFabSearch = function() {
   trigger.focus({ preventScroll: true });
 
   const modal = document.getElementById('fabSearchModal');
-  modal.style.display = 'flex';
-  modal.style.bottom = '0px';
-  document.getElementById('fabSearchBackdrop').style.display = 'block';
+  modal.style.bottom = '';
+  modal.classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('show');
   renderFabResults('');
 
   setTimeout(() => {
@@ -917,10 +917,10 @@ window.openFabSearch = function() {
 };
 window.closeFabSearch = function() {
   const modal = document.getElementById('fabSearchModal');
-  modal.style.display = 'none';
-  modal.style.bottom = '0px';
+  modal.classList.remove('open');
   modal.classList.remove('with-results');
-  document.getElementById('fabSearchBackdrop').style.display = 'none';
+  modal.style.bottom = '';
+  document.getElementById('sheetOverlay').classList.remove('show');
   document.getElementById('fabSearchInput').value = '';
   document.getElementById('fabSearchResults').innerHTML = '';
 };
@@ -1059,6 +1059,7 @@ window.closeMenu = function() {
 window.closeAllSheets = function() {
   closeLocaleSheet();
   closeMenu();
+  closeFabSearch();
 };
 window.menuCheckAll = function() {
   closeMenu();
