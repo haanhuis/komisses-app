@@ -65,7 +65,19 @@
       <div class="logo">Komisses</div>
     </div>
     <div class="header-actions">
-      <button class="locale-btn" id="localeBtn" onclick="toggleLocale()">Gents</button>
+      <div class="locale-wrap" id="localeWrap">
+        <button class="icon-btn locale-btn" id="localeBtn" onclick="openLocaleDropdown(event)">
+          <span id="localeBtnLabel">NL</span><span class="locale-chevron">▾</span>
+        </button>
+        <div class="locale-dropdown hidden-init" id="localeDropdown">
+          <button class="locale-option" id="localeOptNl" onclick="selectLocale('nl')">
+            <span class="locale-opt-code">NL</span><span class="locale-opt-name">Nederlands</span>
+          </button>
+          <button class="locale-option" id="localeOptGents" onclick="selectLocale('gents')">
+            <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gents</span>
+          </button>
+        </div>
+      </div>
       <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
       <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="lni lni-menu-meatballs-1"></i></button>
     </div>
@@ -371,8 +383,10 @@ function catName(catId) { return LOCALES[currentLocale]?.categories?.[catId] ?? 
 function applyLocaleToDOM() {
   const isGents = currentLocale === 'gents';
   // Locale button
-  const lb = document.getElementById('localeBtn');
-  if (lb) { lb.textContent = 'Gents'; lb.classList.toggle('active', isGents); }
+  const lbl = document.getElementById('localeBtnLabel');
+  if (lbl) lbl.textContent = isGents ? 'GE' : 'NL';
+  document.getElementById('localeOptNl')?.classList.toggle('active', !isGents);
+  document.getElementById('localeOptGents')?.classList.toggle('active', isGents);
   // Loading
   const lt = document.getElementById('loadingText'); if (lt) lt.textContent = t('loading');
   // Newlist modal
@@ -431,13 +445,22 @@ function applyLocaleToDOM() {
   const fsi = document.getElementById('fabSearchInput'); if (fsi) fsi.placeholder = t('search_placeholder');
 }
 
-window.toggleLocale = function() {
-  currentLocale = currentLocale === 'nl' ? 'gents' : 'nl';
-  localStorage.setItem('locale', currentLocale);
+window.openLocaleDropdown = function(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('localeDropdown');
+  dd.classList.toggle('hidden-init');
+};
+window.selectLocale = function(locale) {
+  currentLocale = locale;
+  localStorage.setItem('locale', locale);
+  document.getElementById('localeDropdown').classList.add('hidden-init');
   buildCatalog();
   applyLocaleToDOM();
   if (listId) render();
 };
+document.addEventListener('click', () => {
+  document.getElementById('localeDropdown')?.classList.add('hidden-init');
+});
 
 // ── Catalog ───────────────────────────────────────────────────────────
 const CAT_META = {
