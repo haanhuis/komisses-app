@@ -76,6 +76,9 @@
           <button class="locale-option" id="localeOptGents" onclick="selectLocale('gents')">
             <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gents</span>
           </button>
+          <button class="locale-option" id="localeOptOi" onclick="selectLocale('oi')">
+            <span class="locale-opt-code">OI</span><span class="locale-opt-name">Oilsjters</span>
+          </button>
         </div>
       </div>
       <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
@@ -239,154 +242,35 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 
 // ── Locales ───────────────────────────────────────────────────────────
-const LOCALES = {
-  nl: {
-    loading: 'Verbinden met lijst...',
-    newlist_desc: 'Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.',
-    newlist_create: 'Nieuwe lijst aanmaken',
-    newlist_connect: 'Verbinden met gedeelde lijst',
-    connect_placeholder: 'Plak de gedeelde link hier...',
-    connect_error: 'Ongeldige link. Plak de volledige URL.',
-    btn_connect: 'Verbinden',
-    btn_cancel: 'Annuleren',
-    btn_save: 'Opslaan',
-    btn_add: 'Toevoegen',
-    btn_close: 'Sluiten',
-    tab_list: 'Mijn lijst',
-    tab_browse: 'Bladeren',
-    list_empty_title: 'Lijst is leeg',
-    list_empty_sub: 'Voeg producten toe via de plus knop.',
-    cat_done: 'In mandje',
-    cat_other: 'Overig',
-    panel_title: 'Producten',
-    recent: 'Recent toegevoegd',
-    pi_add: '+ Voeg toe',
-    pi_inlist: '✓ In lijst',
-    search_placeholder: 'Zoek of typ een product...',
-    search_noresults: 'Geen resultaten voor',
-    search_add_custom: '➕ "{q}" toevoegen',
-    search_own: 'Eigen product',
-    search_new: 'Nieuw product',
-    modal_product: 'Product',
-    note_placeholder: 'Notitie: biologisch, huismerk ok, rijp genoeg...',
-    custom_title: '➕ Product toevoegen',
-    custom_placeholder: 'Productnaam...',
-    rename_title: '✏️ Lijst hernoemen',
-    rename_placeholder: 'Naam van de lijst...',
-    connect_modal_title: 'Verbinden met lijst',
-    share_title: '📤 Lijst delen',
-    share_sub: 'Iedereen met de link kan live producten toevoegen en afvinken.',
-    share_copy: 'Link kopiëren',
-    share_copy_desc: 'Plak in WhatsApp, iMessage, e-mail...',
-    share_via: 'Delen via...',
-    share_via_desc: 'WhatsApp, SMS, e-mail en meer',
-    share_text: 'Bekijk mijn boodschappenlijst: {url}',
-    share_cancel: 'Annuleren',
-    menu_header: 'Huidige lijst',
-    menu_checkall: 'Alles afvinken',
-    menu_remove: 'Verwijder afgevinkte items',
-    menu_refresh: 'Lijst vernieuwen',
-    menu_rename: 'Lijst hernoemen',
-    menu_connect: 'Verbinden met andere lijst',
-    menu_newlist: 'Nieuwe lijst',
-    menu_nerd: 'Nerd stuff',
-    nerd_title: '🤓 Nerd stuff',
-    nerd_errors_none: 'Geen fouten',
-    toast_copied: 'Link gekopieerd! ✓',
-    toast_renamed: 'Lijst hernoemd ✓',
-    toast_all_checked: 'Alles al afgevinkt',
-    toast_no_checked: 'Geen afgevinkte items',
-    toast_added: '{name} toegevoegd ✓',
-    toast_error: 'Verbindingsfout – zie Nerd stuff',
-    confirm_newlist: 'Nieuwe lege lijst aanmaken? De huidige lijst blijft beschikbaar via de gedeelde link.',
-    categories: {
-      dri: 'Dranken', bak: 'Brood & gebak', fro: 'Gereed- en diepvriesproducten',
-      fru: 'Fruit & Groenten', gra: 'Graanproducten', cle: 'Huishouden',
-      hyg: 'Verzorging & Gezondheid', ing: 'Ingrediënten & Kruiden',
-      mea: 'Vlees & Vis', dai: 'Zuivel', pet: 'Dierenvoeding',
-      swe: 'Snacks & Snoep', ont: 'Ontbijt',
-    },
-  },
-  gents: {
-    loading: 'Verbinden met de lijstse...',
-    newlist_desc: 'Maak ne neie lijstse aan of verbind met ne bestaande gedeelde lijstse.',
-    newlist_create: 'Neie lijstse aanmaken',
-    newlist_connect: 'Verbinden met gedeelde lijstse',
-    connect_placeholder: 'Plak de gedeelde link hier...',
-    connect_error: 'Ongeldige link. Plak de volledige URL.',
-    btn_connect: 'Verbinden',
-    btn_cancel: 'Annuleren',
-    btn_save: 'Bewaren',
-    btn_add: 'Bijdoen',
-    btn_close: 'Sluiten',
-    tab_list: 'Mijn lijstse',
-    tab_browse: 'Rondkijken',
-    list_empty_title: 'Uw lijstse is leege',
-    list_empty_sub: 'Smijt er wa gerief op via de plus-knoppe.',
-    cat_done: 'In ne mand',
-    cat_other: 'Andere',
-    panel_title: 'Artikelen',
-    recent: 'Pas bijgevoegd',
-    pi_add: '+ Bijdoen',
-    pi_inlist: '✓ Op de lijstse',
-    search_placeholder: 'Zoek noar boodschoapp\'n...',
-    search_noresults: 'Niets gevonden voor',
-    search_add_custom: '➕ "{q}" bijdoen',
-    search_own: 'Eigen artikel',
-    search_new: 'Neuw artikel',
-    modal_product: 'Artikel',
-    note_placeholder: 'Nota: bio, huismerk ok, rijp genoeg...',
-    custom_title: '➕ Artikel bijdoen',
-    custom_placeholder: 'Naam van t artikel...',
-    rename_title: '✏️ Lijstse hernoemen',
-    rename_placeholder: 'Naam van de lijstse...',
-    connect_modal_title: 'Verbinden met lijstse',
-    share_title: '📤 Lijstse delen',
-    share_sub: 'Iedereen met de link kan live artikelen bijdoen en afvinken.',
-    share_copy: 'Link kopiëren',
-    share_copy_desc: 'Plak in WhatsApp, iMessage, e-mail...',
-    share_via: 'Delen via...',
-    share_via_desc: 'WhatsApp, SMS, e-mail en meer',
-    share_text: 'Bekijk mijn boadschappelijstse: {url}',
-    share_cancel: 'Annuleren',
-    menu_header: 'Huidige lijstse',
-    menu_checkall: 'Alles afvinken',
-    menu_remove: 'Verwijder afgevinkte artikelen',
-    menu_refresh: 'Lijstse vernieuwen',
-    menu_rename: 'Lijstse hernoemen',
-    menu_connect: 'Verbinden met andere lijstse',
-    menu_newlist: 'Neie lijstse',
-    menu_nerd: 'Nerdig gedoe',
-    nerd_title: '🤓 Nerdig gedoe',
-    nerd_errors_none: 'Geen fouten',
-    toast_copied: 'Link gekopieerd! ✓',
-    toast_renamed: 'Lijstse hernoemd ✓',
-    toast_all_checked: 'Alles al afgevinkt',
-    toast_no_checked: 'Geen afgevinkte artikelen',
-    toast_added: '{name} bijgevoegd ✓',
-    toast_error: 'Verbindingsfout – zie Nerdig gedoe',
-    confirm_newlist: 'Neie lege lijstse aanmaken? De huidige lijstse blijft beschikbaar via de gedeelde link.',
-    categories: {
-      dri: 'Drank', bak: 'Bruut & gebak', fro: 'Klaar- en diepvriesproducten',
-      fru: 'Fruit & Groensel', gra: 'Graanproducten', cle: 'Huishouden',
-      hyg: 'Verzorging & Gezondheid', ing: 'Ingrediënten & Kruiden',
-      mea: 'Vlees & Vis', dai: 'Zuivel', pet: 'Dierenvoeding',
-      swe: 'Snacks & Snoep', ont: 'Ontbijt',
-    },
-  },
-};
+let LOCALES = {};
+
+async function loadLocales() {
+  try {
+    const [nlResp, gentsResp, oiResp] = await Promise.all([
+      fetch('locales/nl.json'),
+      fetch('locales/gents.json'),
+      fetch('locales/oi.json'),
+    ]);
+    LOCALES.nl = await nlResp.json();
+    LOCALES.gents = await gentsResp.json();
+    LOCALES.oi = await oiResp.json();
+  } catch(err) {
+    errorLog.push('[' + new Date().toISOString() + '] Locales: ' + err.message);
+  }
+}
 
 let currentLocale = localStorage.getItem('locale') || 'nl';
 function t(key) { return LOCALES[currentLocale]?.[key] ?? LOCALES.nl[key] ?? key; }
 function catName(catId) { return LOCALES[currentLocale]?.categories?.[catId] ?? LOCALES.nl.categories[catId] ?? catId; }
 
 function applyLocaleToDOM() {
-  const isGents = currentLocale === 'gents';
+  const localeLabels = {nl: 'NL', gents: 'GE', oi: 'OI'};
   // Locale button
   const lbl = document.getElementById('localeBtnLabel');
-  if (lbl) lbl.textContent = isGents ? 'GE' : 'NL';
-  document.getElementById('localeOptNl')?.classList.toggle('active', !isGents);
-  document.getElementById('localeOptGents')?.classList.toggle('active', isGents);
+  if (lbl) lbl.textContent = localeLabels[currentLocale] ?? currentLocale.toUpperCase();
+  document.getElementById('localeOptNl')?.classList.toggle('active', currentLocale === 'nl');
+  document.getElementById('localeOptGents')?.classList.toggle('active', currentLocale === 'gents');
+  document.getElementById('localeOptOi')?.classList.toggle('active', currentLocale === 'oi');
   // Loading
   const lt = document.getElementById('loadingText'); if (lt) lt.textContent = t('loading');
   // Newlist modal
@@ -472,6 +356,7 @@ const CAT_META = {
   'Huishouden':                    {id:'cle', emoji:'🧹'},
   'Verzorging & Gezondheid':       {id:'hyg', emoji:'🧴'},
   'Ingrediënten & Kruiden':        {id:'ing', emoji:'🫙'},
+  'Kruiden':                       {id:'kru', emoji:'🌿'},
   'Vlees & Vis':                   {id:'mea', emoji:'🥩'},
   'Zuivel':                        {id:'dai', emoji:'🧀'},
   'Dierenvoeding':                 {id:'pet', emoji:'🐾'},
@@ -482,9 +367,12 @@ let CATEGORIES = [];
 let ALIASES = [];
 let catalogRaw = [];
 let catalogGentsOverrides = {};
+let catalogOiOverrides = {};
 
 function buildCatalog() {
   const isGents = currentLocale === 'gents';
+  const isOi = currentLocale === 'oi';
+  const overrides = isGents ? catalogGentsOverrides : isOi ? catalogOiOverrides : {};
   const map = {}, order = [];
   ALIASES = [];
   for (const item of catalogRaw) {
@@ -493,14 +381,13 @@ function buildCatalog() {
     const catMeta = CAT_META[categorie];
     if (!catMeta) continue;
     const catId = catMeta.id;
-    const displayName = isGents && catalogGentsOverrides[product] ? catalogGentsOverrides[product] : product;
+    const displayName = overrides[product] ?? product;
     if (!map[categorie]) { map[categorie] = []; order.push(categorie); }
     map[categorie].push(displayName);
     if (aliases) aliases.forEach(a => ALIASES.push({alias: a.toLowerCase(), name: displayName, catId}));
     // Cross-locale alias so users can search either way
-    if (catalogGentsOverrides[product]) {
-      const altName = isGents ? product : catalogGentsOverrides[product];
-      ALIASES.push({alias: altName.toLowerCase(), name: displayName, catId});
+    if (overrides[product]) {
+      ALIASES.push({alias: product.toLowerCase(), name: displayName, catId});
     }
   }
   CATEGORIES = order.map(name => ({
@@ -513,12 +400,14 @@ function buildCatalog() {
 
 async function loadCatalog() {
   try {
-    const [catResp, gentsResp] = await Promise.all([
+    const [catResp, gentsResp, oiResp] = await Promise.all([
       fetch('product_catalog.json'),
       fetch('product_catalog_gents.json').catch(() => null),
+      fetch('product_catalog_oilsjters.json').catch(() => null),
     ]);
     catalogRaw = await catResp.json();
     if (gentsResp) catalogGentsOverrides = await gentsResp.json();
+    if (oiResp) catalogOiOverrides = await oiResp.json();
   } catch(err) {
     errorLog.push('[' + new Date().toISOString() + '] Catalog: ' + err.message);
   }
@@ -964,7 +853,7 @@ window.connectToList = function() {
 };
 
 // ── Boot ───────────────────────────────────────────────────────────────
-loadCatalog().then(() => {
+Promise.all([loadLocales(), loadCatalog()]).then(() => {
   applyLocaleToDOM();
   const urlListId = getListIdFromUrl();
   if (urlListId) {
