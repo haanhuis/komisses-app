@@ -238,6 +238,7 @@ const CAT_META = {
   'Zuivel':                        {id:'dai', emoji:'🧀'},
   'Dierenvoeding':                 {id:'pet', emoji:'🐾'},
   'Snacks & Snoep':                {id:'swe', emoji:'🍫'},
+  'Ontbijt':                       {id:'ont', emoji:'🥣'},
 };
 let CATEGORIES = [];
 let ALIASES = []; // [{alias, name, catId}]
@@ -632,8 +633,9 @@ window.openCustomFromSearch = function(val) {
   document.getElementById('searchInput').value = '';
 };
 document.addEventListener('click', e => {
-  if (!document.getElementById('searchDropdown').contains(e.target) && e.target!==document.getElementById('searchInput'))
-    document.getElementById('searchDropdown').classList.remove('show');
+  const dd = document.getElementById('searchDropdown');
+  if (dd && !dd.contains(e.target) && e.target !== document.getElementById('searchInput'))
+    dd.classList.remove('show');
 });
 
 // ── Tabs ───────────────────────────────────────────────────────────────
