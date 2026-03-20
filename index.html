@@ -14,185 +14,7 @@
 <link rel="stylesheet" href="lineicons-free-regular-font/lineicons-free.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
-<style>
-  :root {
-    --brandColor: #0057ff; --brandColor-light: #e8f0ff;
-    --green: #00a651;
-    --grey: #f5f5f5; --grey-mid: #e0e0e0;
-    --text: #1a1a1a; --text-muted: #888;
-    --radius: 14px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; height: 100dvh; overflow: hidden; }
-  body { font-family: 'Outfit', sans-serif; background: white; color: var(--text); max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
-
-  /* Sync bar */
-  .sync-bar { height: 0; background: transparent; position: relative; overflow: hidden; flex-shrink: 0; transition: height 0.2s; }
-  .sync-bar.syncing, .sync-bar.error { height: 3px; }
-  .sync-bar.syncing::after { content:''; position:absolute; left:-40%; width:40%; height:100%; background:var(--green); animation: syncSlide 0.9s ease-in-out infinite; }
-  .sync-bar.error::after { content:''; position:absolute; inset:0; background:transparent; }
-  .sync-bar.ok::after { content:''; position:absolute; inset:0; background:var(--green); opacity:0.5; }
-  @keyframes syncSlide { 0%{left:-40%} 100%{left:140%} }
-
-  /* Header */
-  .header { background: var(--brandColor); color: white; padding: 0 16px; flex-shrink: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,87,255,0.25); }
-  .header-top { display:flex; align-items:center; justify-content:space-between; padding: 12px 0 8px; }
-  .logo-wrap { display:flex; flex-direction:row; align-items:center; gap:10px; }
-  .logo-icon { width:28px; height:28px; flex-shrink:0; filter:brightness(0) invert(1); }
-  .logo { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
-  .logo span { opacity:0.7; font-weight:300; }
-  .list-id-label { font-size:10px; opacity:0.65; letter-spacing:0.04em; }
-  .header-actions { display:flex; gap:8px; }
-  .icon-btn { background:rgba(255,255,255,0.18); border:none; border-radius:10px; color:white; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; transition:background 0.15s; }
-  .icon-btn:active { background:rgba(255,255,255,0.32); }
-
-  /* Search */
-  .search-input { width:100%; background:rgba(255,255,255,0.95); border:none; border-radius:10px; padding:10px 38px 10px 14px; font-family:'Outfit',sans-serif; font-size:15px; color:var(--text); outline:none; }
-  .search-input::placeholder { color:#aaa; }
-  .search-icon { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:16px; color:#aaa; pointer-events:none; }
-
-  /* Dropdown */
-  .search-dropdown { position:fixed; top:133px; left:50%; transform:translateX(-50%); width:min(480px,100vw); background:white; border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow-lg); z-index:200; max-height:60vh; overflow-y:auto; display:none; }
-  .search-dropdown.show { display:block; }
-  .search-result-item { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--grey-mid); gap:12px; transition:background 0.1s; cursor:pointer; }
-  .search-result-item:last-child { border-bottom:none; }
-  .search-result-item:active { background:var(--grey); }
-  .sri-name { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
-  .sri-cat { font-size:12px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; text-align:right; }
-  .no-results { padding:20px; text-align:center; color:var(--text-muted); font-size:14px; }
-
-  /* Tabs */
-  .tabs { display:none; }
-  .tab { flex:1; padding:11px 8px; text-align:center; font-size:13px; font-weight:500; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:color 0.15s,border-color 0.15s; }
-  .tab.active { color:var(--brandColor); border-color:var(--brandColor); font-weight:700; }
-
-  main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 100px; }
-
-  /* Loading */
-  .loading-overlay { position:fixed; inset:0; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; gap:16px; }
-  .loading-overlay.hidden { display:none; }
-  .loading-spinner { width:42px; height:42px; border:4px solid var(--grey-mid); border-top-color:var(--brandColor); border-radius:50%; animation:spin 0.7s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .loading-text { font-size:15px; color:var(--text-muted); font-weight:500; }
-
-  /* Category */
-  .category-section { margin-bottom:0; }
-  .category-header { display:flex; align-items:center; justify-content:space-between; background:var(--grey); border-radius:var(--radius); padding:13px 16px; cursor:pointer; user-select:none; transition:background 0.12s; }
-  .category-header:active { background:var(--grey); }
-  .cat-left { display:flex; align-items:center; gap:10px; }
-  .cat-emoji { font-size:22px; }
-  .cat-name { font-weight:600; font-size:15px; }
-  .cat-count { background:#aaa; color:white; border-radius:20px; padding:2px 8px; font-size:12px; font-weight:700; min-width:22px; text-align:center; }
-  .cat-chevron { font-size:14px; color:var(--text-muted); transition:transform 0.2s; }
-  .category-section.collapsed .cat-chevron { transform:rotate(-90deg); }
-  .category-items { margin-top:4px; display:flex; flex-direction:column; gap:4px; overflow:hidden; transition:max-height 0.3s ease; max-height:2000px; }
-  .category-section.collapsed .category-items { max-height:0; }
-
-  /* Item card */
-  .item-card { background:white; border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:12px; transition:opacity 0.3s,transform 0.3s,max-height 0.35s,padding 0.35s; }
-  .item-card.checking { opacity:0; transform:translateX(60px); pointer-events:none; max-height:0; padding:0; overflow:hidden; }
-  .item-card.done .item-name { text-decoration:line-through; color:var(--text-muted); }
-
-  .item-checkbox { width:24px; height:24px; border:2.5px solid var(--grey-mid); border-radius:7px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background 0.15s,border-color 0.15s; }
-  .item-checkbox.checked { background:var(--green); border-color:var(--green); }
-  .item-checkbox.checked::after { content:'✓'; color:white; font-size:14px; font-weight:700; line-height:1; }
-
-  .item-info { flex:1; min-width:0; overflow:hidden; }
-  .item-name { font-weight:500; font-size:15px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#222; }
-  .item-note-inline { font-size:13px; color:var(--text-muted); font-style:italic; font-weight:400; }
-
-  .item-qty { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-  .qty-btn { width:28px; height:28px; border:2px solid var(--grey-mid); border-radius:8px; background:none; font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-muted); font-weight:300; transition:border-color 0.12s,color 0.12s; }
-  .qty-btn:active { border-color:var(--brandColor); color:var(--brandColor); }
-  .qty-num { font-weight:700; font-size:16px; min-width:20px; text-align:center; }
-
-  .item-action-btn { width:28px; height:28px; border:none; border-radius:7px; background:var(--grey); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:background 0.12s; }
-  .item-action-btn:active { background:var(--grey-mid); }
-
-  /* Empty */
-  .empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .empty-icon { font-size:54px; margin-bottom:14px; }
-  .empty-title { font-size:18px; font-weight:600; color:var(--text); margin-bottom:8px; }
-  .empty-sub { font-size:14px; line-height:1.5; }
-
-  /* Browse */
-  .browse-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .browse-card { background:white; border-radius:var(--radius); padding:16px 12px; box-shadow:var(--shadow); cursor:pointer; text-align:center; transition:transform 0.1s; border:2px solid transparent; }
-  .browse-card:active { transform:scale(0.97); }
-  .bc-emoji { font-size:32px; margin-bottom:6px; }
-  .bc-name { font-size:13px; font-weight:600; line-height:1.3; }
-
-  /* Panel */
-  .products-panel { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:min(480px,100vw); background:white; border-radius:20px 20px 0 0; box-shadow:0 -8px 32px rgba(0,0,0,0.14); z-index:300; max-height:65vh; display:flex; flex-direction:column; transition:transform 0.3s cubic-bezier(0.32,0.72,0,1); }
-  .products-panel.open { transform:translateX(-50%) translateY(0); }
-  .panel-handle { width:40px; height:4px; background:var(--grey-mid); border-radius:2px; margin:10px auto 0; flex-shrink:0; }
-  .panel-header { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--grey-mid); flex-shrink:0; }
-  .panel-title { font-size:16px; font-weight:700; }
-  .panel-close { width:30px; height:30px; border:none; background:var(--grey); border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; }
-  .panel-products { overflow-y:auto; flex:1; padding:8px 12px 24px; }
-  .product-item { display:flex; align-items:center; justify-content:space-between; padding:11px 12px; border-bottom:1px solid var(--grey); gap:10px; }
-  .product-item:last-child { border-bottom:none; }
-  .pi-name { font-size:14px; font-weight:500; flex:1; }
-  .pi-add { background:var(--brandColor); color:white; border:none; border-radius:8px; padding:6px 14px; font-family:'Outfit',sans-serif; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
-  .pi-add.added { background:var(--green); }
-  .panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:299; display:none; }
-  .panel-overlay.show { display:block; }
-
-  /* Modals */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; display:none; align-items:flex-end; justify-content:center; }
-  .modal-overlay.show { display:flex; }
-  .modal-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 40px; width:min(480px,100vw); }
-  .modal-title { font-size:17px; font-weight:700; margin-bottom:14px; }
-  .modal-input { width:100%; border:2px solid var(--grey-mid); border-radius:10px; padding:12px 14px; font-family:'Outfit',sans-serif; font-size:15px; outline:none; resize:none; color:var(--text); }
-  .modal-input:focus { border-color:var(--brandColor); }
-  .modal-btns { display:flex; gap:10px; margin-top:12px; }
-  .btn { flex:1; padding:12px; border-radius:10px; border:none; font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
-  .btn-primary { background:var(--brandColor); color:white; }
-  .btn-secondary { background:var(--grey); color:var(--text); }
-
-  /* Share modal */
-  .share-modal { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:400; display:none; align-items:flex-end; justify-content:center; }
-  .share-modal.show { display:flex; }
-  .share-box { background:white; border-radius:20px 20px 0 0; padding:20px 20px 48px; width:min(480px,100vw); }
-  .share-title { font-size:18px; font-weight:700; margin-bottom:4px; }
-  .share-sub { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
-  .share-link-box { background:var(--grey); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--text-muted); word-break:break-all; margin-bottom:14px; border:2px solid var(--grey-mid); font-family:monospace; }
-  .share-options { display:flex; gap:10px; flex-direction:column; }
-  .share-btn { display:flex; align-items:center; gap:12px; background:var(--grey); border:none; border-radius:12px; padding:14px 16px; font-family:'Outfit',sans-serif; font-size:15px; font-weight:500; cursor:pointer; text-align:left; transition:background 0.12s; }
-  .share-btn:active { background:var(--grey-mid); }
-  .share-btn-icon { font-size:22px; width:28px; }
-
-  /* FAB */
-  .fab { position:fixed; bottom:24px; right:max(24px, calc(50% - 240px + 24px)); background:var(--brandColor); color:#ffffff; border:none; border-radius:50%; width:52px; height:52px; font-size:20px; cursor:pointer; box-shadow:0 4px 20px rgba(0,87,255,0.45); display:flex; align-items:center; justify-content:center; z-index:80; transition:transform 0.15s; }
-  .fab:active { transform:scale(0.96); }
-
-  .add-custom-btn { width:100%; background:white; border:2px dashed var(--grey-mid); border-radius:var(--radius); padding:14px; font-family:'Outfit',sans-serif; font-size:14px; color:var(--text-muted); cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:500; transition:border-color 0.15s,color 0.15s; }
-  .add-custom-btn:active { border-color:var(--brandColor); color:var(--brandColor); }
-
-  .checked-section { margin-top:16px; }
-  .checked-title { font-size:13px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; padding:0 4px 8px; }
-
-  /* Toast */
-  .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); background:#222; color:white; padding:10px 20px; border-radius:10px; font-size:14px; font-weight:500; z-index:500; opacity:0; transition:opacity 0.2s,transform 0.2s; white-space:nowrap; }
-  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-  /* New list modal */
-  .newlist-modal { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:600; display:flex; align-items:center; justify-content:center; padding:24px; }
-  .newlist-box { background:white; border-radius:20px; padding:28px 24px; width:100%; max-width:400px; text-align:center; }
-  .newlist-box h2 { font-size:22px; font-weight:700; margin-bottom:8px; }
-  .newlist-box p { font-size:14px; color:var(--text-muted); margin-bottom:24px; line-height:1.5; }
-
-  .unit-btn { padding:5px 10px; border:2px solid var(--grey-mid); border-radius:8px; background:white; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-muted); transition:all 0.12s; }
-  .unit-btn.active { border-color:var(--brandColor); color:var(--brandColor); background:#fff5f5; }
-
-  .menu-item { display:block; width:100%; padding:14px 18px; background:none; border:none; text-align:left; font-family:'Outfit',sans-serif; font-size:14px; font-weight:500; color:var(--text); cursor:pointer; transition:background 0.1s; }
-  .menu-item:active { background:var(--grey); }
-
-  .lni { display:inline-flex; align-items:center; justify-content:center; font-size: 1.4em; vertical-align: middle; }
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -201,34 +23,33 @@
   <div class="loading-text">Verbinden met lijst...</div>
 </div>
 
-<div class="newlist-modal" id="newlistModal" style="display:none;">
+<div class="newlist-modal hidden-init" id="newlistModal">
   <div class="newlist-box">
-    <div style="font-size:48px;margin-bottom:12px;">🛒</div>
-    <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Komisses</h2>
-    <p style="color:#666;font-size:14px;margin-bottom:24px;">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
+    <div class="emoji-xl">🛒</div>
+    <h2 class="mb-8">Komisses</h2>
+    <p class="description-text mb-16">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
 
-    <button class="btn btn-primary" onclick="createNewList()" style="width:100%;padding:14px;font-size:15px;margin-bottom:12px;">
-      <i class="lni lni-plus" style="margin-right:8px;"></i>Nieuwe lijst aanmaken
+    <button class="btn btn-primary w-full mb-12" style="padding:14px;font-size:15px;">
+      <i class="lni lni-plus icon-sm" onclick="createNewList()"></i>Nieuwe lijst aanmaken
     </button>
 
-    <div style="position:relative;display:flex;align-items:center;margin-bottom:12px;">
-      <div style="flex:1;height:1px;background:var(--grey-mid);"></div>
-      <span style="padding:0 12px;color:#aaa;font-size:12px;">of</span>
-      <div style="flex:1;height:1px;background:var(--grey-mid);"></div>
+    <div class="flex-center relative mb-12">
+      <div class="divider-line"></div>
+      <span class="divider-text">of</span>
+      <div class="divider-line"></div>
     </div>
 
     <div id="connectSection">
-      <button class="btn btn-secondary" onclick="showConnectInput()" style="width:100%;padding:14px;font-size:15px;">
-        <i class="lni lni-share-1" style="margin-right:8px;"></i>Verbinden met gedeelde lijst
+      <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px;">
+        <i class="lni lni-share-1 icon-sm"></i><span onclick="showConnectInput()">Verbinden met gedeelde lijst</span>
       </button>
     </div>
-    <div id="connectInputSection" style="display:none;">
-      <input type="url" id="connectUrlInput" class="modal-input" placeholder="Plak de gedeelde link hier..." autocomplete="off" autocorrect="off" spellcheck="false"
-        style="margin-bottom:10px;"
+    <div id="connectInputSection" class="hidden-init">
+      <input type="url" id="connectUrlInput" class="modal-input mb-10" placeholder="Plak de gedeelde link hier..." autocomplete="off" autocorrect="off" spellcheck="false"
         oninput="validateConnectUrl()"
         onkeydown="if(event.key==='Enter') connectToList()">
-      <div id="connectError" style="color:#e74c3c;font-size:13px;margin-bottom:8px;display:none;">Ongeldige link. Plak de volledige URL.</div>
-      <button class="btn btn-primary" id="connectBtn" onclick="connectToList()" style="width:100%;padding:13px;font-size:15px;" disabled>
+      <div id="connectError" class="error-text mb-8">Ongeldige link. Plak de volledige URL.</div>
+      <button class="btn btn-primary w-full" id="connectBtn" onclick="connectToList()" style="padding:13px;font-size:15px;" disabled>
         Verbinden
       </button>
     </div>
@@ -272,11 +93,11 @@
     <div class="modal-title" id="detailTitle">Product</div>
 
     <!-- Quantity + unit -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+    <div class="flex-center gap-12 mb-14" style="">
       <button class="qty-btn" onclick="detailChangeQty(-1)" style="width:36px;height:36px;font-size:22px;">−</button>
       <span id="detailQty" style="font-size:22px;font-weight:700;min-width:32px;text-align:center;">1</span>
       <button class="qty-btn" onclick="detailChangeQty(1)" style="width:36px;height:36px;font-size:22px;">+</button>
-      <div style="display:flex;gap:6px;flex:1;justify-content:flex-end;">
+      <div class="flex-end gap-6" style="flex:1;">
         <button class="unit-btn active" id="unit-aantal" onclick="selectUnit('aantal')">×</button>
         <button class="unit-btn" id="unit-kg" onclick="selectUnit('kg')">kg</button>
         <button class="unit-btn" id="unit-g" onclick="selectUnit('g')">g</button>
@@ -297,7 +118,7 @@
 <div class="modal-overlay" id="customModal">
   <div class="modal-box">
     <div class="modal-title">➕ Product toevoegen</div>
-    <input type="text" class="modal-input" id="customName" placeholder="Productnaam..." style="margin-bottom:10px;">
+    <input type="text" class="modal-input mb-10" id="customName" placeholder="Productnaam...">
     <select class="modal-input" id="customCat"></select>
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeCustom()">Annuleren</button>
@@ -307,22 +128,22 @@
 </div>
 
 
-<div id="menuOverlay" style="display:none;position:fixed;inset:0;z-index:450;" onclick="closeMenu()"></div>
-<div id="menuPopup" style="display:none;position:fixed;top:60px;right:max(12px,calc(50% - 228px));z-index:451;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:220px;overflow:hidden;flex-direction:column;">
-  <div style="padding:12px 18px 10px;border-bottom:1px solid var(--grey-mid);font-size:12px;color:var(--text-muted);font-weight:500;">Huidige lijst<br><span id="listIdLabel" style="font-weight:700;color:var(--text);font-size:14px;"> style="font-weight:700;color:var(--text);">Verbinden...</span></div>
-  <button class="menu-item" onclick="menuCheckAll()"><i class="lni lni-check-circle-1" style="width:18px;margin-right:8px;color:#777;"></i> Alles afvinken</button>
-  <button class="menu-item" onclick="menuRemoveChecked()"><i class="lni lni-trash-3" style="width:18px;margin-right:8px;color:#777;"></i> Verwijder afgevinkte items</button>
-  <button class="menu-item" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise" style="width:18px;margin-right:8px;color:#777;"></i> Lijst vernieuwen</button>
-  <button class="menu-item" onclick="menuRename()"><i class="lni lni-pencil-1" style="width:18px;margin-right:8px;color:#777;"></i> Lijst hernoemen</button>
-  <button class="menu-item" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right" style="width:18px;margin-right:8px;color:#777;"></i> Verbinden met andere lijst</button>
-  <button class="menu-item" onclick="menuNewList()" style="border-top:1px solid var(--grey-mid);"><i class="lni lni-plus" style="width:18px;margin-right:8px;color:#777;"></i> Nieuwe lijst</button>
-  <button class="menu-item" onclick="menuNerdStuff()" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> Nerd stuff</button>
+<div id="menuOverlay" class="fixed-overlay hidden-init" onclick="closeMenu()"></div>
+<div id="menuPopup" class="menu-popup hidden-init">
+  <div class="menu-header">Huidge lijst<br><span id="listIdLabel" class="list-id-display">Verbinden...</span></div>
+  <button class="menu-item" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> Alles afvinken</button>
+  <button class="menu-item" onclick="menuRemoveChecked()"><i class="lni lni-trash-3 icon-colored"></i> Verwijder afgevinkte items</button>
+  <button class="menu-item" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> Lijst vernieuwen</button>
+  <button class="menu-item" onclick="menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> Lijst hernoemen</button>
+  <button class="menu-item" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> Verbinden met andere lijst</button>
+  <button class="menu-item" style="border-top:1px solid var(--grey-mid);" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> Nieuwe lijst</button>
+  <button class="menu-item" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> Nerd stuff</button>
 </div>
 
 <div class="modal-overlay" id="nerdModal">
-  <div class="modal-box" style="max-height:70vh;display:flex;flex-direction:column;">
+  <div class="modal-box nerd-modal-style">
     <div class="modal-title">🤓 Nerd stuff</div>
-    <div id="nerdContent" style="overflow-y:auto;flex:1;font-size:12px;font-family:monospace;color:var(--text-muted);white-space:pre-wrap;word-break:break-all;"></div>
+    <div id="nerdContent" class="nerd-modal-content"></div>
     <div class="modal-btns" style="margin-top:16px;">
       <button class="btn btn-secondary" onclick="closeNerd()">Sluiten</button>
     </div>
@@ -342,13 +163,12 @@
 
 <div class="modal-overlay" id="connectModal">
   <div class="modal-box">
-    <div class="modal-title"><i class="lni lni-link-2-angular-right" style="margin-right:8px;"></i>Verbinden met lijst</div>
-    <input type="url" class="modal-input" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
+    <div class="modal-title"><i class="lni lni-link-2-angular-right icon-sm"></i>Verbinden met lijst</div>
+    <input type="url" class="modal-input mb-10" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
       autocomplete="off" autocorrect="off" spellcheck="false"
       oninput="validateConnectModal()"
-      onkeydown="if(event.key==='Enter') confirmConnectModal()"
-      style="margin-bottom:6px;">
-    <div id="connectModalError" style="color:#e74c3c;font-size:13px;margin-bottom:10px;display:none;">Ongeldige link. Plak de volledige URL.</div>
+      onkeydown="if(event.key==='Enter') confirmConnectModal()">
+    <div id="connectModalError" class="error-text mb-8">Ongeldige link. Plak de volledige URL.</div>
     <div class="modal-btns">
       <button class="btn btn-secondary" onclick="closeConnectModal()">Annuleren</button>
       <button class="btn btn-primary" id="connectModalBtn" onclick="confirmConnectModal()" disabled>Verbinden</button>
@@ -364,28 +184,28 @@
     <div class="share-options">
       <button class="share-btn" onclick="doShare('copy')">
         <span class="share-btn-icon">🔗</span>
-        <div><strong>Link kopiëren</strong><br><small style="color:#888;font-size:12px;">Plak in WhatsApp, iMessage, e-mail...</small></div>
+        <div><strong>Link kopiëren</strong><br><small class="share-btn-desc">Plak in WhatsApp, iMessage, e-mail...</small></div>
       </button>
       <button class="share-btn" onclick="doShare('native')">
         <span class="share-btn-icon">📱</span>
-        <div><strong>Delen via...</strong><br><small style="color:#888;font-size:12px;">WhatsApp, SMS, e-mail en meer</small></div>
+        <div><strong>Delen via...</strong><br><small class="share-btn-desc">WhatsApp, SMS, e-mail en meer</small></div>
       </button>
-      <button class="share-btn" onclick="closeShare()" style="background:transparent;color:#aaa;justify-content:center;">Annuleren</button>
+      <button class="share-btn share-btn-cancel" onclick="closeShare()">Annuleren</button>
     </div>
   </div>
 </div>
 
-<div id="fabSearchModal" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;max-height:66vh;background:white;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.15);flex-direction:column;">
-  <div style="padding:14px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--grey-mid);display:flex;align-items:center;gap:10px;">
+<div id="fabSearchModal" class="hidden-init fab-search-modal">
+  <div class="fab-search-header">
     <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
-    <button onclick="closeFabSearch()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;padding:4px;flex-shrink:0;">✕</button>
+    <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
-  <div id="fabSearchResults" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,16px);"></div>
+  <div id="fabSearchResults" class="fab-search-results"></div>
 </div>
-<div id="fabSearchBackdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeFabSearch()"></div>
+<div id="fabSearchBackdrop" class="fixed-overlay hidden-init" onclick="closeFabSearch()"></div>
 
 <label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
-<input id="fabTriggerInput" type="text" style="position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;bottom:50px;right:50px;" autocomplete="off">
+<input id="fabTriggerInput" type="text" class="hidden-input" autocomplete="off">
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -426,7 +246,9 @@ async function loadCatalog() {
     const resp = await fetch('product_catalog.json');
     const data = await resp.json();
     const map = {}, order = [];
-    for (const {product, categorie} of data) {
+    for (const item of data) {
+      if (!item.product) continue; // Skip comment markers
+      const {product, categorie} = item;
       if (!map[categorie]) { map[categorie] = []; order.push(categorie); }
       map[categorie].push(product);
     }
