@@ -95,7 +95,7 @@
     <!-- Quantity + unit -->
     <div class="flex-center gap-12 mb-14" style="">
       <button class="qty-btn" onclick="detailChangeQty(-1)" style="width:36px;height:36px;font-size:22px;">−</button>
-      <span id="detailQty" style="font-size:22px;font-weight:700;min-width:32px;text-align:center;">1</span>
+      <input type="number" id="detailQty" min="1" value="1" style="font-size:22px;font-weight:700;width:50px;text-align:center;border:none;outline:none;background:transparent;font-family:inherit;">
       <button class="qty-btn" onclick="detailChangeQty(1)" style="width:36px;height:36px;font-size:22px;">+</button>
       <div class="flex-end gap-6" style="flex:1;">
         <button class="unit-btn active" id="unit-aantal" onclick="selectUnit('aantal')">×</button>
@@ -197,7 +197,7 @@
 
 <div id="fabSearchModal" class="hidden-init fab-search-modal">
   <div class="fab-search-header">
-    <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
   <div id="fabSearchResults" class="fab-search-results"></div>
@@ -495,29 +495,40 @@ window.closeNote = function() { noteTarget=null; document.getElementById('noteMo
 
 window.detailChangeQty = function(delta) {
   const el = document.getElementById('detailQty');
-  el.textContent = Math.max(1, parseInt(el.textContent)+delta);
+  let step, minVal;
+  
+  if (_selectedUnit === 'g') {
+    step = 50;
+    minVal = 50;
+  } else if (_selectedUnit === 'kg') {
+    step = 0.5;
+    minVal = 0.5;
+  } else {
+    step = 1;
+    minVal = 1;
+  }
+  
+  const currentVal = parseFloat(el.value) || minVal;
+  const newVal = Math.max(minVal, currentVal + (delta * step));
+  el.value = _selectedUnit === 'kg' ? newVal.toFixed(1) : newVal;
 };
 
 let _selectedUnit = 'aantal';
 window.selectUnit = function(unit, updateBtn=true) {
   _selectedUnit = unit;
+  ['aantal','kg','g','l'].forEach(u => {
+    const b = document.getElementById('unit-'+u);
+    if (b) b.classList.toggle('active', u===unit);
+  });
   if (updateBtn) {
-    ['aantal','kg','g','l'].forEach(u => {
-      const b = document.getElementById('unit-'+u);
-      if (b) b.classList.toggle('active', u===unit);
-    });
-  } else {
-    ['aantal','kg','g','l'].forEach(u => {
-      const b = document.getElementById('unit-'+u);
-      if (b) b.classList.toggle('active', u===unit);
-    });
+    document.getElementById('detailQty').value = unit === 'g' ? 100 : 1;
   }
 };
 
 window.saveNote = function() {
   if (!noteTarget) return;
   setSyncBar('syncing');
-  const qty = parseInt(document.getElementById('detailQty').textContent)||1;
+  const qty = parseInt(document.getElementById('detailQty').value)||1;
   const note = document.getElementById('noteInput').value.trim();
   update(ref(db,'lists/'+listId+'/items/'+noteTarget), {note, qty, unit:_selectedUnit});
   closeNote();
@@ -733,6 +744,7 @@ window.closeFabSearch = function() {
   const modal = document.getElementById('fabSearchModal');
   modal.style.display = 'none';
   modal.style.bottom = '0px';
+  modal.classList.remove('with-results');
   document.getElementById('fabSearchBackdrop').style.display = 'none';
   document.getElementById('fabSearchInput').value = '';
   document.getElementById('fabSearchResults').innerHTML = '';
@@ -743,7 +755,13 @@ window.onFabSearch = function(val) { renderFabResults(val); };
 function renderFabResults(val) {
   const q = val.trim().toLowerCase();
   const container = document.getElementById('fabSearchResults');
-  if (!q) { container.innerHTML = ''; return; }
+  const modal = document.getElementById('fabSearchModal');
+  
+  if (!q) { 
+    container.innerHTML = ''; 
+    modal.classList.remove('with-results');
+    return; 
+  }
 
   // Build set of previously used product names from persistent history + active list
   const usedKeys = loadHistory();
@@ -775,25 +793,36 @@ function renderFabResults(val) {
     </div>`;
   }).join('');
 
+  let hasResults = false;
   if (q && matches.length === 0) {
     html = `<div class="no-results">Geen resultaten voor "<strong>${val}</strong>"</div>
       <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
         <span class="sri-name">➕ "${val}" toevoegen</span>
         <span class="sri-cat">Nieuw product</span>
       </div>`;
+    hasResults = true;
+  } else if (matches.length > 0) {
+    hasResults = true;
   }
 
   container.innerHTML = html;
+  
+  if (hasResults) {
+    modal.classList.add('with-results');
+  } else {
+    modal.classList.remove('with-results');
+  }
 }
 
 window.fabAdd = function(catId, name, k) {
   addProduct(name, catId);
   showToast(name.split('|')[0].trim() + ' toegevoegd ✓');
-  closeFabSearch();
+  // Keep modal open for adding more products
+  const input = document.getElementById('fabSearchInput');
+  setTimeout(() => input.focus({ preventScroll: true }), 0);
 };
 
 window.fabAddNew = function(val) {
-  closeFabSearch();
   // Pre-fill and open the custom modal
   document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
   document.getElementById('customName').value = val;
