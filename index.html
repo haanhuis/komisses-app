@@ -165,7 +165,8 @@
   <button class="menu-item" id="menuItemConnect" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> <span>Verbinden met andere lijst</span></button>
   <button class="menu-item" id="menuItemToggleDone" onclick="menuToggleDone()"><i class="lni lni-eye icon-colored"></i> <span>Verberg afgevinkte items</span></button>
   <button class="menu-item" id="menuItemNewList" style="border-top:1px solid var(--grey-mid);" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
-  <button class="menu-item" id="menuItemNerd" style="border-top:1px solid var(--grey-mid);font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> <span>Nerd stuff</span></button>
+  <button class="menu-item" id="menuItemUpdateApp" style="border-top:1px solid var(--grey-mid);" onclick="menuUpdateApp()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>App updaten</span></button>
+  <button class="menu-item" id="menuItemNerd" style="font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> <span>Nerd stuff</span></button>
 </div>
 
 <div class="modal-overlay" id="nerdModal">
@@ -314,6 +315,7 @@ function applyLocaleToDOM() {
   setMenuItem('menuItemRename', 'menu_rename');
   setMenuItem('menuItemConnect', 'menu_connect');
   setMenuItem('menuItemNewList', 'menu_newlist');
+  setMenuItem('menuItemUpdateApp', 'menu_update_app');
   setMenuItem('menuItemNerd', 'menu_nerd');
   setMenuItem('menuItemToggleDone', hideDone ? 'menu_show_done' : 'menu_hide_done');
   // Nerd modal
@@ -1093,6 +1095,13 @@ window.menuToggleDone = function() {
 window.menuNewList = function() {
   closeMenu();
   if (confirm(t('confirm_newlist'))) createNewList();
+};
+window.menuUpdateApp = function() {
+  closeMenu();
+  Promise.all([
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))),
+    navigator.serviceWorker?.getRegistrations().then(regs => Promise.all(regs.map(r => r.unregister())))
+  ]).then(() => window.location.reload());
 };
 window.menuNerdStuff = function() {
   closeMenu();
