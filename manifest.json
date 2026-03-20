@@ -1,7 +1,7 @@
 {
-  "name": "Lionlist Boodschappen",
-  "short_name": "Lionlist",
-  "description": "Gedeelde boodschappenlijst met Delhaize producten",
+  "name": "Komisses",
+  "short_name": "Komisses",
+  "description": "Gedeelde boodschappenlijst",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
