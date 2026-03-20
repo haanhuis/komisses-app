@@ -4,10 +4,9 @@
   "Brood": "Bruut",
   "Gesneden brood": "Gesneden bruut",
   "Stokbrood": "Stokbruut",
-  "Zoete broodjes": "Zoete broodjes",
 
-  "Aardappelen": "Petatse",
-  "Zoete aardappelen": "Zoete petatse",
+  "Aardappelen": "Patatten",
+  "Zoete aardappelen": "Zoete patatten",
 
   "Kaas": "Koas",
   "Blauwe kaas": "Blauwe koas",
@@ -16,15 +15,30 @@
   "Smeerkaas": "Smeerkoas",
   "Parmezaanse Kaas": "Parmezaanse koas",
 
+  "Ham": "Espe",
   "Kip": "Oender",
   "Kippenvleugels": "Oenderpuutjes",
-
   "Gehakt": "Gekapt",
 
+  "Ajuin": "Andzjuun",
   "Wortelen": "Penen",
+  "Bloemkool": "Bloemkuule",
+  "Erwten": "Ertsjes",
+  "Bonen": "Boontses",
+  "Peren": "Peere",
+  "Aardbeien": "Eirbeize",
+  "Sinaasappelen": "Appelsiene",
+  "Citroen": "Citroene",
+
+  "Boter": "Booter",
+  "Eieren": "Aaiers",
   "Bloem": "Blome",
-  "Boter": "Botter",
-  "Eieren": "Eirkes",
   "Frieten": "Frietkens",
-  "Knoflook": "Look"
+  "Knoflook": "Look",
+
+  "Koffie": "Kaffie",
+  "Bier": "Pintse",
+  "Warme chocomelk": "Chokomelke",
+  "Chocolade": "Sjokola",
+  "Suiker": "Sukker"
 }
