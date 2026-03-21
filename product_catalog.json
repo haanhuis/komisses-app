@@ -214,11 +214,11 @@
   {"product": "Muesly", "categorie": "Ontbijt"},  
   {"product": "Koekjes met melk", "categorie": "Ontbijt"}, 
   {"product": "Kornflakes", "categorie": "Ontbijt"},   
-  {"product": "Koffie", "categorie": "Dranken"},
-  {"product": "Koffiebonen", "categorie": "Dranken"},
-  {"product": "Koffiepads", "categorie": "Dranken"},
-  {"product": "Koffiecapsules", "categorie": "Dranken"},
-  {"product": "Thee", "categorie": "Dranken"},
+  {"product": "Koffie", "categorie": "Ontbijt"},
+  {"product": "Koffiebonen", "categorie": "Ontbijt"},
+  {"product": "Koffiepads", "categorie": "Ontbijt"},
+  {"product": "Koffiecapsules", "categorie": "Ontbijt"},
+  {"product": "Thee", "categorie": "Ontbijt"},
 
 
   {"_comment": "--- Zuivel ---"},

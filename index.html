@@ -67,7 +67,7 @@
     <div class="header-actions">
       <div class="locale-wrap" id="localeWrap">
         <button class="icon-btn locale-btn" id="localeBtn" onclick="openLocaleSheet()">
-          <span id="localeBtnLabel">NL</span><span class="locale-chevron">▾</span>
+          <span id="localeBtnLabel">NL</span><span class="locale-chevron" id="localeChevron">▾</span>
         </button>
       </div>
       <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
@@ -347,10 +347,12 @@ function applyLocaleToDOM() {
 window.openLocaleSheet = function() {
   document.getElementById('sheetOverlay').classList.add('show');
   document.getElementById('localeSheet').classList.add('open');
+  document.getElementById('localeChevron').textContent = '▴';
 };
 window.closeLocaleSheet = function() {
   document.getElementById('sheetOverlay').classList.remove('show');
   document.getElementById('localeSheet').classList.remove('open');
+  document.getElementById('localeChevron').textContent = '▾';
 };
 window.selectLocale = function(locale) {
   currentLocale = locale;
@@ -371,7 +373,6 @@ const CAT_META = {
   'Huishouden':                    {id:'cle', emoji:'🧹'},
   'Verzorging & Gezondheid':       {id:'hyg', emoji:'🧴'},
   'Ingrediënten & Kruiden':        {id:'ing', emoji:'🫙'},
-  'Kruiden':                       {id:'kru', emoji:'🌿'},
   'Vlees & Vis':                   {id:'mea', emoji:'🥩'},
   'Zuivel':                        {id:'dai', emoji:'🧀'},
   'Dierenvoeding':                 {id:'pet', emoji:'🐾'},
@@ -511,7 +512,7 @@ function renderList() {
   const active = entries.filter(([,i]) => !i.checked);
   const done   = entries.filter(([,i]) => i.checked);
 
-  if (entries.length === 0) {
+  if (entries.length === 0 || (active.length === 0 && (hideDone || done.length === 0))) {
     main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">${t('list_empty_title')}</div><div class="empty-sub">${t('list_empty_sub')}</div></div>`;
     return;
   }
@@ -724,7 +725,7 @@ window.openPanel = function(catId) {
   const cat = CATEGORIES.find(c=>c.id===catId); if(!cat) return;
   document.getElementById('panelTitle').textContent = cat.emoji+' '+cat.name;
   const products = document.getElementById('panelProducts');
-  products.innerHTML = cat.products.map(p => {
+  products.innerHTML = [...cat.products].sort((a,b)=>a.localeCompare(b,'nl')).map(p => {
     const inList = Object.values(list).find(i=>i.name===p&&i.catId===catId&&!i.checked);
     const k = catId+'_'+p.replace(/\W/g,'_');
     return `<div class="product-item">
@@ -769,14 +770,14 @@ function doSearch(val) {
   if (!matches.length) {
     results.innerHTML = `<div class="no-results">${t('search_noresults')} "<strong>${val}</strong>"</div>
       <div class="search-result-item" onclick="openCustomFromSearch('${val.replace(/'/g,"\\'")}')">
-        <div class="sri-info"><div class="sri-name">${t('search_add_custom').replace('{q}',val)}</div><div class="sri-cat">${t('search_own')}</div></div>
+        <div class="sri-info"><div class="sri-name">${t('search_add_custom').replace('{q}',val)}</div></div>
       </div>`;
   } else {
     results.innerHTML = matches.slice(0,12).map(m => {
       const inList = Object.values(list).find(i=>i.name===m.name&&i.catId===m.catId&&!i.checked);
       const k = 'sr_'+m.catId+'_'+m.name.replace(/\W/g,'_');
       return `<div class="search-result-item">
-        <div class="sri-info"><div class="sri-name">${m.emoji} ${m.name}</div><div class="sri-cat">${m.cat}</div></div>
+        <div class="sri-info"><div class="sri-name">${m.emoji} ${m.name}</div></div>
         <button class="sri-add ${inList?'added':''}" id="${k}" onclick="searchAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')">
           ${inList?'✓':t('pi_add')}
         </button>
@@ -938,19 +939,22 @@ function renderFabResults(val) {
   const modal = document.getElementById('fabSearchModal');
   
   if (!q) {
-    const recent = Object.entries(list)
-      .filter(([, i]) => !i.checked)
-      .sort((a, b) => b[0].localeCompare(a[0]))
-      .slice(0, 10);
-    if (recent.length === 0) {
+    const recentHistory = [...loadHistory()].reverse().slice(0, 4);
+    if (recentHistory.length === 0) {
       container.innerHTML = '';
       modal.classList.remove('with-results');
+      modal.classList.remove('recent-mode');
     } else {
+      modal.classList.add('recent-mode');
       container.innerHTML = `<div class="fab-section-label">${t('recent')}</div>` +
-        recent.map(([, i]) => {
-          const k = 'fab_recent_' + (i.catId||'other') + '_' + i.name.replace(/\W/g,'_');
-          return `<div class="search-result-item" onclick="fabAdd('${i.catId||'other'}','${i.name.replace(/'/g,"\\'")}','${k}')" id="${k}">
-            <span class="sri-name">${i.name}</span>
+        recentHistory.map(entry => {
+          const sep = entry.lastIndexOf('|');
+          const name = entry.slice(0, sep);
+          const catId = entry.slice(sep + 1);
+          const cat = CATEGORIES.find(c => c.id === catId);
+          const k = 'fab_recent_' + catId + '_' + name.replace(/\W/g,'_');
+          return `<div class="search-result-item" onclick="fabAdd('${catId}','${name.replace(/'/g,"\\'")}','${k}')" id="${k}">
+            <span class="sri-name">${name}</span>
           </div>`;
         }).join('');
       modal.classList.add('with-results');
@@ -958,6 +962,7 @@ function renderFabResults(val) {
     return;
   }
 
+  modal.classList.remove('recent-mode');
   // Build set of previously used product names from persistent history + active list
   const usedKeys = loadHistory();
   Object.values(list).forEach(i => usedKeys.add(i.name + '|' + i.catId));
@@ -995,7 +1000,6 @@ function renderFabResults(val) {
     const k = 'fab_' + m.catId + '_' + m.name.replace(/\W/g,'_');
     return `<div class="search-result-item" onclick="fabAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')" id="${k}" ${m.used ? 'style="background:#fafff6;"' : ''}>
       <span class="sri-name">${m.name}</span>
-      <span class="sri-cat">${m.emoji} ${m.cat}</span>
     </div>`;
   }).join('');
 
@@ -1004,7 +1008,6 @@ function renderFabResults(val) {
     html = `<div class="no-results">${t('search_noresults')} "<strong>${val}</strong>"</div>
       <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
         <span class="sri-name">${t('search_add_custom').replace('{q}',val)}</span>
-        <span class="sri-cat">${t('search_new')}</span>
       </div>`;
     hasResults = true;
   } else if (matches.length > 0) {

@@ -310,6 +310,7 @@ body {
     border-top: 1px solid var(--grey-mid);
     display: flex;
     z-index: 100;
+    margin-bottom: 10px;
 }
 
 .bottom-tab {
@@ -936,7 +937,7 @@ main {
 /* FAB */
 .fab {
     position: fixed;
-    bottom: calc(24px + 60px + env(safe-area-inset-bottom));
+    bottom: calc(44px + 60px + env(safe-area-inset-bottom));
     right: max(24px, calc(50% - 240px + 24px));
     background: var(--brandColor);
     color: #ffffff;
@@ -1153,6 +1154,10 @@ main {
 }
 
 /* Utility classes for inline styles */
+.hidden {
+    display: none;
+}
+
 .hidden-init {
     display: none;
 }
@@ -1316,11 +1321,16 @@ main {
 }
 
 .fab-search-modal {
-    max-height: 30vh;
+    max-height: 35vh;
+}
+
+.fab-search-modal.recent-mode .fab-search-results {
+    max-height: calc(4 * 44px + 32px);
+    overflow-y: auto;
 }
 
 .fab-search-modal.with-results {
-    height: 30vh;
+    height: 35vh;
 }
 
 .fab-search-header {
