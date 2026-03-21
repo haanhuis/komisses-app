@@ -416,6 +416,22 @@ function buildCatalog() {
   }));
 }
 
+function localizeItemName(name, catId) {
+  // Find the NL canonical entry in the raw catalog (match by NL name or any locale override)
+  const rawEntry = catalogRaw.find(e => {
+    const meta = CAT_META[e.categorie];
+    if (!meta || meta.id !== catId) return false;
+    return e.product === name
+      || catalogGentsOverrides[e.product] === name
+      || catalogOiOverrides[e.product] === name;
+  });
+  if (!rawEntry) return name; // custom item, can't translate
+  const overrides = currentLocale === 'gents' ? catalogGentsOverrides
+                  : currentLocale === 'oi'    ? catalogOiOverrides
+                  : {};
+  return overrides[rawEntry.product] ?? rawEntry.product;
+}
+
 async function loadCatalog() {
   try {
     const [catResp, gentsResp, oiResp] = await Promise.all([
@@ -432,7 +448,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v15';
+const APP_VERSION = 'v16';
 
 let list = {};
 let currentTab = 'list';
@@ -569,10 +585,11 @@ function renderItem(id, item) {
   const qty = item.qty||1;
   const showQty = unit !== 'aantal' || qty > 1;
   const qtyLabel = `${qty} ${unit==='aantal'?'×':unit}`;
+  const displayName = localizeItemName(item.name, item.catId);
   return `<div class="item-card ${item.checked?'done':''}" id="item-${id}">
     <div class="item-checkbox ${item.checked?'checked':''}" onclick="checkItem('${id}')"></div>
     <div class="item-info" onclick="openDetail('${id}')" style="cursor:pointer;flex:1;min-width:0;">
-      <div class="item-name">${item.name}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
+      <div class="item-name">${displayName}${item.note ? ` <span class="item-note-inline">· ${item.note}</span>` : ''}</div>
     </div>
     ${showQty ? `<span class="item-qty-label" onclick="openDetail('${id}')" style="cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;font-weight:500;">${qtyLabel}</span>` : ''}
     <button class="item-action-btn" onclick="removeItem('${id}')"><i class="lni lni-trash-3" style="color:#777;"></i></button>
