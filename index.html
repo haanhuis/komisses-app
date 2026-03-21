@@ -432,6 +432,8 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
+const APP_VERSION = 'v10';
+
 let list = {};
 let currentTab = 'list';
 let noteTarget = null;
@@ -875,6 +877,12 @@ window.connectToList = function() {
 };
 
 // ── Boot ───────────────────────────────────────────────────────────────
+const updatedVersion = sessionStorage.getItem('appUpdated');
+if (updatedVersion) {
+  sessionStorage.removeItem('appUpdated');
+  setTimeout(() => showToast('Bijgewerkt naar ' + updatedVersion), 800);
+}
+
 Promise.all([loadLocales(), loadCatalog()]).then(() => {
   buildCatalog();
   applyLocaleToDOM();
@@ -1105,6 +1113,8 @@ window.menuNewList = function() {
 };
 window.menuUpdateApp = function() {
   closeMenu();
+  closeAllSheets();
+  sessionStorage.setItem('appUpdated', APP_VERSION);
   Promise.all([
     caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))),
     navigator.serviceWorker?.getRegistrations().then(regs => Promise.all(regs.map(r => r.unregister())))
@@ -1116,6 +1126,10 @@ window.menuNerdStuff = function() {
   const catCount = CATEGORIES.length;
   const productCount = CATEGORIES.reduce((s, c) => s + c.products.length, 0);
   const lines = [
+    '=== App ===',
+    'Versie:    ' + APP_VERSION,
+    'Gepusht:   laden...',
+    '',
     '=== Status ===',
     'Firebase:  ' + (firebaseConnected ? '✅ verbonden' : '❌ niet verbonden'),
     'Sync:      ' + syncStatus,
@@ -1127,8 +1141,19 @@ window.menuNerdStuff = function() {
     '=== Fouten (' + errorLog.length + ') ===',
     ...(errorLog.length ? errorLog : [t('nerd_errors_none')]),
   ];
-  document.getElementById('nerdContent').textContent = lines.join('\n');
+  const el = document.getElementById('nerdContent');
+  el.textContent = lines.join('\n');
   document.getElementById('nerdModal').classList.add('show');
+  fetch('https://api.github.com/repos/haanhuis/komisses-app/commits/main')
+    .then(r => r.json())
+    .then(data => {
+      const date = new Date(data.commit?.committer?.date || data.commit?.author?.date);
+      const fmt = date.toLocaleString('nl-BE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      el.textContent = el.textContent.replace('Gepusht:   laden...', 'Gepusht:   ' + fmt);
+    })
+    .catch(() => {
+      el.textContent = el.textContent.replace('Gepusht:   laden...', 'Gepusht:   —');
+    });
 };
 window.closeNerd = function() { document.getElementById('nerdModal').classList.remove('show'); };
 window.menuConnectList = function() {
