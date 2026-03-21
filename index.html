@@ -1028,8 +1028,10 @@ function renderFabResults(val) {
 window.fabAdd = function(catId, name, k) {
   addProduct(name, catId);
   showToast(t('toast_added').replace('{name}', name.split('|')[0].trim()));
-  // Keep modal open for adding more products
+  // Reset search and keep modal open for adding more products
   const input = document.getElementById('fabSearchInput');
+  input.value = '';
+  renderFabResults('');
   setTimeout(() => input.focus({ preventScroll: true }), 0);
 };
 
