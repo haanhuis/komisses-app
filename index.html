@@ -158,14 +158,15 @@
 <div id="menuPopup" class="bottom-sheet">
   <div class="sheet-handle"></div>
   <div class="menu-header" id="menuHeader">Huidige lijst<br><span id="listIdLabel" class="list-id-display">Verbinden...</span></div>
-  <button class="menu-item" id="menuItemCheckAll" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> <span>Alles afvinken</span></button>
-  <button class="menu-item" id="menuItemRemove" onclick="menuRemoveChecked()"><i class="lni lni-trash-3 icon-colored"></i> <span>Verwijder afgevinkte items</span></button>
-  <button class="menu-item" id="menuItemRefresh" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>Lijst vernieuwen</span></button>
   <button class="menu-item" id="menuItemRename" onclick="menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> <span>Lijst hernoemen</span></button>
+  <button class="menu-item" id="menuItemRefresh" onclick="menuRefresh()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>Lijst vernieuwen</span></button>
   <button class="menu-item" id="menuItemConnect" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> <span>Verbinden met andere lijst</span></button>
+  <button class="menu-item" id="menuItemNewList" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
+  <div style="height:1px;background:var(--grey-mid);margin:4px 0;"></div>
+  <button class="menu-item" id="menuItemCheckAll" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> <span>Alles afvinken</span></button>
   <button class="menu-item" id="menuItemToggleDone" onclick="menuToggleDone()"><i class="lni lni-eye icon-colored"></i> <span>Verberg afgevinkte items</span></button>
-  <button class="menu-item" id="menuItemNewList" style="border-top:1px solid var(--grey-mid);" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
-  <button class="menu-item" id="menuItemUpdateApp" style="border-top:1px solid var(--grey-mid);" onclick="menuUpdateApp()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>App updaten</span></button>
+  <div style="height:1px;background:var(--grey-mid);margin:4px 0;"></div>
+  <button class="menu-item" id="menuItemUpdateApp" onclick="menuUpdateApp()"><i class="lni lni-refresh-circle-1-clockwise icon-colored"></i> <span>App updaten</span></button>
   <button class="menu-item" id="menuItemNerd" style="font-size:13px;color:var(--text-muted);" onclick="menuNerdStuff()"><i class="lni lni-code" style="width:18px;margin-right:8px;color:#bbb;"></i> <span>Nerd stuff</span></button>
 </div>
 
