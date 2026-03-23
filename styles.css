@@ -391,16 +391,17 @@ body {
     border-radius: 34px;
     border-top: none;
 
-    /* Liquid glass */
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(48px) saturate(200%) brightness(112%);
-    -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(112%);
+    /* iOS system material — matches UIBlurEffect .systemChromeMaterial */
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
 
     /* Floating shadow + inner highlight stroke */
     box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.12),
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+        0 4px 24px rgba(0, 0, 0, 0.08),
+        0 1px 4px rgba(0, 0, 0, 0.06),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
 .platform-ios .bottom-tab {
@@ -1556,14 +1557,15 @@ main {
 }
 
 .platform-ios .fab {
-    bottom: calc(max(24px, env(safe-area-inset-bottom)) + 4px);
+    bottom: max(24px, env(safe-area-inset-bottom));
     right: max(16px, calc(50% - 240px + 16px));
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(48px) saturate(200%) brightness(112%);
+    width: 68px;
+    height: 68px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
     color: #222222;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08), inset 0 0 0 0.5px rgba(255,255,255,0.7);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
 .platform-android .fab {

@@ -818,7 +818,9 @@ window.openCatalogSheet = function() {
 };
 
 window.closeCatalogSheet = function() {
-  document.getElementById('catalogSheet').classList.remove('open');
+  const sheet = document.getElementById('catalogSheet');
+  sheet.classList.remove('open');
+  sheet.style.bottom = '';
   document.getElementById('sheetOverlay').classList.remove('show');
 };
 
@@ -1175,19 +1177,29 @@ Promise.all([loadLocales(), loadCatalog()]).then(() => {
 });
 
 // ── FAB Search ─────────────────────────────────────────────────────────
-// Keep fab sheet above the keyboard using visualViewport
+// Keep sheets above the keyboard using visualViewport
+function getKeyboardOffset() {
+  const vv = window.visualViewport;
+  if (!vv) return 0;
+  return window.innerHeight - (vv.offsetTop + vv.height);
+}
 function positionFabSheet() {
   const modal = document.getElementById('fabSearchModal');
   if (!modal.classList.contains('open')) return;
-  const vv = window.visualViewport;
-  if (vv) {
-    const offsetFromBottom = window.innerHeight - (vv.offsetTop + vv.height);
-    modal.style.bottom = offsetFromBottom + 'px';
-  }
+  modal.style.bottom = getKeyboardOffset() + 'px';
+}
+function positionCatalogSheet() {
+  const sheet = document.getElementById('catalogSheet');
+  if (!sheet.classList.contains('open')) return;
+  sheet.style.bottom = getKeyboardOffset() + 'px';
+}
+function onViewportChange() {
+  positionFabSheet();
+  positionCatalogSheet();
 }
 if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', positionFabSheet);
-  window.visualViewport.addEventListener('scroll', positionFabSheet);
+  window.visualViewport.addEventListener('resize', onViewportChange);
+  window.visualViewport.addEventListener('scroll', onViewportChange);
 }
 
 window.openFabSearch = function() {
