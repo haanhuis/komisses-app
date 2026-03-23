@@ -1621,7 +1621,7 @@ main {
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
-    color: #222222;
+    color: var(--brandColor);
     box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.06), inset 0 0 0 0.5px rgba(255,255,255,0.9), inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
@@ -1720,7 +1720,7 @@ main {
 .meal-card {
     background: white;
     border-radius: 12px;
-    padding: 7px 14px;
+    padding: 12px 14px;
     display: flex;
     align-items: center;
     gap: 12px;
