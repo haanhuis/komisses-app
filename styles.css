@@ -1543,7 +1543,7 @@ main {
     height: auto;
 }
 .fab-search-modal.with-results {
-    height: 45vh;
+    max-height: 40vh;
 }
 
 
