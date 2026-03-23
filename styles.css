@@ -1873,9 +1873,9 @@ main {
     white-space: nowrap;
 }
 .gen-pref-btn.on {
-    background: var(--text);
-    color: var(--bg);
-    border-color: var(--text);
+    background: var(--brandColor-light);
+    color: var(--brandColor);
+    border-color: var(--brandColor);
 }
 .gen-tog {
     padding: 7px 13px;
@@ -1889,9 +1889,9 @@ main {
     white-space: nowrap;
 }
 .gen-tog.on {
-    background: var(--text);
-    color: var(--bg);
-    border-color: var(--text);
+    background: var(--brandColor-light);
+    color: var(--brandColor);
+    border-color: var(--brandColor);
 }
 .gen-tick-label {
     font-size: 11px;
