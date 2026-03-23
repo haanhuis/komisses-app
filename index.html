@@ -78,16 +78,25 @@
 
 <nav class="bottom-nav">
   <button class="bottom-tab active" id="tab-list" onclick="switchTab('list')">
-    <i class="lni lni-basket-shopping-3"></i>
-    <span class="bottom-tab-label"><span id="tabListText">Lijstje</span><span class="tab-count hidden" id="listCount"></span></span>
+    <span class="tab-icon">
+      <svg class="tab-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+      <svg class="tab-icon-filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25ZM3.75 20.25a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM16.5 20.25a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"/></svg>
+    </span>
+    <span class="bottom-tab-label"><span id="tabListText">Lijstje</span></span>
   </button>
   <button class="bottom-tab" id="tab-browse" onclick="switchTab('browse')">
-    <i class="lni lni-eye"></i>
+    <span class="tab-icon">
+      <svg class="tab-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.04168C10.4077 4.61656 8.30506 3.75 6 3.75C4.94809 3.75 3.93834 3.93046 3 4.26212V18.5121C3.93834 18.1805 4.94809 18 6 18C8.30506 18 10.4077 18.8666 12 20.2917M12 6.04168C13.5923 4.61656 15.6949 3.75 18 3.75C19.0519 3.75 20.0617 3.93046 21 4.26212V18.5121C20.0617 18.1805 19.0519 18 18 18C15.6949 18 13.5923 18.8666 12 20.2917M12 6.04168V20.2917"/></svg>
+      <svg class="tab-icon-filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.25 4.53286C9.73455 3.56279 7.93246 3 6 3C4.86178 3 3.76756 3.19535 2.75007 3.55499C2.45037 3.66091 2.25 3.94425 2.25 4.26212V18.5121C2.25 18.7556 2.36818 18.9839 2.56696 19.1245C2.76574 19.265 3.02039 19.3004 3.24993 19.2192C4.10911 18.9156 5.03441 18.75 6 18.75C7.99502 18.75 9.82325 19.4573 11.25 20.6357V4.53286Z"/><path d="M12.75 20.6357C14.1768 19.4573 16.005 18.75 18 18.75C18.9656 18.75 19.8909 18.9156 20.7501 19.2192C20.9796 19.3004 21.2343 19.265 21.433 19.1245C21.6318 18.9839 21.75 18.7556 21.75 18.5121V4.26212C21.75 3.94425 21.5496 3.66091 21.2499 3.55499C20.2324 3.19535 19.1382 3 18 3C16.0675 3 14.2655 3.56279 12.75 4.53286V20.6357Z"/></svg>
+    </span>
     <span>Bladeren</span>
   </button>
   <button class="bottom-tab" id="tab-weekmenu" onclick="switchTab('weekmenu')">
-    <i class="lni lni-knife-fork-1"></i>
-    <span>Week menu</span>
+    <span class="tab-icon">
+      <svg class="tab-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"/></svg>
+      <svg class="tab-icon-filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"/><path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clip-rule="evenodd"/></svg>
+    </span>
+    <span id="tabWeekmenuText">Week menu</span>
   </button>
 </nav>
 
@@ -158,6 +167,14 @@
     <button class="day-chip" data-day="sunday" onclick="selectDayChip(this)">Zo</button>
   </div>
   <button class="btn btn-primary w-full" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
+</div>
+
+<div id="catalogSheet" class="bottom-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Product toevoegen aan catalogus</div>
+  <input type="text" id="catalogNameInput" class="modal-input mb-10" placeholder="Productnaam..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('catalogSaveBtn').disabled=!this.value.trim()">
+  <select id="catalogCatSelect" class="modal-input mb-10"></select>
+  <button class="btn btn-primary w-full" onclick="saveCatalogProduct()" id="catalogSaveBtn" disabled>Toevoegen</button>
 </div>
 
 <div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
@@ -319,7 +336,8 @@ function applyLocaleToDOM() {
   const cb = document.getElementById('connectBtn'); if (cb) cb.textContent = t('btn_connect');
   // Tabs
   const tl = document.getElementById('tabListText'); if (tl) tl.textContent = t('tab_list');
-  const tb = document.getElementById('tab-browse')?.querySelector('span'); if (tb) tb.textContent = t('tab_browse');
+  const tb = document.getElementById('tab-browse')?.querySelector('span:not(.tab-icon)'); if (tb) tb.textContent = t('tab_browse');
+  const tw = document.getElementById('tabWeekmenuText'); if (tw) tw.textContent = t('tab_weekmenu');
   // Note modal
   const ni = document.getElementById('noteInput'); if (ni) ni.placeholder = t('note_placeholder');
   const ncb = document.getElementById('noteCancelBtn'); if (ncb) ncb.textContent = t('btn_cancel');
@@ -470,7 +488,12 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v18';
+const APP_VERSION = 'v19';
+
+// Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
+const platformOverride = new URLSearchParams(window.location.search).get('platform');
+const isAndroid = platformOverride ? platformOverride === 'android' : /android/i.test(navigator.userAgent);
+document.body.classList.add(isAndroid ? 'platform-android' : 'platform-ios');
 
 const WEEK_DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 const WEEK_DAY_LABELS = {sunday:'Zondag',monday:'Maandag',tuesday:'Dinsdag',wednesday:'Woensdag',thursday:'Donderdag',friday:'Vrijdag',saturday:'Zaterdag'};
@@ -547,12 +570,6 @@ function render() {
   if (currentTab === 'list') renderList();
   else if (currentTab === 'weekmenu') renderWeekMenu();
   else renderBrowse();
-  const count = Object.values(list).filter(i => !i.checked).length;
-  const countEl = document.getElementById('listCount');
-  if (countEl) {
-    countEl.textContent = count > 0 ? ' ' + count : '';
-    countEl.classList.toggle('hidden', count === 0);
-  }
 }
 
 function renderList() {
@@ -649,7 +666,7 @@ function renderWeekMenu() {
   const meals = Object.entries(weekmenu);
 
   if (meals.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">Geen maaltijden gepland</div><div class="empty-sub">Tik op + om een maaltijd toe te voegen.</div></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div></div>`;
     return;
   }
 
@@ -786,6 +803,38 @@ window.removeMeal = function(id) {
 window.selectDayChip = function(el) {
   document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+};
+
+window.openCatalogSheet = function() {
+  const select = document.getElementById('catalogCatSelect');
+  select.innerHTML = Object.entries(CAT_META).map(([,m]) =>
+    `<option value="${m.id}">${m.emoji} ${catName(m.id)}</option>`
+  ).join('');
+  document.getElementById('catalogNameInput').value = '';
+  document.getElementById('catalogSaveBtn').disabled = true;
+  document.getElementById('catalogSheet').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('catalogNameInput').focus({ preventScroll: true }), 100);
+};
+
+window.closeCatalogSheet = function() {
+  document.getElementById('catalogSheet').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('show');
+};
+
+window.saveCatalogProduct = function() {
+  const name = document.getElementById('catalogNameInput').value.trim();
+  if (!name) return;
+  const catId = document.getElementById('catalogCatSelect').value;
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (cat && !cat.products.includes(name)) {
+    cat.products.push(name);
+    cat.products.sort();
+  }
+  catalogRaw.push({ product: name, categorie: Object.keys(CAT_META).find(k => CAT_META[k].id === catId) });
+  showToast(`'${name}' toegevoegd aan catalogus`);
+  closeCatalogSheet();
+  if (currentTab === 'browse') renderBrowse();
 };
 
 window.openMealSheet = function() {
@@ -1043,7 +1092,7 @@ window.switchTab = function(tab) {
   document.getElementById('tab-list').classList.toggle('active', tab==='list');
   document.getElementById('tab-weekmenu').classList.toggle('active', tab==='weekmenu');
   document.getElementById('tab-browse').classList.toggle('active', tab==='browse');
-  document.querySelector('.fab').classList.toggle('fab-hidden', tab==='browse');
+  document.querySelector('.fab').classList.remove('fab-hidden');
   render();
 };
 
@@ -1143,6 +1192,7 @@ if (window.visualViewport) {
 
 window.openFabSearch = function() {
   if (currentTab === 'weekmenu') { openMealSheet(); return; }
+  if (currentTab === 'browse') { openCatalogSheet(); return; }
   const trigger = document.getElementById('fabTriggerInput');
   trigger.value = '';
   trigger.focus({ preventScroll: true });
@@ -1311,6 +1361,7 @@ window.closeAllSheets = function() {
   closeMenu();
   closeFabSearch();
   closeMealSheet();
+  closeCatalogSheet();
 };
 window.menuCheckAll = function() {
   closeMenu();

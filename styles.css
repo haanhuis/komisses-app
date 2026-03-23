@@ -304,7 +304,6 @@ body {
     bottom: 0;
     left: max(0px, calc(50% - 240px));
     right: max(0px, calc(50% - 240px));
-    height: calc(75px + env(safe-area-inset-bottom));
     background: rgba(255,255,255,0.4);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -356,9 +355,118 @@ body {
     background: color-mix(in srgb, var(--brandColor) 15%, transparent);
 }
 
+
 .bottom-tab.active {
     color: var(--brandColor);
     font-weight: 600;
+}
+
+/* Tab icon sets — Heroicons SVG, outline by default, filled when active */
+.tab-icon-outline { display: block; width: 24px; height: 24px; }
+.tab-icon-filled { display: none; width: 24px; height: 24px; }
+.bottom-tab.active .tab-icon-outline { display: none; }
+.bottom-tab.active .tab-icon-filled { display: block; }
+
+/* Tab icon wrapper (used for Android indicator pill) */
+.tab-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── iOS Liquid Glass floating tab bar ──────────────────────────────
+   iOS 26 HIG: floating pill, horizontally centered, 68pt tall,
+   liquid glass backdrop, active tab has inner frosted pill           */
+.platform-ios .bottom-nav {
+    /* Float above content, full width minus FAB space on right */
+    left: max(16px, calc(50% - 240px + 16px));
+    right: max(96px, calc(50% - 240px + 96px));
+    transform: none;
+    width: auto;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    height: 68px;
+    padding: 6px 8px;
+
+    /* Pill shape */
+    border-radius: 34px;
+    border-top: none;
+
+    /* Liquid glass */
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(48px) saturate(200%) brightness(112%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(112%);
+
+    /* Floating shadow + inner highlight stroke */
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+}
+
+.platform-ios .bottom-tab {
+    color: rgba(60, 60, 67, 0.55);
+    font-size: 10px;
+    font-weight: 500;
+    gap: 3px;
+    padding: 0 14px;
+    border-radius: 26px;
+    transition: color 0.15s;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.platform-ios .bottom-tab i {
+    font-size: 22px;
+}
+
+.platform-ios .bottom-tab.active {
+    color: var(--brandColor);
+    font-weight: 500;
+    /* Inner frosted pill on active tab */
+    background: var(--grey);
+    border: #EFEFEF;
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.9),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Material Design 3 navigation bar ───────────────────────────────
+   M3: 80dp bar, 24dp icons, 12sp/500 labels, 64×32dp indicator pill
+   behind icon in secondary-container color on active tab             */
+.platform-android .bottom-nav {
+    border-top: none;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.08), 0 -1px 2px rgba(0,0,0,0.06);
+    padding-top: 10px;
+    padding-bottom:20px;
+    align-items: center;
+}
+
+.platform-android .bottom-tab {
+    color: #49454F;
+    font-size: 12px;
+    font-weight: 500;
+    gap: 4px;
+}
+
+.platform-android .bottom-tab i {
+    font-size: 24px;
+}
+
+.platform-android .bottom-tab .tab-icon {
+    width: 64px;
+    height: 32px;
+    border-radius: 16px;
+    transition: background 0.2s;
+}
+
+.platform-android .bottom-tab.active .tab-icon {
+    background: var(--brandColor-light);
+}
+
+.platform-android .bottom-tab.active {
+    color: var(--brandColor);
+    font-weight: 500;
 }
 
 main {
@@ -366,6 +474,10 @@ main {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding: 0 0 calc(100px + 60px + env(safe-area-inset-bottom));
+}
+
+.platform-ios main {
+    padding: 0 0 calc(68px + 48px + env(safe-area-inset-bottom));
 }
 
 /* Loading */
@@ -944,7 +1056,7 @@ main {
 /* FAB */
 .fab {
     position: fixed;
-    bottom: calc(44px + 60px + env(safe-area-inset-bottom));
+    bottom: 120px;
     right: max(24px, calc(50% - 240px + 24px));
     background: var(--brandColor);
     color: #ffffff;
@@ -952,7 +1064,7 @@ main {
     border-radius: 50%;
     width: 52px;
     height: 52px;
-    font-size: 1.5em;
+    font-size: 1.75em;
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(0,87,255,0.45);
     display: flex;
@@ -1443,6 +1555,22 @@ main {
     display: none;
 }
 
+.platform-ios .fab {
+    bottom: calc(max(24px, env(safe-area-inset-bottom)) + 4px);
+    right: max(16px, calc(50% - 240px + 16px));
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(48px) saturate(200%) brightness(112%);
+    color: #222222;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08), inset 0 0 0 0.5px rgba(255,255,255,0.7);
+}
+
+.platform-android .fab {
+    width: 56px;
+    height: 56px;
+}
+
 /* Week menu */
 .meal-day-section {
     margin-bottom: 0;
@@ -1561,13 +1689,13 @@ main {
     text-decoration: underline;
 }
 
-#mealSheet {
+#mealSheet, #catalogSheet {
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 60px;
 }
 
-#mealSheet .modal-input {
+#mealSheet .modal-input, #catalogSheet .modal-input {
     display: block;
     width: 100%;
 }
