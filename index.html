@@ -701,13 +701,12 @@ function renderMealItem(id, meal) {
   ).join('');
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
     <div class="meal-card" id="meal-${id}">
-      <div class="item-checkbox" onclick="checkMeal('${id}')"></div>
+      <button class="${badgeClass}" onclick="toggleDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
       <div class="meal-info">
         <div class="item-name">${meal.label}</div>
         ${refHtml}
       </div>
-      <button class="${badgeClass}" onclick="toggleDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
-      <button class="item-action-btn" onclick="removeMeal('${id}')"><i class="lni lni-trash-3" style="color:#777;"></i></button>
+      <button class="item-action-btn" onclick="checkMeal('${id}')"><i class="lni lni-check-circle-1" style="color:#777;"></i></button>
     </div>
     <div class="meal-inline-picker hidden" id="daypicker-${id}">
       ${pickerChips}
