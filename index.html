@@ -159,8 +159,11 @@
     <span class="sheet-header-title">Maaltijd toevoegen</span>
     <button class="sheet-btn-submit" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
   </div>
+  <label class="sheet-field-label">Maaltijd</label>
   <input type="text" id="mealLabelInput" class="modal-input mb-10" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('mealSaveBtn').disabled=!this.value.trim()">
-  <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="Recept URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <label class="sheet-field-label">Recept</label>
+  <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <label class="sheet-field-label">Dag</label>
   <div class="day-chips mb-10" id="mealDayChips">
     <button class="day-chip" data-day="monday" onclick="selectDayChip(this)">Ma</button>
     <button class="day-chip" data-day="tuesday" onclick="selectDayChip(this)">Di</button>
@@ -850,9 +853,11 @@ window.selectDayChip = function(el) {
 
 window.openCatalogSheet = function() {
   const select = document.getElementById('catalogCatSelect');
-  select.innerHTML = Object.entries(CAT_META).map(([,m]) =>
-    `<option value="${m.id}">${m.emoji} ${catName(m.id)}</option>`
-  ).join('');
+  const seen = new Set();
+  select.innerHTML = Object.values(CAT_META)
+    .filter(m => !seen.has(m.id) && seen.add(m.id))
+    .map(m => `<option value="${m.id}">${m.emoji} ${catName(m.id)}</option>`)
+    .join('');
   document.getElementById('catalogNameInput').value = '';
   document.getElementById('catalogSaveBtn').disabled = true;
   document.getElementById('catalogSheet').classList.add('open');
