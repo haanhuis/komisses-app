@@ -497,7 +497,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v23';
+const APP_VERSION = 'v24';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -1261,7 +1261,14 @@ function renderFabResults(val) {
   const modal = document.getElementById('fabSearchModal');
   
   if (!q) {
-    const recentHistory = [...loadHistory()].reverse().slice(0, 4);
+    const recentHistory = [...loadHistory()].reverse()
+      .filter(entry => {
+        const sep = entry.lastIndexOf('|');
+        const name = entry.slice(0, sep);
+        const catId = entry.slice(sep + 1);
+        return !Object.values(list).find(i => i.name===name && i.catId===catId && !i.checked);
+      })
+      .slice(0, 4);
     if (recentHistory.length === 0) {
       container.innerHTML = '';
       modal.classList.remove('with-results');
@@ -1275,8 +1282,10 @@ function renderFabResults(val) {
           const catId = entry.slice(sep + 1);
           const cat = CATEGORIES.find(c => c.id === catId);
           const k = 'fab_recent_' + catId + '_' + name.replace(/\W/g,'_');
+          const inList = Object.values(list).find(i => i.name===name && i.catId===catId && !i.checked);
           return `<div class="search-result-item" onclick="fabAdd('${catId}','${name.replace(/'/g,"\\'")}','${k}')" id="${k}">
             <span class="sri-name">${name}</span>
+            ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : ''}
           </div>`;
         }).join('');
       modal.classList.add('with-results');
@@ -1322,6 +1331,7 @@ function renderFabResults(val) {
     const k = 'fab_' + m.catId + '_' + m.name.replace(/\W/g,'_');
     return `<div class="search-result-item" onclick="fabAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')" id="${k}" ${m.used ? 'style="background:#fafff6;"' : ''}>
       <span class="sri-name">${m.name}</span>
+      ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : ''}
     </div>`;
   }).join('');
 

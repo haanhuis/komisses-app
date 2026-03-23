@@ -283,6 +283,14 @@ body {
     min-width: 0;
 }
 
+.sri-added {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--brandColor);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .sri-cat {
     font-size: 12px;
     color: var(--text-muted);
