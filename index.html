@@ -1305,7 +1305,7 @@ function renderFabResults(val) {
         const catId = entry.slice(sep + 1);
         return !Object.values(list).find(i => i.name===name && i.catId===catId && !i.checked);
       })
-      .slice(0, 8);
+      .slice(0, 5);
     if (recentHistory.length === 0) {
       container.innerHTML = '';
       modal.classList.remove('with-results');
