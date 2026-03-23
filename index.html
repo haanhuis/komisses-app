@@ -851,7 +851,9 @@ window.openMealSheet = function() {
 };
 
 window.closeMealSheet = function() {
-  document.getElementById('mealSheet').classList.remove('open');
+  const sheet = document.getElementById('mealSheet');
+  sheet.classList.remove('open');
+  sheet.style.bottom = '';
   document.getElementById('sheetOverlay').classList.remove('show');
 };
 
@@ -1193,9 +1195,15 @@ function positionCatalogSheet() {
   if (!sheet.classList.contains('open')) return;
   sheet.style.bottom = getKeyboardOffset() + 'px';
 }
+function positionMealSheet() {
+  const sheet = document.getElementById('mealSheet');
+  if (!sheet.classList.contains('open')) return;
+  sheet.style.bottom = getKeyboardOffset() + 'px';
+}
 function onViewportChange() {
   positionFabSheet();
   positionCatalogSheet();
+  positionMealSheet();
 }
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onViewportChange);
