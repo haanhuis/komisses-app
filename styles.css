@@ -49,7 +49,7 @@ body {
 }
 
 .sync-bar.error {
-    height: 3px;
+    height: 0;
 }
 
 .sync-bar.syncing::after {
