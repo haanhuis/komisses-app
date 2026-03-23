@@ -183,6 +183,84 @@
   <select id="catalogCatSelect" class="modal-input mb-10"></select>
 </div>
 
+<div id="generatorSheet" class="bottom-sheet generator-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <button class="sheet-btn-cancel" onclick="closeGeneratorSheet()">Annuleren</button>
+    <span class="sheet-header-title">Week menu</span>
+    <button class="sheet-btn-submit" onclick="handleGenerate()">Genereer</button>
+  </div>
+  <div class="generator-scroll">
+
+    <div class="gen-section">
+      <p class="gen-label">Aantal recepten</p>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <button onclick="genAdjCount(-1)" class="gen-stepper-btn">−</button>
+        <span id="gen-count-display" style="font-size:28px;font-weight:500;color:var(--text);min-width:24px;text-align:center;">5</span>
+        <button onclick="genAdjCount(1)" class="gen-stepper-btn">+</button>
+        <span style="font-size:13px;color:var(--text-muted);">recepten voor de week</span>
+      </div>
+    </div>
+
+    <div class="gen-section">
+      <p class="gen-label">Voorkeur</p>
+      <div style="display:flex;gap:8px;">
+        <button id="gen-pref-vegi" class="gen-pref-btn" onclick="genSetPref('vegi')">Vegetarisch</button>
+        <button id="gen-pref-vegan" class="gen-pref-btn" onclick="genSetPref('vegan')">Veganistisch</button>
+        <button id="gen-pref-any" class="gen-pref-btn on" onclick="genSetPref('any')">Maakt niet uit</button>
+      </div>
+      <div id="gen-split-panel" style="display:none;margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+          <span id="gen-slider-question" style="font-size:13px;color:var(--text-muted);">Hoeveel vegetarisch?</span>
+          <span id="gen-split-label" style="font-size:13px;font-weight:500;color:var(--text);">2 van 5</span>
+        </div>
+        <div style="position:relative;padding-bottom:24px;">
+          <input type="range" id="gen-vegi-slider" min="0" max="5" step="1" value="2" oninput="genOnSliderChange()" style="width:100%;" />
+          <div id="gen-tick-row" style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:0 9px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gen-section">
+      <p class="gen-label">Keuken</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-tog" data-k="pasta" onclick="genToggle(this)">Pasta</button>
+        <button class="gen-tog" data-k="stew" onclick="genToggle(this)">Stoofpot</button>
+        <button class="gen-tog" data-k="curry" onclick="genToggle(this)">Curry</button>
+        <button class="gen-tog" data-k="flemish" onclick="genToggle(this)">Vlaamse keuken</button>
+        <button class="gen-tog" data-k="indian" onclick="genToggle(this)">Indiaas</button>
+        <button class="gen-tog" data-k="chinese" onclick="genToggle(this)">Chinees</button>
+        <button class="gen-tog" data-k="italian" onclick="genToggle(this)">Italiaans</button>
+        <button class="gen-tog" data-k="ramen" onclick="genToggle(this)">Ramen</button>
+        <button class="gen-tog" data-k="eastern" onclick="genToggle(this)">Oosters</button>
+        <button class="gen-tog" data-k="ottolenghi" onclick="genToggle(this)">Ottolenghi</button>
+      </div>
+    </div>
+
+    <div class="gen-section">
+      <p class="gen-label">Karakter</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-tog" data-k="light" onclick="genToggle(this)">Licht</button>
+        <button class="gen-tog" data-k="fast" onclick="genToggle(this)">Snel klaar</button>
+        <button class="gen-tog" data-k="comfort" onclick="genToggle(this)">Comfort food</button>
+      </div>
+    </div>
+
+    <div class="gen-section" style="border-bottom:none;">
+      <p class="gen-label">Dieetwensen</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-tog" data-k="lactose" onclick="genToggle(this)">Lactosevrij</button>
+        <button class="gen-tog" data-k="gluten" onclick="genToggle(this)">Glutenvrij</button>
+        <button class="gen-tog" data-k="nuts" onclick="genToggle(this)">Notenvrij</button>
+        <button class="gen-tog" data-k="soy" onclick="genToggle(this)">Sojavrij</button>
+        <button class="gen-tog" data-k="lowcarb" onclick="genToggle(this)">Koolhydraatarm</button>
+        <button class="gen-tog" data-k="halal" onclick="genToggle(this)">Halal</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
 
 <div id="localeSheet" class="bottom-sheet">
@@ -503,7 +581,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v26';
+const APP_VERSION = 'v27';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -681,7 +759,7 @@ function renderWeekMenu() {
   const meals = Object.entries(weekmenu);
 
   if (meals.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()">✨ ${t('weekmenu_generate_btn')}</button></div>`;
     return;
   }
 
@@ -1408,7 +1486,96 @@ window.closeAllSheets = function() {
   closeFabSearch();
   closeMealSheet();
   closeCatalogSheet();
+  closeGeneratorSheet();
 };
+
+// ── Generator sheet ───────────────────────────────────────────────────
+let genCount = 5;
+let genSplitCount = 2;
+let genPref = 'any';
+const genState = {};
+
+window.openGeneratorSheet = function() {
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.getElementById('generatorSheet').classList.add('open');
+};
+window.closeGeneratorSheet = function() {
+  document.getElementById('generatorSheet').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('open');
+};
+window.genAdjCount = function(d) {
+  genCount = Math.max(1, Math.min(14, genCount + d));
+  document.getElementById('gen-count-display').textContent = genCount;
+  if (genPref === 'vegi' || genPref === 'vegan') genUpdateSliderUI();
+};
+window.genSetPref = function(p) {
+  genPref = p;
+  document.querySelectorAll('.gen-pref-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('gen-pref-' + p).classList.add('on');
+  const panel = document.getElementById('gen-split-panel');
+  if (p === 'vegi' || p === 'vegan') {
+    panel.style.display = 'block';
+    document.getElementById('gen-slider-question').textContent = p === 'vegi' ? 'Hoeveel vegetarisch?' : 'Hoeveel veganistisch?';
+    if (genSplitCount === 0) genSplitCount = Math.ceil(genCount / 2);
+    genUpdateSliderUI();
+  } else {
+    panel.style.display = 'none';
+    genSplitCount = 0;
+  }
+};
+window.genOnSliderChange = function() {
+  genSplitCount = parseInt(document.getElementById('gen-vegi-slider').value);
+  genUpdateSliderUI();
+};
+function genUpdateSliderUI() {
+  const slider = document.getElementById('gen-vegi-slider');
+  slider.max = genCount;
+  if (genSplitCount > genCount) genSplitCount = genCount;
+  slider.value = genSplitCount;
+  const label = genSplitCount === 0 ? 'Geen' : genSplitCount === genCount ? 'Alle' : `${genSplitCount} van ${genCount}`;
+  document.getElementById('gen-split-label').textContent = label;
+  const pct = genCount > 0 ? (genSplitCount / genCount) * 100 : 0;
+  slider.style.background = `linear-gradient(to right, var(--brandColor) 0%, var(--brandColor) ${pct}%, var(--grey-mid) ${pct}%, var(--grey-mid) 100%)`;
+  const row = document.getElementById('gen-tick-row');
+  row.innerHTML = '';
+  for (let i = 0; i <= genCount; i++) {
+    const t = document.createElement('div');
+    t.className = 'gen-tick-label';
+    t.textContent = i;
+    row.appendChild(t);
+  }
+}
+window.genToggle = function(btn) {
+  btn.classList.toggle('on');
+  genState[btn.dataset.k] = btn.classList.contains('on');
+};
+window.handleGenerate = function() {
+  const on = k => genState[k];
+  const styles = ['pasta','stew','curry','flemish','indian','chinese','italian','ramen','eastern','ottolenghi'].filter(on);
+  const restr  = ['lactose','gluten','nuts','soy','lowcarb','halal'].filter(on);
+  const chars  = ['light','fast','comfort'].filter(on).map(k => k === 'comfort' ? 'comfort food' : k);
+
+  let prompt = `Generate a week menu with ${genCount} dinner recipes. Search the web for real recipes.`;
+  if (genPref === 'vegan') {
+    if (genSplitCount === genCount) prompt += ' All recipes must be vegan.';
+    else prompt += ` ${genSplitCount} recipes must be vegan, ${genCount - genSplitCount} can include meat or dairy.`;
+  } else if (genPref === 'vegi') {
+    if (genSplitCount === genCount) prompt += ' All recipes must be vegetarian.';
+    else if (genSplitCount > 0) prompt += ` ${genSplitCount} recipes must be vegetarian, ${genCount - genSplitCount} can include meat.`;
+  }
+  if (styles.length) prompt += ` Cuisine styles to draw from: ${styles.join(', ')}.`;
+  if (chars.length) prompt += ` Meal character: ${chars.join(', ')}.`;
+  if (restr.length) prompt += ` Dietary restrictions for all recipes: ${restr.join(', ')}.`;
+  prompt += ' For each recipe provide the name, a source URL, prep time, and a one-line description.';
+
+  closeGeneratorSheet();
+  sendPrompt(prompt);
+};
+function sendPrompt(prompt) {
+  // TODO: wire up to AI / recipe search API
+  console.log('[Generator] prompt:', prompt);
+  showToast('Recepten zoeken... (binnenkort beschikbaar)');
+}
 window.menuCheckAll = function() {
   closeMenu();
   const unchecked = Object.entries(list).filter(([,i]) => !i.checked);
