@@ -36,6 +36,7 @@ body {
 
 /* Sync bar */
 .sync-bar {
+    display: none;
     height: 0;
     background: transparent;
     position: relative;
@@ -45,10 +46,12 @@ body {
 }
 
 .sync-bar.syncing {
+    display: block;
     height: 3px;
 }
 
 .sync-bar.error {
+    display: block;    
     height: 0;
 }
 
