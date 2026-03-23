@@ -700,8 +700,9 @@ main {
 }
 
 .item-action-btn {
-    width: 28px;
-    height: 28px;
+    position: relative;
+    width: 34px;
+    height: 34px;
     border: none;
     border-radius: 7px;
     background: var(--grey);
@@ -709,8 +710,17 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
     transition: background 0.12s;
+}
+.item-action-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
 }
 
 .item-action-btn:active {
@@ -1584,8 +1594,9 @@ main {
 }
 
 .meal-day-badge {
-    width: 28px;
-    height: 28px;
+    position: relative;
+    width: 34px;
+    height: 34px;
     border: none;
     border-radius: 7px;
     background: var(--grey);
@@ -1593,10 +1604,19 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
     color: var(--text-muted);
     transition: background 0.12s;
     flex-shrink: 0;
+}
+.meal-day-badge::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
 }
 
 .meal-day-badge:active {
