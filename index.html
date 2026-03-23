@@ -141,20 +141,24 @@
 
 <div class="modal-overlay" id="customModal">
   <div class="modal-box">
-    <div class="modal-title" id="customModalTitle">➕ Product toevoegen</div>
+    <div class="sheet-header">
+      <button class="sheet-btn-cancel" onclick="closeCustom()" id="customCancelBtn">Annuleren</button>
+      <span class="sheet-header-title" id="customModalTitle">Product toevoegen</span>
+      <button class="sheet-btn-submit" onclick="saveCustom()" id="customSaveBtn">Toevoegen</button>
+    </div>
     <input type="text" class="modal-input mb-10" id="customName" placeholder="Productnaam...">
     <select class="modal-input" id="customCat"></select>
-    <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeCustom()" id="customCancelBtn">Annuleren</button>
-      <button class="btn btn-primary" onclick="saveCustom()" id="customSaveBtn">Toevoegen</button>
-    </div>
   </div>
 </div>
 
 
 <div id="mealSheet" class="bottom-sheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">Maaltijd toevoegen</div>
+  <div class="sheet-header">
+    <button class="sheet-btn-cancel" onclick="closeMealSheet()">Annuleren</button>
+    <span class="sheet-header-title">Maaltijd toevoegen</span>
+    <button class="sheet-btn-submit" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
+  </div>
   <input type="text" id="mealLabelInput" class="modal-input mb-10" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('mealSaveBtn').disabled=!this.value.trim()">
   <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="Recept URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
   <div class="day-chips mb-10" id="mealDayChips">
@@ -166,15 +170,17 @@
     <button class="day-chip" data-day="saturday" onclick="selectDayChip(this)">Za</button>
     <button class="day-chip" data-day="sunday" onclick="selectDayChip(this)">Zo</button>
   </div>
-  <button class="btn btn-primary w-full" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
 </div>
 
 <div id="catalogSheet" class="bottom-sheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">Product toevoegen aan catalogus</div>
+  <div class="sheet-header">
+    <button class="sheet-btn-cancel" onclick="closeCatalogSheet()">Annuleren</button>
+    <span class="sheet-header-title">Product toevoegen</span>
+    <button class="sheet-btn-submit" onclick="saveCatalogProduct()" id="catalogSaveBtn" disabled>Toevoegen</button>
+  </div>
   <input type="text" id="catalogNameInput" class="modal-input mb-10" placeholder="Productnaam..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('catalogSaveBtn').disabled=!this.value.trim()">
   <select id="catalogCatSelect" class="modal-input mb-10"></select>
-  <button class="btn btn-primary w-full" onclick="saveCatalogProduct()" id="catalogSaveBtn" disabled>Toevoegen</button>
 </div>
 
 <div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
@@ -488,7 +494,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v21';
+const APP_VERSION = 'v22';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -690,9 +696,8 @@ function renderWeekMenu() {
   getOrderedDays().forEach(day => {
     const items = byDay[day];
     if (!items || !items.length) return;
-    const todayPill = day === todayKey ? `<span class="today-pill">Vandaag</span>` : '';
     html += `<div class="meal-day-section">
-      <div class="meal-day-header">${WEEK_DAY_LABELS[day]}${todayPill}</div>
+      <div class="meal-day-header${day === todayKey ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]}</div>
       <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
     </div>`;
   });
@@ -713,8 +718,9 @@ function renderMealItem(id, meal) {
     }
   }
   const badgeClass = meal.day ? 'meal-day-badge meal-day-badge--set' : 'meal-day-badge';
-  const pickerChips = WEEK_DAYS.map(d =>
-    `<button class="day-chip${meal.day===d?' active':''}" data-day="${d}" onclick="changeMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
+  const todayKey = WEEK_DAYS[new Date().getDay()];
+  const pickerChips = [...WEEK_DAYS.slice(1), WEEK_DAYS[0]].map(d =>
+    `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" data-day="${d}" onclick="changeMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
   ).join('');
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
     <div class="meal-card" id="meal-${id}">
@@ -740,9 +746,12 @@ window.toggleDayPicker = function(id) {
 
 window.changeMealDay = function(id, day) {
   const current = weekmenu[id]?.day || null;
-  const newDay = day === current ? null : day;
   setSyncBar('syncing');
-  update(ref(db,'lists/'+listId+'/weekmenu/'+id), {day: newDay});
+  if (day === current) {
+    remove(ref(db, 'lists/'+listId+'/weekmenu/'+id+'/day'));
+  } else {
+    update(ref(db, 'lists/'+listId+'/weekmenu/'+id), {day});
+  }
   const picker = document.getElementById('daypicker-'+id);
   if (picker) picker.classList.add('hidden');
 };
@@ -801,8 +810,9 @@ window.removeMeal = function(id) {
 };
 
 window.selectDayChip = function(el) {
+  const isActive = el.classList.contains('active');
   document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
+  if (!isActive) el.classList.add('active');
 };
 
 window.openCatalogSheet = function() {
@@ -990,9 +1000,10 @@ window.saveNote = function() {
 };
 
 // ── Custom product ─────────────────────────────────────────────────────
-window.openCustom = function() {
+window.openCustom = function(prefill) {
+  closeFabSearch();
   document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
-  document.getElementById('customName').value = '';
+  document.getElementById('customName').value = prefill || '';
   document.getElementById('customModal').classList.add('show');
   setTimeout(() => document.getElementById('customName').focus(), 100);
 };
@@ -1078,11 +1089,9 @@ window.searchAdd = function(catId, name, k) {
 };
 window.showDropdown = function() { const v=document.getElementById('searchInput').value; if(v.trim()) doSearch(v); };
 window.openCustomFromSearch = function(val) {
-  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
-  document.getElementById('customName').value = val;
-  document.getElementById('customModal').classList.add('show');
   document.getElementById('searchDropdown').classList.remove('show');
   document.getElementById('searchInput').value = '';
+  openCustom(val);
 };
 document.addEventListener('click', e => {
   const dd = document.getElementById('searchDropdown');
@@ -1344,10 +1353,8 @@ window.fabAdd = function(catId, name, k) {
 };
 
 window.fabAddNew = function(val) {
-  // Pre-fill and open the custom modal
-  document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
-  document.getElementById('customName').value = val;
-  document.getElementById('customModal').classList.add('show');
+  closeFabSearch();
+  openCustom(val);
 };
 
 // When saving a custom product, also add it to the CATEGORIES catalogue

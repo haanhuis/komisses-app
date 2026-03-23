@@ -1,4 +1,4 @@
-const VERSION      = 'v21';
+const VERSION      = 'v22';
 const STATIC_CACHE = `komisses-static-${VERSION}`;
 const HTML_CACHE   = `komisses-html-${VERSION}`;
 

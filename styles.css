@@ -918,8 +918,14 @@ main {
 .modal-box {
     background: white;
     border-radius: 20px 20px 0 0;
-    padding: 20px 20px 40px;
+    padding: 12px 20px 40px;
     width: min(480px,100vw);
+}
+.modal-box .sheet-header {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .modal-title {
@@ -1175,8 +1181,8 @@ main {
 .today-pill {
     font-size: 11px;
     font-weight: 600;
-    color: var(--brandColor);
-    border: 1.5px solid var(--brandColor);
+    color: var(--text-muted);
+    border: 1.5px solid var(--grey-mid);
     border-radius: 20px;
     padding: 2px 8px;
     line-height: 1.4;
@@ -1301,6 +1307,47 @@ main {
     letter-spacing: 0.06em;
     border-bottom: 1px solid var(--grey-mid);
     flex-shrink: 0;
+}
+.sheet-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 4px 4px 12px;
+    border-bottom: 1px solid var(--grey-mid);
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+.sheet-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    white-space: nowrap;
+}
+.sheet-btn-cancel {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    text-align: left;
+    min-height: 44px;
+}
+.sheet-btn-submit {
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--brandColor);
+    cursor: pointer;
+    padding: 8px;
+    text-align: right;
+    min-height: 44px;
+}
+.sheet-btn-submit:disabled {
+    color: var(--text-muted);
+    cursor: default;
 }
 
 .menu-header {
@@ -1659,6 +1706,10 @@ main {
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
+.meal-day-header--today {
+    color: var(--brandColor);
+    background: var(--brandColor-light);
+}
 
 .meal-day-items {
     display: flex;
@@ -1713,7 +1764,13 @@ main {
 #mealSheet, #catalogSheet {
     padding-left: 20px;
     padding-right: 20px;
-    padding-bottom: 60px;
+    padding-bottom: 32px;
+}
+#mealSheet .sheet-header, #catalogSheet .sheet-header {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 #mealSheet .modal-input, #catalogSheet .modal-input {
@@ -1744,5 +1801,12 @@ main {
 .day-chip.active {
     border-color: var(--brandColor);
     background: var(--brandColor-light);
+    color: var(--brandColor);
+}
+.day-chip.today {
+    color: var(--brandColor);
+    font-weight: 700;
+}
+.day-chip.today.active {
     color: var(--brandColor);
 }
