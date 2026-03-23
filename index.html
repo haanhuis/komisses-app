@@ -197,6 +197,9 @@
   <button class="locale-option" id="localeOptOi" onclick="selectLocale('oi')">
     <span class="locale-opt-code">OI</span><span class="locale-opt-name">Oilsjters</span>
   </button>
+  <button class="locale-option" id="localeOptEn" onclick="selectLocale('en')">
+    <span class="locale-opt-code">EN</span><span class="locale-opt-name">English</span>
+  </button>
 </div>
 
 <div id="menuPopup" class="bottom-sheet">
@@ -309,14 +312,16 @@ let LOCALES = {};
 
 async function loadLocales() {
   try {
-    const [nlResp, gentsResp, oiResp] = await Promise.all([
+    const [nlResp, gentsResp, oiResp, enResp] = await Promise.all([
       fetch('locales/nl.json'),
       fetch('locales/gents.json'),
       fetch('locales/oi.json'),
+      fetch('locales/en.json'),
     ]);
     LOCALES.nl = await nlResp.json();
     LOCALES.gents = await gentsResp.json();
     LOCALES.oi = await oiResp.json();
+    LOCALES.en = await enResp.json();
   } catch(err) {
     errorLog.push('[' + new Date().toISOString() + '] Locales: ' + err.message);
   }
@@ -327,13 +332,14 @@ function t(key) { return LOCALES[currentLocale]?.[key] ?? LOCALES.nl[key] ?? key
 function catName(catId) { return LOCALES[currentLocale]?.categories?.[catId] ?? LOCALES.nl.categories[catId] ?? catId; }
 
 function applyLocaleToDOM() {
-  const localeLabels = {nl: 'NL', gents: 'GE', oi: 'OI'};
+  const localeLabels = {nl: 'NL', gents: 'GE', oi: 'OI', en: 'EN'};
   // Locale button
   const lbl = document.getElementById('localeBtnLabel');
   if (lbl) lbl.textContent = localeLabels[currentLocale] ?? currentLocale.toUpperCase();
   document.getElementById('localeOptNl')?.classList.toggle('active', currentLocale === 'nl');
   document.getElementById('localeOptGents')?.classList.toggle('active', currentLocale === 'gents');
   document.getElementById('localeOptOi')?.classList.toggle('active', currentLocale === 'oi');
+  document.getElementById('localeOptEn')?.classList.toggle('active', currentLocale === 'en');
   // Loading
   const lt = document.getElementById('loadingText'); if (lt) lt.textContent = t('loading');
   // Newlist modal
@@ -497,7 +503,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v25';
+const APP_VERSION = 'v26';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
