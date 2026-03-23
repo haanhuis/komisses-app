@@ -1543,12 +1543,12 @@ main {
     height: auto;
 }
 .fab-search-modal.with-results {
-    height: 70vh;
+    height: 45vh;
 }
 
 
 .fab-search-header {
-    padding: 10px 16px 14px;
+    padding: 10px 16px 4px;
     flex-shrink: 0;
     border-top: 1px solid var(--grey-mid);
     display: flex;
