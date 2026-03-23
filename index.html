@@ -277,7 +277,7 @@
   <div id="fabSearchResults" class="fab-search-results"></div>
   <div class="fab-search-header">
     <form action="javascript:void(0)" onsubmit="closeFabSearch()" style="display:contents;">
-      <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" onkeyup="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
+      <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" onkeyup="if(event.key==='Enter') closeFabSearch()" onblur="setTimeout(function(){if(!document.getElementById('fabSearchModal').contains(document.activeElement))closeFabSearch();},150)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
       <button type="submit" hidden></button>
     </form>
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
