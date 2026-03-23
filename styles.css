@@ -290,6 +290,11 @@ body {
     white-space: nowrap;
     flex-shrink: 0;
 }
+.sri-recent {
+    font-size: 14px;
+    flex-shrink: 0;
+    opacity: 0.5;
+}
 
 .sri-cat {
     font-size: 12px;

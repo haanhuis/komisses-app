@@ -497,7 +497,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v24';
+const APP_VERSION = 'v25';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -1329,9 +1329,9 @@ function renderFabResults(val) {
   let html = matches.slice(0, 40).map(m => {
     const inList = Object.values(list).find(i => i.name===m.name && i.catId===m.catId && !i.checked);
     const k = 'fab_' + m.catId + '_' + m.name.replace(/\W/g,'_');
-    return `<div class="search-result-item" onclick="fabAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')" id="${k}" ${m.used ? 'style="background:#fafff6;"' : ''}>
+    return `<div class="search-result-item" onclick="fabAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')" id="${k}">
       <span class="sri-name">${m.name}</span>
-      ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : ''}
+      ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : m.used ? `<span class="sri-recent">🕐</span>` : ''}
     </div>`;
   }).join('');
 
