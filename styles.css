@@ -312,7 +312,7 @@ body {
     display: flex;
     z-index: 100;
     padding-bottom: 35px;
-    padding-top: 10px
+    padding-top: 20px
 }
 
 .bottom-tab {
@@ -416,7 +416,7 @@ main {
     align-items: center;
     justify-content: space-between;
     background: var(--grey);
-    padding: 13px 16px;
+    padding: 10px 16px;
     cursor: pointer;
     user-select: none;
     transition: background 0.12s;
@@ -843,6 +843,11 @@ main {
     color: white;
 }
 
+.btn-primary:disabled {
+    background: var(--grey-mid);
+    cursor: default;
+}
+
 .btn-secondary {
     background: var(--grey);
     color: var(--text);
@@ -1026,6 +1031,34 @@ main {
     transform: translateX(-50%) translateY(0);
 }
 
+.meal-toast {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.meal-toast-undo {
+    background: none;
+    border: none;
+    color: #6ab0ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.today-pill {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--brandColor);
+    border: 1.5px solid var(--brandColor);
+    border-radius: 20px;
+    padding: 2px 8px;
+    line-height: 1.4;
+}
+
 /* New list modal */
 .newlist-modal {
     position: fixed;
@@ -1102,7 +1135,7 @@ main {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.4);
-    z-index: 450;
+    z-index: 509;
     display: none;
 }
 .sheet-overlay.show {
@@ -1118,7 +1151,7 @@ main {
     background: white;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.14);
-    z-index: 451;
+    z-index: 510;
     display: flex;
     flex-direction: column;
     transform: translateY(100%);
@@ -1404,4 +1437,163 @@ main {
 .lni{
     display: inline-flex;
     align-items: center;
+}
+
+.fab.fab-hidden {
+    display: none;
+}
+
+/* Week menu */
+.meal-day-section {
+    margin-bottom: 0;
+}
+
+.meal-card-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.meal-day-badge {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 7px;
+    background: var(--grey);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: background 0.12s;
+    flex-shrink: 0;
+}
+
+.meal-day-badge:active {
+    background: var(--grey-mid);
+}
+
+
+.meal-inline-picker {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    padding: 6px 14px 8px;
+    background: white;
+}
+
+.meal-inline-picker.hidden {
+    display: none;
+}
+
+.meal-inline-picker .day-chip {
+    font-size: 12px;
+    padding: 6px 0;
+}
+
+.day-chip--clear {
+    flex: 0 0 auto;
+    padding: 6px 10px !important;
+    color: var(--text-muted);
+}
+
+.meal-day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--grey);
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.meal-day-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.meal-card {
+    background: white;
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: opacity 0.3s, transform 0.3s, max-height 0.35s, padding 0.35s;
+    margin: 0 0 0 0;
+}
+
+.meal-card.checking {
+    opacity: 0;
+    transform: translateX(60px);
+    pointer-events: none;
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.meal-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.meal-ref {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meal-ref-link {
+    color: var(--brandColor);
+    text-decoration: none;
+}
+
+.meal-ref-link:active {
+    text-decoration: underline;
+}
+
+#mealSheet {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 60px;
+}
+
+#mealSheet .modal-input {
+    display: block;
+    width: 100%;
+}
+
+.day-chips {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.day-chip {
+    flex: 1;
+    padding: 8px 0;
+    border: 2px solid var(--grey-mid);
+    border-radius: 10px;
+    background: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.day-chip.active {
+    border-color: var(--brandColor);
+    background: var(--brandColor-light);
+    color: var(--brandColor);
 }

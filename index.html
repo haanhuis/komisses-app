@@ -85,6 +85,10 @@
     <i class="lni lni-eye"></i>
     <span>Bladeren</span>
   </button>
+  <button class="bottom-tab" id="tab-weekmenu" onclick="switchTab('weekmenu')">
+    <i class="lni lni-knife-fork-1"></i>
+    <span>Week menu</span>
+  </button>
 </nav>
 
 <main id="main"></main>
@@ -138,6 +142,23 @@
   </div>
 </div>
 
+
+<div id="mealSheet" class="bottom-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Maaltijd toevoegen</div>
+  <input type="text" id="mealLabelInput" class="modal-input mb-10" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('mealSaveBtn').disabled=!this.value.trim()">
+  <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="Recept URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <div class="day-chips mb-10" id="mealDayChips">
+    <button class="day-chip" data-day="monday" onclick="selectDayChip(this)">Ma</button>
+    <button class="day-chip" data-day="tuesday" onclick="selectDayChip(this)">Di</button>
+    <button class="day-chip" data-day="wednesday" onclick="selectDayChip(this)">Wo</button>
+    <button class="day-chip" data-day="thursday" onclick="selectDayChip(this)">Do</button>
+    <button class="day-chip" data-day="friday" onclick="selectDayChip(this)">Vr</button>
+    <button class="day-chip" data-day="saturday" onclick="selectDayChip(this)">Za</button>
+    <button class="day-chip" data-day="sunday" onclick="selectDayChip(this)">Zo</button>
+  </div>
+  <button class="btn btn-primary w-full" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
+</div>
 
 <div id="sheetOverlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
 
@@ -238,6 +259,7 @@
 <label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" class="hidden-input" autocomplete="off">
 <div class="toast" id="toast"></div>
+<div class="toast meal-toast" id="mealToast">Maaltijd afgevinkt &nbsp;<button class="meal-toast-undo" onclick="undoCheckMeal()">Ongedaan maken</button></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -448,9 +470,14 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v17';
+const APP_VERSION = 'v18';
+
+const WEEK_DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const WEEK_DAY_LABELS = {sunday:'Zondag',monday:'Maandag',tuesday:'Dinsdag',wednesday:'Woensdag',thursday:'Donderdag',friday:'Vrijdag',saturday:'Zaterdag'};
+const WEEK_DAY_SHORT  = {sunday:'Zo',monday:'Ma',tuesday:'Di',wednesday:'Wo',thursday:'Do',friday:'Vr',saturday:'Za'};
 
 let list = {};
+let weekmenu = {};
 let currentTab = 'list';
 let noteTarget = null;
 let listId = null;
@@ -500,6 +527,7 @@ function initList(id) {
   onValue(dbRef, (snapshot) => {
     const data = snapshot.val() || {};
     list = data.items || {};
+    weekmenu = data.weekmenu || {};
     if (data.name) document.getElementById('listIdLabel').textContent = data.name;
     setSyncBar('ok');
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -517,6 +545,7 @@ function initList(id) {
 // ── Render ────────────────────────────────────────────────────────────
 function render() {
   if (currentTab === 'list') renderList();
+  else if (currentTab === 'weekmenu') renderWeekMenu();
   else renderBrowse();
   const count = Object.values(list).filter(i => !i.checked).length;
   const countEl = document.getElementById('listCount');
@@ -608,6 +637,188 @@ function renderBrowse() {
   html += `</div>`;
   main.innerHTML = html;
 }
+
+// ── Week menu ─────────────────────────────────────────────────────────
+function getOrderedDays() {
+  const todayIdx = new Date().getDay(); // 0=Sun, 1=Mon, ...
+  return [...WEEK_DAYS.slice(todayIdx), ...WEEK_DAYS.slice(0, todayIdx)];
+}
+
+function renderWeekMenu() {
+  const main = document.getElementById('main');
+  const meals = Object.entries(weekmenu);
+
+  if (meals.length === 0) {
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">Geen maaltijden gepland</div><div class="empty-sub">Tik op + om een maaltijd toe te voegen.</div></div>`;
+    return;
+  }
+
+  const unplanned = meals.filter(([,m]) => !m.day);
+  const byDay = {};
+  meals.filter(([,m]) => m.day).forEach(([id,m]) => {
+    if (!byDay[m.day]) byDay[m.day] = [];
+    byDay[m.day].push([id, m]);
+  });
+
+  let html = '';
+
+  if (unplanned.length) {
+    html += `<div class="meal-day-section">
+      <div class="meal-day-header">Niet gepland</div>
+      <div class="meal-day-items">${unplanned.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
+    </div>`;
+  }
+
+  const todayKey = WEEK_DAYS[new Date().getDay()];
+  getOrderedDays().forEach(day => {
+    const items = byDay[day];
+    if (!items || !items.length) return;
+    const todayPill = day === todayKey ? `<span class="today-pill">Vandaag</span>` : '';
+    html += `<div class="meal-day-section">
+      <div class="meal-day-header">${WEEK_DAY_LABELS[day]}${todayPill}</div>
+      <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
+    </div>`;
+  });
+
+  main.innerHTML = html;
+}
+
+function renderMealItem(id, meal) {
+  let refHtml = '';
+  if (meal.ref) {
+    const isUrl = meal.ref.startsWith('http://') || meal.ref.startsWith('https://');
+    if (isUrl) {
+      let label = meal.ref;
+      try { label = new URL(meal.ref).hostname.replace(/^www\./, ''); } catch {}
+      refHtml = `<a class="meal-ref meal-ref-link" href="${meal.ref}" target="_blank" rel="noopener">${label}</a>`;
+    } else {
+      refHtml = `<span class="meal-ref">${meal.ref}</span>`;
+    }
+  }
+  const badgeClass = meal.day ? 'meal-day-badge meal-day-badge--set' : 'meal-day-badge';
+  const pickerChips = WEEK_DAYS.map(d =>
+    `<button class="day-chip${meal.day===d?' active':''}" data-day="${d}" onclick="changeMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
+  ).join('');
+  return `<div class="meal-card-wrap" id="mealwrap-${id}">
+    <div class="meal-card" id="meal-${id}">
+      <div class="item-checkbox" onclick="checkMeal('${id}')"></div>
+      <div class="meal-info">
+        <div class="item-name">${meal.label}</div>
+        ${refHtml}
+      </div>
+      <button class="${badgeClass}" onclick="toggleDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
+      <button class="item-action-btn" onclick="removeMeal('${id}')"><i class="lni lni-trash-3" style="color:#777;"></i></button>
+    </div>
+    <div class="meal-inline-picker hidden" id="daypicker-${id}">
+      ${pickerChips}
+    </div>
+  </div>`;
+}
+
+window.toggleDayPicker = function(id) {
+  const picker = document.getElementById('daypicker-'+id);
+  const isOpen = !picker.classList.contains('hidden');
+  document.querySelectorAll('.meal-inline-picker').forEach(p => p.classList.add('hidden'));
+  if (!isOpen) picker.classList.remove('hidden');
+};
+
+window.changeMealDay = function(id, day) {
+  const current = weekmenu[id]?.day || null;
+  const newDay = day === current ? null : day;
+  setSyncBar('syncing');
+  update(ref(db,'lists/'+listId+'/weekmenu/'+id), {day: newDay});
+  const picker = document.getElementById('daypicker-'+id);
+  if (picker) picker.classList.add('hidden');
+};
+
+let mealUndoTimer = null;
+let mealUndoId = null;
+
+window.checkMeal = function(id) {
+  // Flush any previous pending delete immediately
+  if (mealUndoTimer) {
+    clearTimeout(mealUndoTimer);
+    mealUndoTimer = null;
+    if (mealUndoId) { setSyncBar('syncing'); remove(ref(db,'lists/'+listId+'/weekmenu/'+mealUndoId)); }
+    mealUndoId = null;
+  }
+  const el = document.getElementById('meal-'+id);
+  if (el) {
+    const cb = el.querySelector('.item-checkbox');
+    if (cb) cb.classList.add('checked');
+    el.classList.add('checking');
+  }
+  mealUndoId = id;
+  showMealToast();
+  mealUndoTimer = setTimeout(() => {
+    mealUndoTimer = null; mealUndoId = null;
+    hideMealToast();
+    setSyncBar('syncing');
+    remove(ref(db,'lists/'+listId+'/weekmenu/'+id));
+  }, 3000);
+};
+
+window.undoCheckMeal = function() {
+  if (mealUndoTimer) { clearTimeout(mealUndoTimer); mealUndoTimer = null; }
+  const id = mealUndoId; mealUndoId = null;
+  hideMealToast();
+  if (!id) return;
+  const el = document.getElementById('meal-'+id);
+  if (el) {
+    el.classList.remove('checking');
+    const cb = el.querySelector('.item-checkbox');
+    if (cb) cb.classList.remove('checked');
+  }
+};
+
+function showMealToast() {
+  const el = document.getElementById('mealToast');
+  el.classList.add('show');
+}
+function hideMealToast() {
+  document.getElementById('mealToast').classList.remove('show');
+}
+
+window.removeMeal = function(id) {
+  setSyncBar('syncing');
+  remove(ref(db,'lists/'+listId+'/weekmenu/'+id));
+};
+
+window.selectDayChip = function(el) {
+  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+};
+
+window.openMealSheet = function() {
+  hideMealToast();
+  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('mealLabelInput').value = '';
+  document.getElementById('mealRefInput').value = '';
+  document.getElementById('mealSaveBtn').disabled = true;
+  document.getElementById('mealSheet').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
+};
+
+window.closeMealSheet = function() {
+  document.getElementById('mealSheet').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('show');
+};
+
+window.saveMeal = function() {
+  const label = document.getElementById('mealLabelInput').value.trim();
+  if (!label) return;
+  const activeChip = document.querySelector('#mealDayChips .day-chip.active');
+  const day = activeChip?.dataset.day || null;
+  const recipeRef = document.getElementById('mealRefInput').value.trim() || null;
+  const meal = { label };
+  if (day) meal.day = day;
+  if (recipeRef) meal.ref = recipeRef;
+  setSyncBar('syncing');
+  const newRef = push(ref(db,'lists/'+listId+'/weekmenu'));
+  set(newRef, meal);
+  closeMealSheet();
+};
 
 // ── Actions ───────────────────────────────────────────────────────────
 window.toggleCat = function(catId) {
@@ -831,7 +1042,9 @@ document.addEventListener('click', e => {
 window.switchTab = function(tab) {
   currentTab = tab;
   document.getElementById('tab-list').classList.toggle('active', tab==='list');
+  document.getElementById('tab-weekmenu').classList.toggle('active', tab==='weekmenu');
   document.getElementById('tab-browse').classList.toggle('active', tab==='browse');
+  document.querySelector('.fab').classList.toggle('fab-hidden', tab==='browse');
   render();
 };
 
@@ -930,6 +1143,7 @@ if (window.visualViewport) {
 }
 
 window.openFabSearch = function() {
+  if (currentTab === 'weekmenu') { openMealSheet(); return; }
   const trigger = document.getElementById('fabTriggerInput');
   trigger.value = '';
   trigger.focus({ preventScroll: true });
@@ -1097,6 +1311,7 @@ window.closeAllSheets = function() {
   closeLocaleSheet();
   closeMenu();
   closeFabSearch();
+  closeMealSheet();
 };
 window.menuCheckAll = function() {
   closeMenu();
