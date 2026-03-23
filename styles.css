@@ -1568,8 +1568,10 @@ main {
 
 .fab-search-results {
     overflow-y: auto;
-    flex: 1;
     -webkit-overflow-scrolling: touch;
+}
+.fab-search-modal.with-results .fab-search-results {
+    flex: 1;
 }
 
 .fab-section-label {
