@@ -423,32 +423,48 @@ window.selectLocale = function(locale) {
 // ── Catalog ───────────────────────────────────────────────────────────
 const CAT_META = {
   'Dranken':                       {id:'dri', emoji:'🍺'},
+  'Drinks':                        {id:'dri', emoji:'🍺'},
   'Brood & gebak':                 {id:'bak', emoji:'🍞'},
+  'Bread & Bakery':                {id:'bak', emoji:'🍞'},
   'Gereed- en diepvriesproducten': {id:'fro', emoji:'🧊'},
+  'Ready meals & Frozen':          {id:'fro', emoji:'🧊'},
   'Fruit & Groenten':              {id:'fru', emoji:'🍅'},
+  'Fruit & Vegetables':            {id:'fru', emoji:'🍅'},
   'Graanproducten':                {id:'gra', emoji:'🌾'},
+  'Grains & Pasta':                {id:'gra', emoji:'🌾'},
   'Huishouden':                    {id:'cle', emoji:'🧹'},
+  'Household':                     {id:'cle', emoji:'🧹'},
   'Verzorging & Gezondheid':       {id:'hyg', emoji:'🧴'},
+  'Health & Beauty':               {id:'hyg', emoji:'🧴'},
   'Ingrediënten & Kruiden':        {id:'ing', emoji:'🫙'},
+  'Ingredients & Spices':          {id:'ing', emoji:'🫙'},
   'Vlees & Vis':                   {id:'mea', emoji:'🥩'},
+  'Meat & Fish':                   {id:'mea', emoji:'🥩'},
   'Zuivel':                        {id:'dai', emoji:'🧀'},
+  'Dairy':                         {id:'dai', emoji:'🧀'},
   'Dierenvoeding':                 {id:'pet', emoji:'🐾'},
+  'Pet food':                      {id:'pet', emoji:'🐾'},
   'Snacks & Snoep':                {id:'swe', emoji:'🍫'},
+  'Snacks & Sweets':               {id:'swe', emoji:'🍫'},
   'Ontbijt':                       {id:'ont', emoji:'🥣'},
+  'Breakfast':                     {id:'ont', emoji:'🥣'},
 };
 let CATEGORIES = [];
 let ALIASES = [];
 let catalogRaw = [];
+let catalogEn = [];
 let catalogGentsOverrides = {};
 let catalogOiOverrides = {};
 
 function buildCatalog() {
+  const isEn = currentLocale === 'en';
   const isGents = currentLocale === 'gents';
   const isOi = currentLocale === 'oi';
+  const catalog = isEn ? catalogEn : catalogRaw;
   const overrides = isGents ? catalogGentsOverrides : isOi ? catalogOiOverrides : {};
   const map = {}, order = [];
   ALIASES = [];
-  for (const item of catalogRaw) {
+  for (const item of catalog) {
     if (!item.product) continue;
     const {product, categorie, aliases} = item;
     const catMeta = CAT_META[categorie];
@@ -472,29 +488,38 @@ function buildCatalog() {
 }
 
 function localizeItemName(name, catId) {
-  // Find the NL canonical entry in the raw catalog (match by NL name or any locale override)
+  // Find the canonical entry in catalogRaw
   const rawEntry = catalogRaw.find(e => {
     const meta = CAT_META[e.categorie];
     if (!meta || meta.id !== catId) return false;
+    const index = catalogRaw.indexOf(e);
+    const enProduct = catalogEn[index]?.product;
     return e.product === name
       || catalogGentsOverrides[e.product] === name
-      || catalogOiOverrides[e.product] === name;
+      || catalogOiOverrides[e.product] === name
+      || enProduct === name;
   });
   if (!rawEntry) return name; // custom item, can't translate
+  const index = catalogRaw.indexOf(rawEntry);
   const overrides = currentLocale === 'gents' ? catalogGentsOverrides
                   : currentLocale === 'oi'    ? catalogOiOverrides
                   : {};
+  if (currentLocale === 'en') {
+    return catalogEn[index]?.product ?? rawEntry.product;
+  }
   return overrides[rawEntry.product] ?? rawEntry.product;
 }
 
 async function loadCatalog() {
   try {
-    const [catResp, gentsResp, oiResp] = await Promise.all([
+    const [catResp, enResp, gentsResp, oiResp] = await Promise.all([
       fetch('product_catalog.json'),
+      fetch('product_catalog_english.json').catch(() => null),
       fetch('product_catalog_gents.json').catch(() => null),
       fetch('product_catalog_oilsjters.json').catch(() => null),
     ]);
     catalogRaw = await catResp.json();
+    if (enResp) catalogEn = await enResp.json();
     if (gentsResp) catalogGentsOverrides = await gentsResp.json();
     if (oiResp) catalogOiOverrides = await oiResp.json();
   } catch(err) {
@@ -852,7 +877,8 @@ window.saveCatalogProduct = function() {
     cat.products.push(name);
     cat.products.sort();
   }
-  catalogRaw.push({ product: name, categorie: Object.keys(CAT_META).find(k => CAT_META[k].id === catId) });
+  const catalog = currentLocale === 'en' ? catalogEn : catalogRaw;
+  catalog.push({ product: name, categorie: Object.keys(CAT_META).find(k => CAT_META[k].id === catId) });
   showToast(`'${name}' toegevoegd aan catalogus`);
   closeCatalogSheet();
   if (currentTab === 'browse') renderBrowse();
