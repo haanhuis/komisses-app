@@ -274,7 +274,7 @@
 </div>
 
 <div id="fabSearchModal" class="bottom-sheet fab-search-modal">
-  <div class="sheet-handle"></div>
+  <div id="fabSearchResults" class="fab-search-results"></div>
   <div class="fab-search-header">
     <form action="javascript:void(0)" onsubmit="closeFabSearch()" style="display:contents;">
       <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" onkeyup="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
@@ -282,7 +282,6 @@
     </form>
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
-  <div id="fabSearchResults" class="fab-search-results"></div>
 </div>
 
 <label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
@@ -1235,7 +1234,9 @@ function positionFabSheet() {
   const vv = window.visualViewport;
   const availableHeight = vv ? vv.height : window.innerHeight;
   modal.style.bottom = getKeyboardOffset() + 'px';
-  modal.style.height = Math.round(availableHeight * 0.7) + 'px';
+  if (modal.classList.contains('with-results')) {
+    modal.style.height = Math.round(availableHeight * 0.7) + 'px';
+  }
 }
 function positionCatalogSheet() {
   const sheet = document.getElementById('catalogSheet');
@@ -1309,6 +1310,7 @@ function renderFabResults(val) {
       container.innerHTML = '';
       modal.classList.remove('with-results');
       modal.classList.remove('recent-mode');
+      modal.style.height = '';
     } else {
       modal.classList.add('recent-mode');
       container.innerHTML = `<div class="fab-section-label">${t('recent')}</div>` +
@@ -1324,7 +1326,8 @@ function renderFabResults(val) {
             ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : ''}
           </div>`;
         }).join('');
-      modal.classList.add('with-results');
+      modal.classList.remove('with-results');
+      modal.style.height = '';
     }
     return;
   }
@@ -1377,7 +1380,6 @@ function renderFabResults(val) {
       <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
         <span class="sri-name">${t('search_add_custom').replace('{q}',val)}</span>
       </div>`;
-    hasResults = true;
   } else if (matches.length > 0) {
     hasResults = true;
   }
@@ -1388,6 +1390,7 @@ function renderFabResults(val) {
     modal.classList.add('with-results');
   } else {
     modal.classList.remove('with-results');
+    modal.style.height = '';
   }
 }
 
