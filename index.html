@@ -273,7 +273,10 @@
 <div id="fabSearchModal" class="bottom-sheet fab-search-modal">
   <div class="sheet-handle"></div>
   <div class="fab-search-header">
-    <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
+    <form action="javascript:void(0)" onsubmit="closeFabSearch()" style="display:contents;">
+      <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" onkeyup="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
+      <button type="submit" hidden></button>
+    </form>
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
   <div id="fabSearchResults" class="fab-search-results"></div>
@@ -494,7 +497,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v22';
+const APP_VERSION = 'v23';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
