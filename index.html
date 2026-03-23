@@ -1232,7 +1232,10 @@ function getKeyboardOffset() {
 function positionFabSheet() {
   const modal = document.getElementById('fabSearchModal');
   if (!modal.classList.contains('open')) return;
+  const vv = window.visualViewport;
+  const availableHeight = vv ? vv.height : window.innerHeight;
   modal.style.bottom = getKeyboardOffset() + 'px';
+  modal.style.height = Math.round(availableHeight * 0.7) + 'px';
 }
 function positionCatalogSheet() {
   const sheet = document.getElementById('catalogSheet');
@@ -1262,9 +1265,9 @@ window.openFabSearch = function() {
   trigger.focus({ preventScroll: true });
 
   const modal = document.getElementById('fabSearchModal');
-  modal.style.bottom = '';
   modal.classList.add('open');
   document.getElementById('sheetOverlay').classList.add('show');
+  positionFabSheet();
   renderFabResults('');
 
   setTimeout(() => {
@@ -1280,6 +1283,7 @@ window.closeFabSearch = function() {
   modal.classList.remove('open');
   modal.classList.remove('with-results');
   modal.style.bottom = '';
+  modal.style.height = '';
   document.getElementById('sheetOverlay').classList.remove('show');
   document.getElementById('fabSearchInput').value = '';
   document.getElementById('fabSearchResults').innerHTML = '';

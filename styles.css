@@ -1292,7 +1292,7 @@ main {
     right: max(0px, calc(50% - 240px));
     background: white;
     border-radius: 20px 20px 0 0;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.14);
+    box-shadow: none;
     z-index: 510;
     display: flex;
     flex-direction: column;
@@ -1302,6 +1302,7 @@ main {
 }
 .bottom-sheet.open {
     transform: translateY(0);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.14);
 }
 .sheet-handle {
     width: 40px;
@@ -1539,16 +1540,12 @@ main {
 }
 
 .fab-search-modal {
-    max-height: 35vh;
+    height: 70vh;
 }
 
 .fab-search-modal.recent-mode .fab-search-results {
     max-height: calc(4 * 44px + 32px);
     overflow-y: auto;
-}
-
-.fab-search-modal.with-results {
-    height: 35vh;
 }
 
 .fab-search-header {
