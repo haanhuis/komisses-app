@@ -1935,8 +1935,8 @@ main {
     padding: 12px 24px;
     border-radius: 999px;
     border: none;
-    background: var(--brandColor);
-    color: #fff;
+    background: var(--brandColor-light);
+    color: var(--brandColor);
     font-size: 15px;
     font-weight: 600;
     font-family: inherit;
