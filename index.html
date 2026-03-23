@@ -759,7 +759,7 @@ function renderWeekMenu() {
   const meals = Object.entries(weekmenu);
 
   if (meals.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()">✨ ${t('weekmenu_generate_btn')}</button></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()"><i class="lni lni-magic"></i> ${t('weekmenu_generate_btn')}</button></div>`;
     return;
   }
 
