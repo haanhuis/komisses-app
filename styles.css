@@ -1804,7 +1804,7 @@ main {
 }
 
 .meal-ref--url {
-    color: var(--text-muted);
+    color: var(--brandColor);
 }
 .meal-ref-link {
     color: var(--brandColor);
