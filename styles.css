@@ -349,7 +349,7 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-muted);
+    color: #222;
     font-size: 13px;
     font-family: inherit;
     font-weight: 400;
@@ -429,7 +429,7 @@ body {
 }
 
 .platform-ios .bottom-tab {
-    color: rgba(60, 60, 67, 0.55);
+    color:#222;
     font-size: 11px;
     font-weight: 500;
     gap: 3px;
@@ -448,7 +448,7 @@ body {
     color: var(--brandColor);
     font-weight: 500;
     /* Inner frosted pill on active tab */
-    background: #E9EAEA;
+    background: #e9eaeaa6;
 }
 
 /* ── Material Design 3 navigation bar ───────────────────────────────
@@ -493,11 +493,11 @@ main {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 0 0 calc(100px + 60px + env(safe-area-inset-bottom));
+    padding: 0 0 calc(100px + 60px + 40px + env(safe-area-inset-bottom));
 }
 
 .platform-ios main {
-    padding: 0 0 calc(68px + 48px + env(safe-area-inset-bottom));
+    padding: 0 0 calc(68px + 48px + 40px + env(safe-area-inset-bottom));
 }
 
 /* Loading */
@@ -1670,6 +1670,9 @@ main {
 }
 
 /* Week menu */
+.main--weekmenu {
+    background: #F7F7F7;
+}
 .meal-day-section {
     margin-bottom: 0;
 }
@@ -1734,39 +1737,48 @@ main {
 }
 
 .meal-day-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--grey);
-    padding: 10px 16px;
+    padding: 20px 16px 6px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
+}
+.meal-day-section:first-child .meal-day-header {
+    padding-top: 12px;
 }
 .meal-day-header--today {
     color: var(--brandColor);
-    background: var(--brandColor-light);
 }
 
 .meal-day-items {
     display: flex;
     flex-direction: column;
-    padding: 4px 0;
+    gap: 8px;
+    padding: 0 12px 4px;
 }
 
 .meal-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 12px 14px;
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: opacity 0.3s, transform 0.3s, max-height 0.35s, padding 0.35s;
-    margin: 0 0 0 0;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.07), 0 3px 5px rgba(0, 0, 0, 0.04);
+    /* transition: opacity 0.3s, transform 0.3s, max-height 0.35s, padding 0.35s; */
+    border: #EFEFEF 1px solid;
+    cursor: pointer;
 }
 
+
+.meal-check-btn {
+    color: #777;
+}
+.meal-card.meal-checked .meal-check-btn {
+    color: #22c55e;
+    transition: color 0.15s;
+}
 .meal-card.checking {
     opacity: 0;
     transform: translateX(60px);
@@ -1791,6 +1803,9 @@ main {
     text-overflow: ellipsis;
 }
 
+.meal-ref--url {
+    color: var(--text-muted);
+}
 .meal-ref-link {
     color: var(--brandColor);
     text-decoration: none;

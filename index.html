@@ -156,7 +156,7 @@
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <button class="sheet-btn-cancel" onclick="closeMealSheet()">Annuleren</button>
-    <span class="sheet-header-title">Maaltijd toevoegen</span>
+    <span class="sheet-header-title" id="mealSheetTitle">Maaltijd toevoegen</span>
     <button class="sheet-btn-submit" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
   </div>
   <label class="sheet-field-label">Maaltijd</label>
@@ -531,7 +531,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v30';
+const APP_VERSION = 'v31';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -740,61 +740,88 @@ function renderWeekMenu() {
   });
 
   main.innerHTML = html;
+  meals.forEach(([id]) => initMealSwipe(id));
 }
 
 function renderMealItem(id, meal) {
-  let refHtml = '';
+  let refText = '';
   if (meal.ref) {
     const isUrl = meal.ref.startsWith('http://') || meal.ref.startsWith('https://');
     if (isUrl) {
       let label = meal.ref;
       try { label = new URL(meal.ref).hostname.replace(/^www\./, ''); } catch {}
-      refHtml = `<a class="meal-ref meal-ref-link" href="${meal.ref}" target="_blank" rel="noopener">${label}</a>`;
+      refText = `<span class="meal-ref meal-ref--url">${label}</span>`;
     } else {
-      refHtml = `<span class="meal-ref">${meal.ref}</span>`;
+      refText = `<span class="meal-ref">${meal.ref}</span>`;
     }
   }
-  const badgeClass = meal.day ? 'meal-day-badge meal-day-badge--set' : 'meal-day-badge';
-  const todayKey = WEEK_DAYS[new Date().getDay()];
-  const pickerChips = [...WEEK_DAYS.slice(1), WEEK_DAYS[0]].map(d =>
-    `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" data-day="${d}" onclick="changeMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
-  ).join('');
+  const isUrl = meal.ref && (meal.ref.startsWith('http://') || meal.ref.startsWith('https://'));
+  const linkBtn = isUrl
+    ? `<button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();window.open('${meal.ref}','_blank','noopener')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.194 12.753a.75.75 0 001.06.053L16.5 4.44v2.81a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.553l-9.056 8.194a.75.75 0 00-.053 1.06z" clip-rule="evenodd"/></svg></button>`
+    : '';
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
-    <div class="meal-card" id="meal-${id}">
-      <button class="${badgeClass}" onclick="toggleDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
+    <div class="meal-card" id="meal-${id}" onclick="openEditMealSheet('${id}')">
+      <button class="item-action-btn meal-check-btn" onclick="event.stopPropagation();checkMeal('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg></button>
       <div class="meal-info">
         <div class="item-name">${meal.label}</div>
-        ${refHtml}
+        ${refText}
       </div>
-      <button class="item-action-btn" onclick="checkMeal('${id}')"><i class="lni lni-check-circle-1" style="color:#777;"></i></button>
-    </div>
-    <div class="meal-inline-picker hidden" id="daypicker-${id}">
-      ${pickerChips}
+      ${linkBtn}
     </div>
   </div>`;
 }
 
-window.toggleDayPicker = function(id) {
-  const picker = document.getElementById('daypicker-'+id);
-  const isOpen = !picker.classList.contains('hidden');
-  document.querySelectorAll('.meal-inline-picker').forEach(p => p.classList.add('hidden'));
-  if (!isOpen) picker.classList.remove('hidden');
-};
-
-window.changeMealDay = function(id, day) {
-  const current = weekmenu[id]?.day || null;
-  setSyncBar('syncing');
-  if (day === current) {
-    remove(ref(db, 'lists/'+listId+'/weekmenu/'+id+'/day'));
-  } else {
-    update(ref(db, 'lists/'+listId+'/weekmenu/'+id), {day});
-  }
-  const picker = document.getElementById('daypicker-'+id);
-  if (picker) picker.classList.add('hidden');
-};
 
 let mealUndoTimer = null;
 let mealUndoId = null;
+
+function initMealSwipe(id) {
+  const card = document.getElementById('meal-'+id);
+  if (!card) return;
+  const btn = card.querySelector('.meal-check-btn');
+  let startX = 0, startY = 0, dragging = false, triggered = false;
+  const THRESHOLD = 80;
+
+  card.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dragging = true;
+    triggered = false;
+    card.style.transition = 'none';
+  }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dy) > Math.abs(dx)) { dragging = false; card.style.transform = ''; return; }
+    if (dx < 0) return;
+    e.preventDefault();
+    card.style.transform = `translateX(${dx}px)`;
+    if (dx >= THRESHOLD && !triggered) {
+      triggered = true;
+      if (btn) btn.style.color = '#22c55e';
+    } else if (dx < THRESHOLD && triggered) {
+      triggered = false;
+      if (btn) btn.style.color = '';
+    }
+  }, { passive: false });
+
+  card.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (triggered) {
+      card.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+      card.style.transform = `translateX(${window.innerWidth}px)`;
+      card.style.opacity = '0';
+      setTimeout(() => checkMeal(id), 250);
+    } else {
+      card.style.transition = 'transform 0.2s ease';
+      card.style.transform = '';
+      if (btn) btn.style.color = '';
+    }
+  });
+}
 
 window.checkMeal = function(id) {
   // Flush any previous pending delete immediately
@@ -808,7 +835,8 @@ window.checkMeal = function(id) {
   if (el) {
     const cb = el.querySelector('.item-checkbox');
     if (cb) cb.classList.add('checked');
-    el.classList.add('checking');
+    el.classList.add('meal-checked');
+    setTimeout(() => el.classList.add('checking'), 800);
   }
   mealUndoId = id;
   showMealToast();
@@ -827,7 +855,7 @@ window.undoCheckMeal = function() {
   if (!id) return;
   const el = document.getElementById('meal-'+id);
   if (el) {
-    el.classList.remove('checking');
+    el.classList.remove('checking', 'meal-checked');
     const cb = el.querySelector('.item-checkbox');
     if (cb) cb.classList.remove('checked');
   }
@@ -889,12 +917,35 @@ window.saveCatalogProduct = function() {
   if (currentTab === 'browse') renderBrowse();
 };
 
+let editingMealId = null;
+
 window.openMealSheet = function() {
+  editingMealId = null;
   hideMealToast();
   document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
   document.getElementById('mealLabelInput').value = '';
   document.getElementById('mealRefInput').value = '';
   document.getElementById('mealSaveBtn').disabled = true;
+  document.getElementById('mealSaveBtn').textContent = 'Toevoegen';
+  document.getElementById('mealSheetTitle').textContent = 'Maaltijd toevoegen';
+  document.getElementById('mealSheet').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
+};
+
+window.openEditMealSheet = function(id) {
+  const meal = weekmenu[id];
+  if (!meal) return;
+  editingMealId = id;
+  hideMealToast();
+  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.day === meal.day);
+  });
+  document.getElementById('mealLabelInput').value = meal.label || '';
+  document.getElementById('mealRefInput').value = meal.ref || '';
+  document.getElementById('mealSaveBtn').disabled = false;
+  document.getElementById('mealSaveBtn').textContent = 'Opslaan';
+  document.getElementById('mealSheetTitle').textContent = 'Maaltijd bewerken';
   document.getElementById('mealSheet').classList.add('open');
   document.getElementById('sheetOverlay').classList.add('show');
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
@@ -905,6 +956,7 @@ window.closeMealSheet = function() {
   sheet.classList.remove('open');
   sheet.style.bottom = '';
   document.getElementById('sheetOverlay').classList.remove('show');
+  editingMealId = null;
 };
 
 window.saveMeal = function() {
@@ -917,8 +969,12 @@ window.saveMeal = function() {
   if (day) meal.day = day;
   if (recipeRef) meal.ref = recipeRef;
   setSyncBar('syncing');
-  const newRef = push(ref(db,'lists/'+listId+'/weekmenu'));
-  set(newRef, meal);
+  if (editingMealId) {
+    set(ref(db,'lists/'+listId+'/weekmenu/'+editingMealId), meal);
+  } else {
+    const newRef = push(ref(db,'lists/'+listId+'/weekmenu'));
+    set(newRef, meal);
+  }
   closeMealSheet();
 };
 
@@ -1145,6 +1201,7 @@ window.switchTab = function(tab) {
   document.getElementById('tab-list').classList.toggle('active', tab==='list');
   document.getElementById('tab-weekmenu').classList.toggle('active', tab==='weekmenu');
   document.getElementById('tab-browse').classList.toggle('active', tab==='browse');
+  document.getElementById('main').classList.toggle('main--weekmenu', tab==='weekmenu');
   document.querySelector('.fab').classList.remove('fab-hidden');
   render();
 };
