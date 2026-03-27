@@ -1722,7 +1722,6 @@ async function runGenerate(params) {
     const results = await doSpoonacularSearch(spoonacularApiKey, params);
     if (!results.length) { showToast('Geen recepten gevonden. Probeer minder filters.'); return; }
 
-    await set(ref(db, 'lists/' + listId + '/weekmenu'), null);
     for (const r of results) {
       await set(ref(db, 'lists/' + listId + '/weekmenu/' + generateId()), {
         label: r.title,
