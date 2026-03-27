@@ -306,6 +306,23 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="spoonacularModal">
+  <div class="modal-box">
+    <div class="modal-title">🍽️ Recepten instellen</div>
+    <p style="font-size:14px;color:var(--text-muted);margin:0 0 14px;">Om recepten te genereren heb je een gratis API-sleutel van Spoonacular nodig.</p>
+    <ol style="font-size:14px;color:var(--text-muted);margin:0 0 14px;padding-left:18px;line-height:1.8;">
+      <li>Ga naar <a href="https://spoonacular.com/food-api" target="_blank" rel="noopener" style="color:var(--brandColor);text-decoration:none;font-weight:500;">spoonacular.com/food-api</a></li>
+      <li>Maak een gratis account aan</li>
+      <li>Kopieer je API-sleutel en plak hem hieronder</li>
+    </ol>
+    <input type="text" class="modal-input" id="spoonacularKeyInput" placeholder="Plak je API-sleutel hier..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeSpoonacularModal()">Annuleren</button>
+      <button class="btn btn-primary" id="spoonacularSaveBtn" onclick="saveSpoonacularKey()" disabled>Opslaan</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="renameModal">
   <div class="modal-box">
     <div class="modal-title" id="renameModalTitle">✏️ Lijst hernoemen</div>
@@ -594,6 +611,7 @@ const WEEK_DAY_SHORT  = {sunday:'Zo',monday:'Ma',tuesday:'Di',wednesday:'Wo',thu
 
 let list = {};
 let weekmenu = {};
+let spoonacularApiKey = null;
 let currentTab = 'list';
 let noteTarget = null;
 let listId = null;
@@ -644,6 +662,7 @@ function initList(id) {
     const data = snapshot.val() || {};
     list = data.items || {};
     weekmenu = data.weekmenu || {};
+    spoonacularApiKey = data.spoonacularApiKey || null;
     if (data.name) document.getElementById('listIdLabel').textContent = data.name;
     setSyncBar('ok');
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -1549,32 +1568,138 @@ window.genToggle = function(btn) {
   btn.classList.toggle('on');
   genState[btn.dataset.k] = btn.classList.contains('on');
 };
-window.handleGenerate = function() {
+window.handleGenerate = async function() {
   const on = k => genState[k];
-  const styles = ['pasta','stew','curry','flemish','indian','chinese','italian','ramen','eastern','ottolenghi'].filter(on);
-  const restr  = ['lactose','gluten','nuts','soy','lowcarb','halal'].filter(on);
-  const chars  = ['light','fast','comfort'].filter(on).map(k => k === 'comfort' ? 'comfort food' : k);
 
-  let prompt = `Generate a week menu with ${genCount} dinner recipes. Search the web for real recipes.`;
-  if (genPref === 'vegan') {
-    if (genSplitCount === genCount) prompt += ' All recipes must be vegan.';
-    else prompt += ` ${genSplitCount} recipes must be vegan, ${genCount - genSplitCount} can include meat or dairy.`;
-  } else if (genPref === 'vegi') {
-    if (genSplitCount === genCount) prompt += ' All recipes must be vegetarian.';
-    else if (genSplitCount > 0) prompt += ` ${genSplitCount} recipes must be vegetarian, ${genCount - genSplitCount} can include meat.`;
-  }
-  if (styles.length) prompt += ` Cuisine styles to draw from: ${styles.join(', ')}.`;
-  if (chars.length) prompt += ` Meal character: ${chars.join(', ')}.`;
-  if (restr.length) prompt += ` Dietary restrictions for all recipes: ${restr.join(', ')}.`;
-  prompt += ' For each recipe provide the name, a source URL, prep time, and a one-line description.';
+  const cuisineMap = {
+    pasta: 'italian', curry: 'indian', indian: 'indian', chinese: 'chinese',
+    italian: 'italian', ramen: 'japanese', eastern: 'middle eastern', ottolenghi: 'middle eastern',
+  };
+  const cuisines = Object.keys(cuisineMap).filter(on).map(k => cuisineMap[k]);
+
+  let diet = '';
+  if (genPref === 'vegan' && genSplitCount === genCount) diet = 'vegan';
+  else if (genPref === 'vegi' && genSplitCount === genCount) diet = 'vegetarian';
+
+  const intoleranceMap = { lactose: 'dairy', gluten: 'gluten', nuts: 'tree nut', soy: 'soy' };
+  const intolerances = Object.keys(intoleranceMap).filter(on).map(k => intoleranceMap[k]);
+
+  const queryTerms = [];
+  if (on('stew')) queryTerms.push('stew');
+  if (on('flemish')) queryTerms.push('flemish');
+  if (on('ottolenghi')) queryTerms.push('ottolenghi');
+  if (on('comfort')) queryTerms.push('comfort food');
+  if (on('light')) queryTerms.push('light');
+  if (on('lowcarb')) queryTerms.push('low carb');
+  if (on('halal')) queryTerms.push('halal');
 
   closeGeneratorSheet();
-  sendPrompt(prompt);
+  await fetchRecipes({
+    count: genCount,
+    cuisines: [...new Set(cuisines)],
+    diet,
+    intolerances,
+    maxReadyTime: on('fast') ? 30 : null,
+    query: queryTerms.join(' '),
+    vegSplit: (genPref !== 'any' && genSplitCount > 0 && genSplitCount < genCount) ? genSplitCount : 0,
+    vegType: genPref,
+  });
 };
-function sendPrompt(prompt) {
-  // TODO: wire up to AI / recipe search API
-  console.log('[Generator] prompt:', prompt);
-  showToast('Recepten zoeken... (binnenkort beschikbaar)');
+
+let _pendingGenerateParams = null;
+
+async function fetchRecipes(params) {
+  if (!spoonacularApiKey) {
+    _pendingGenerateParams = params;
+    openSpoonacularModal();
+    return;
+  }
+  await runGenerate(params);
+}
+
+async function runGenerate(params) {
+  showToast('Recepten zoeken...');
+  try {
+    const results = await doSpoonacularSearch(spoonacularApiKey, params);
+    if (!results.length) { showToast('Geen recepten gevonden. Probeer minder filters.'); return; }
+
+    await set(ref(db, 'lists/' + listId + '/weekmenu'), null);
+    for (const r of results) {
+      await set(ref(db, 'lists/' + listId + '/weekmenu/' + generateId()), {
+        label: r.title,
+        ref: r.sourceUrl || '',
+      });
+    }
+
+    switchTab('weekmenu');
+    showToast(`${results.length} recept${results.length !== 1 ? 'en' : ''} toegevoegd!`);
+  } catch (e) {
+    console.error('[Generator]', e);
+    if (e.status === 402) {
+      showToast('Spoonacular daglimiet bereikt.');
+    } else if (e.status === 401) {
+      await set(ref(db, 'lists/' + listId + '/spoonacularApiKey'), null);
+      showToast('Ongeldige API-sleutel. Probeer opnieuw.');
+    } else {
+      showToast('Fout bij ophalen van recepten.');
+    }
+  }
+}
+
+window.openSpoonacularModal = function() {
+  const input = document.getElementById('spoonacularKeyInput');
+  input.value = '';
+  document.getElementById('spoonacularSaveBtn').disabled = true;
+  input.oninput = () => { document.getElementById('spoonacularSaveBtn').disabled = !input.value.trim(); };
+  document.getElementById('spoonacularModal').classList.add('open');
+};
+window.closeSpoonacularModal = function() {
+  document.getElementById('spoonacularModal').classList.remove('open');
+  _pendingGenerateParams = null;
+};
+window.saveSpoonacularKey = async function() {
+  const key = document.getElementById('spoonacularKeyInput').value.trim();
+  if (!key) return;
+  await set(ref(db, 'lists/' + listId + '/spoonacularApiKey'), key);
+  document.getElementById('spoonacularModal').classList.remove('open');
+  if (_pendingGenerateParams) {
+    const params = _pendingGenerateParams;
+    _pendingGenerateParams = null;
+    await runGenerate(params);
+  }
+};
+
+async function doSpoonacularSearch(apiKey, { count, cuisines, diet, intolerances, maxReadyTime, query, vegSplit, vegType }) {
+  const base = 'https://api.spoonacular.com/recipes/complexSearch';
+
+  const buildUrl = (n, dietOverride) => {
+    const p = new URLSearchParams({ apiKey, number: n, type: 'main course', addRecipeInformation: true, sort: 'random', instructionsRequired: true });
+    if (cuisines.length) p.set('cuisine', cuisines.join(','));
+    const d = dietOverride !== undefined ? dietOverride : diet;
+    if (d) p.set('diet', d);
+    if (intolerances.length) p.set('intolerances', intolerances.join(','));
+    if (maxReadyTime) p.set('maxReadyTime', maxReadyTime);
+    if (query) p.set('query', query);
+    return `${base}?${p}`;
+  };
+
+  const fetchJson = async url => {
+    const r = await fetch(url);
+    if (!r.ok) { const err = new Error('Spoonacular error'); err.status = r.status; throw err; }
+    return r.json();
+  };
+
+  if (vegSplit > 0) {
+    const vegDiet = vegType === 'vegan' ? 'vegan' : 'vegetarian';
+    const [r1, r2] = await Promise.all([
+      fetchJson(buildUrl(vegSplit, vegDiet)),
+      fetchJson(buildUrl(count - vegSplit, '')),
+    ]);
+    return [...(r1.results || []), ...(r2.results || [])];
+  }
+
+  const r = await fetchJson(buildUrl(count, undefined));
+  return r.results || [];
 }
 window.menuCheckAll = function() {
   closeMenu();
