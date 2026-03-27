@@ -1750,17 +1750,17 @@ window.openSpoonacularModal = function() {
   input.value = '';
   document.getElementById('spoonacularSaveBtn').disabled = true;
   input.oninput = () => { document.getElementById('spoonacularSaveBtn').disabled = !input.value.trim(); };
-  document.getElementById('spoonacularModal').classList.add('open');
+  document.getElementById('spoonacularModal').classList.add('show');
 };
 window.closeSpoonacularModal = function() {
-  document.getElementById('spoonacularModal').classList.remove('open');
+  document.getElementById('spoonacularModal').classList.remove('show');
   _pendingGenerateParams = null;
 };
 window.saveSpoonacularKey = async function() {
   const key = document.getElementById('spoonacularKeyInput').value.trim();
   if (!key) return;
   await set(ref(db, 'lists/' + listId + '/spoonacularApiKey'), key);
-  document.getElementById('spoonacularModal').classList.remove('open');
+  document.getElementById('spoonacularModal').classList.remove('show');
   if (_pendingGenerateParams) {
     const params = _pendingGenerateParams;
     _pendingGenerateParams = null;
