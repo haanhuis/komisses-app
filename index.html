@@ -156,11 +156,14 @@
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <button class="sheet-btn-cancel" onclick="closeMealSheet()">Annuleren</button>
-    <span class="sheet-header-title">Maaltijd toevoegen</span>
+    <span class="sheet-header-title" id="mealSheetTitle">Maaltijd toevoegen</span>
     <button class="sheet-btn-submit" onclick="saveMeal()" id="mealSaveBtn" disabled>Toevoegen</button>
   </div>
+  <label class="sheet-field-label">Maaltijd</label>
   <input type="text" id="mealLabelInput" class="modal-input mb-10" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('mealSaveBtn').disabled=!this.value.trim()">
-  <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="Recept URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <label class="sheet-field-label">Recept</label>
+  <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <label class="sheet-field-label">Dag</label>
   <div class="day-chips mb-10" id="mealDayChips">
     <button class="day-chip" data-day="monday" onclick="selectDayChip(this)">Ma</button>
     <button class="day-chip" data-day="tuesday" onclick="selectDayChip(this)">Di</button>
@@ -369,17 +372,17 @@
 </div>
 
 <div id="fabSearchModal" class="bottom-sheet fab-search-modal">
-  <div class="sheet-handle"></div>
+  <div id="fabSearchResults" class="fab-search-results"></div>
   <div class="fab-search-header">
     <form action="javascript:void(0)" onsubmit="closeFabSearch()" style="display:contents;">
-      <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" onkeyup="if(event.key==='Enter') closeFabSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
+      <input type="text" id="fabSearchInput" class="modal-input" placeholder="Zoek of typ een product..." style="margin:0;flex:1;" oninput="onFabSearch(this.value)" onkeydown="if(event.key==='Enter') closeFabSearch()" onkeyup="if(event.key==='Enter') closeFabSearch()" onblur="setTimeout(function(){if(!document.getElementById('fabSearchModal').contains(document.activeElement))closeFabSearch();},150)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
       <button type="submit" hidden></button>
     </form>
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
   </div>
-  <div id="fabSearchResults" class="fab-search-results"></div>
 </div>
 
+<div class="bottom-fade"></div>
 <label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" class="hidden-input" autocomplete="off">
 <div class="toast" id="toast"></div>
@@ -518,32 +521,48 @@ window.selectLocale = function(locale) {
 // ── Catalog ───────────────────────────────────────────────────────────
 const CAT_META = {
   'Dranken':                       {id:'dri', emoji:'🍺'},
+  'Drinks':                        {id:'dri', emoji:'🍺'},
   'Brood & gebak':                 {id:'bak', emoji:'🍞'},
+  'Bread & Bakery':                {id:'bak', emoji:'🍞'},
   'Gereed- en diepvriesproducten': {id:'fro', emoji:'🧊'},
+  'Ready meals & Frozen':          {id:'fro', emoji:'🧊'},
   'Fruit & Groenten':              {id:'fru', emoji:'🍅'},
+  'Fruit & Vegetables':            {id:'fru', emoji:'🍅'},
   'Graanproducten':                {id:'gra', emoji:'🌾'},
+  'Grains & Pasta':                {id:'gra', emoji:'🌾'},
   'Huishouden':                    {id:'cle', emoji:'🧹'},
+  'Household':                     {id:'cle', emoji:'🧹'},
   'Verzorging & Gezondheid':       {id:'hyg', emoji:'🧴'},
+  'Health & Beauty':               {id:'hyg', emoji:'🧴'},
   'Ingrediënten & Kruiden':        {id:'ing', emoji:'🫙'},
+  'Ingredients & Spices':          {id:'ing', emoji:'🫙'},
   'Vlees & Vis':                   {id:'mea', emoji:'🥩'},
+  'Meat & Fish':                   {id:'mea', emoji:'🥩'},
   'Zuivel':                        {id:'dai', emoji:'🧀'},
+  'Dairy':                         {id:'dai', emoji:'🧀'},
   'Dierenvoeding':                 {id:'pet', emoji:'🐾'},
+  'Pet food':                      {id:'pet', emoji:'🐾'},
   'Snacks & Snoep':                {id:'swe', emoji:'🍫'},
+  'Snacks & Sweets':               {id:'swe', emoji:'🍫'},
   'Ontbijt':                       {id:'ont', emoji:'🥣'},
+  'Breakfast':                     {id:'ont', emoji:'🥣'},
 };
 let CATEGORIES = [];
 let ALIASES = [];
 let catalogRaw = [];
+let catalogEn = [];
 let catalogGentsOverrides = {};
 let catalogOiOverrides = {};
 
 function buildCatalog() {
+  const isEn = currentLocale === 'en';
   const isGents = currentLocale === 'gents';
   const isOi = currentLocale === 'oi';
+  const catalog = isEn ? catalogEn : catalogRaw;
   const overrides = isGents ? catalogGentsOverrides : isOi ? catalogOiOverrides : {};
   const map = {}, order = [];
   ALIASES = [];
-  for (const item of catalogRaw) {
+  for (const item of catalog) {
     if (!item.product) continue;
     const {product, categorie, aliases} = item;
     const catMeta = CAT_META[categorie];
@@ -567,29 +586,38 @@ function buildCatalog() {
 }
 
 function localizeItemName(name, catId) {
-  // Find the NL canonical entry in the raw catalog (match by NL name or any locale override)
+  // Find the canonical entry in catalogRaw
   const rawEntry = catalogRaw.find(e => {
     const meta = CAT_META[e.categorie];
     if (!meta || meta.id !== catId) return false;
+    const index = catalogRaw.indexOf(e);
+    const enProduct = catalogEn[index]?.product;
     return e.product === name
       || catalogGentsOverrides[e.product] === name
-      || catalogOiOverrides[e.product] === name;
+      || catalogOiOverrides[e.product] === name
+      || enProduct === name;
   });
   if (!rawEntry) return name; // custom item, can't translate
+  const index = catalogRaw.indexOf(rawEntry);
   const overrides = currentLocale === 'gents' ? catalogGentsOverrides
                   : currentLocale === 'oi'    ? catalogOiOverrides
                   : {};
+  if (currentLocale === 'en') {
+    return catalogEn[index]?.product ?? rawEntry.product;
+  }
   return overrides[rawEntry.product] ?? rawEntry.product;
 }
 
 async function loadCatalog() {
   try {
-    const [catResp, gentsResp, oiResp] = await Promise.all([
+    const [catResp, enResp, gentsResp, oiResp] = await Promise.all([
       fetch('product_catalog.json'),
+      fetch('product_catalog_english.json').catch(() => null),
       fetch('product_catalog_gents.json').catch(() => null),
       fetch('product_catalog_oilsjters.json').catch(() => null),
     ]);
     catalogRaw = await catResp.json();
+    if (enResp) catalogEn = await enResp.json();
     if (gentsResp) catalogGentsOverrides = await gentsResp.json();
     if (oiResp) catalogOiOverrides = await oiResp.json();
   } catch(err) {
@@ -598,7 +626,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v27';
+const APP_VERSION = 'v32';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -809,61 +837,86 @@ function renderWeekMenu() {
   });
 
   main.innerHTML = html;
+  meals.forEach(([id]) => initMealSwipe(id));
 }
 
 function renderMealItem(id, meal) {
-  let refHtml = '';
+  let refText = '';
   if (meal.ref) {
     const isUrl = meal.ref.startsWith('http://') || meal.ref.startsWith('https://');
     if (isUrl) {
       let label = meal.ref;
       try { label = new URL(meal.ref).hostname.replace(/^www\./, ''); } catch {}
-      refHtml = `<a class="meal-ref meal-ref-link" href="${meal.ref}" target="_blank" rel="noopener">${label}</a>`;
+      refText = `<span class="meal-ref meal-ref--url">${label}</span>`;
     } else {
-      refHtml = `<span class="meal-ref">${meal.ref}</span>`;
+      refText = `<span class="meal-ref">${meal.ref}</span>`;
     }
   }
-  const badgeClass = meal.day ? 'meal-day-badge meal-day-badge--set' : 'meal-day-badge';
-  const todayKey = WEEK_DAYS[new Date().getDay()];
-  const pickerChips = [...WEEK_DAYS.slice(1), WEEK_DAYS[0]].map(d =>
-    `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" data-day="${d}" onclick="changeMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
-  ).join('');
+  const isUrl = meal.ref && (meal.ref.startsWith('http://') || meal.ref.startsWith('https://'));
+  const cardClick = isUrl ? `window.open('${meal.ref}','_blank','noopener')` : '';
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
-    <div class="meal-card" id="meal-${id}">
-      <button class="${badgeClass}" onclick="toggleDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
+    <div class="meal-card" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}>
+      <button class="item-action-btn meal-check-btn" onclick="event.stopPropagation();checkMeal('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg></button>
       <div class="meal-info">
         <div class="item-name">${meal.label}</div>
-        ${refHtml}
+        ${refText}
       </div>
-      <button class="item-action-btn" onclick="checkMeal('${id}')"><i class="lni lni-check-circle-1" style="color:#777;"></i></button>
-    </div>
-    <div class="meal-inline-picker hidden" id="daypicker-${id}">
-      ${pickerChips}
+      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>
     </div>
   </div>`;
 }
 
-window.toggleDayPicker = function(id) {
-  const picker = document.getElementById('daypicker-'+id);
-  const isOpen = !picker.classList.contains('hidden');
-  document.querySelectorAll('.meal-inline-picker').forEach(p => p.classList.add('hidden'));
-  if (!isOpen) picker.classList.remove('hidden');
-};
-
-window.changeMealDay = function(id, day) {
-  const current = weekmenu[id]?.day || null;
-  setSyncBar('syncing');
-  if (day === current) {
-    remove(ref(db, 'lists/'+listId+'/weekmenu/'+id+'/day'));
-  } else {
-    update(ref(db, 'lists/'+listId+'/weekmenu/'+id), {day});
-  }
-  const picker = document.getElementById('daypicker-'+id);
-  if (picker) picker.classList.add('hidden');
-};
 
 let mealUndoTimer = null;
 let mealUndoId = null;
+
+function initMealSwipe(id) {
+  const card = document.getElementById('meal-'+id);
+  if (!card) return;
+  const btn = card.querySelector('.meal-check-btn');
+  let startX = 0, startY = 0, dragging = false, triggered = false;
+  const THRESHOLD = 80;
+
+  card.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dragging = true;
+    triggered = false;
+    card.style.transition = 'none';
+  }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dy) > Math.abs(dx)) { dragging = false; card.style.transform = ''; return; }
+    if (dx < 0) return;
+    e.preventDefault();
+    card.style.transform = `translateX(${dx}px)`;
+    if (dx >= THRESHOLD && !triggered) {
+      triggered = true;
+      if (btn) btn.style.color = '#22c55e';
+    } else if (dx < THRESHOLD && triggered) {
+      triggered = false;
+      if (btn) btn.style.color = '';
+    }
+  }, { passive: false });
+
+  card.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (triggered) {
+      card.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+      card.style.transform = `translateX(${window.innerWidth}px)`;
+      card.style.opacity = '0';
+      setTimeout(() => checkMeal(id), 250);
+    } else {
+      card.style.transition = 'transform 0.2s ease';
+      card.style.transform = '';
+      if (btn) btn.style.color = '';
+    }
+  });
+}
 
 window.checkMeal = function(id) {
   // Flush any previous pending delete immediately
@@ -877,7 +930,8 @@ window.checkMeal = function(id) {
   if (el) {
     const cb = el.querySelector('.item-checkbox');
     if (cb) cb.classList.add('checked');
-    el.classList.add('checking');
+    el.classList.add('meal-checked');
+    setTimeout(() => el.classList.add('checking'), 800);
   }
   mealUndoId = id;
   showMealToast();
@@ -896,7 +950,7 @@ window.undoCheckMeal = function() {
   if (!id) return;
   const el = document.getElementById('meal-'+id);
   if (el) {
-    el.classList.remove('checking');
+    el.classList.remove('checking', 'meal-checked');
     const cb = el.querySelector('.item-checkbox');
     if (cb) cb.classList.remove('checked');
   }
@@ -923,9 +977,11 @@ window.selectDayChip = function(el) {
 
 window.openCatalogSheet = function() {
   const select = document.getElementById('catalogCatSelect');
-  select.innerHTML = Object.entries(CAT_META).map(([,m]) =>
-    `<option value="${m.id}">${m.emoji} ${catName(m.id)}</option>`
-  ).join('');
+  const seen = new Set();
+  select.innerHTML = Object.values(CAT_META)
+    .filter(m => !seen.has(m.id) && seen.add(m.id))
+    .map(m => `<option value="${m.id}">${m.emoji} ${catName(m.id)}</option>`)
+    .join('');
   document.getElementById('catalogNameInput').value = '';
   document.getElementById('catalogSaveBtn').disabled = true;
   document.getElementById('catalogSheet').classList.add('open');
@@ -949,18 +1005,42 @@ window.saveCatalogProduct = function() {
     cat.products.push(name);
     cat.products.sort();
   }
-  catalogRaw.push({ product: name, categorie: Object.keys(CAT_META).find(k => CAT_META[k].id === catId) });
+  const catalog = currentLocale === 'en' ? catalogEn : catalogRaw;
+  catalog.push({ product: name, categorie: Object.keys(CAT_META).find(k => CAT_META[k].id === catId) });
   showToast(`'${name}' toegevoegd aan catalogus`);
   closeCatalogSheet();
   if (currentTab === 'browse') renderBrowse();
 };
 
+let editingMealId = null;
+
 window.openMealSheet = function() {
+  editingMealId = null;
   hideMealToast();
   document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
   document.getElementById('mealLabelInput').value = '';
   document.getElementById('mealRefInput').value = '';
   document.getElementById('mealSaveBtn').disabled = true;
+  document.getElementById('mealSaveBtn').textContent = 'Toevoegen';
+  document.getElementById('mealSheetTitle').textContent = 'Maaltijd toevoegen';
+  document.getElementById('mealSheet').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
+};
+
+window.openEditMealSheet = function(id) {
+  const meal = weekmenu[id];
+  if (!meal) return;
+  editingMealId = id;
+  hideMealToast();
+  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.day === meal.day);
+  });
+  document.getElementById('mealLabelInput').value = meal.label || '';
+  document.getElementById('mealRefInput').value = meal.ref || '';
+  document.getElementById('mealSaveBtn').disabled = false;
+  document.getElementById('mealSaveBtn').textContent = 'Opslaan';
+  document.getElementById('mealSheetTitle').textContent = 'Maaltijd bewerken';
   document.getElementById('mealSheet').classList.add('open');
   document.getElementById('sheetOverlay').classList.add('show');
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
@@ -971,6 +1051,7 @@ window.closeMealSheet = function() {
   sheet.classList.remove('open');
   sheet.style.bottom = '';
   document.getElementById('sheetOverlay').classList.remove('show');
+  editingMealId = null;
 };
 
 window.saveMeal = function() {
@@ -983,8 +1064,12 @@ window.saveMeal = function() {
   if (day) meal.day = day;
   if (recipeRef) meal.ref = recipeRef;
   setSyncBar('syncing');
-  const newRef = push(ref(db,'lists/'+listId+'/weekmenu'));
-  set(newRef, meal);
+  if (editingMealId) {
+    set(ref(db,'lists/'+listId+'/weekmenu/'+editingMealId), meal);
+  } else {
+    const newRef = push(ref(db,'lists/'+listId+'/weekmenu'));
+    set(newRef, meal);
+  }
   closeMealSheet();
 };
 
@@ -1211,6 +1296,7 @@ window.switchTab = function(tab) {
   document.getElementById('tab-list').classList.toggle('active', tab==='list');
   document.getElementById('tab-weekmenu').classList.toggle('active', tab==='weekmenu');
   document.getElementById('tab-browse').classList.toggle('active', tab==='browse');
+  document.getElementById('main').classList.toggle('main--weekmenu', tab==='weekmenu');
   document.querySelector('.fab').classList.remove('fab-hidden');
   render();
 };
@@ -1303,7 +1389,12 @@ function getKeyboardOffset() {
 function positionFabSheet() {
   const modal = document.getElementById('fabSearchModal');
   if (!modal.classList.contains('open')) return;
+  const vv = window.visualViewport;
+  const availableHeight = vv ? vv.height : window.innerHeight;
   modal.style.bottom = getKeyboardOffset() + 'px';
+  if (modal.classList.contains('with-results')) {
+    modal.style.height = Math.round(availableHeight * 0.7) + 'px';
+  }
 }
 function positionCatalogSheet() {
   const sheet = document.getElementById('catalogSheet');
@@ -1333,9 +1424,9 @@ window.openFabSearch = function() {
   trigger.focus({ preventScroll: true });
 
   const modal = document.getElementById('fabSearchModal');
-  modal.style.bottom = '';
   modal.classList.add('open');
   document.getElementById('sheetOverlay').classList.add('show');
+  positionFabSheet();
   renderFabResults('');
 
   setTimeout(() => {
@@ -1351,6 +1442,7 @@ window.closeFabSearch = function() {
   modal.classList.remove('open');
   modal.classList.remove('with-results');
   modal.style.bottom = '';
+  modal.style.height = '';
   document.getElementById('sheetOverlay').classList.remove('show');
   document.getElementById('fabSearchInput').value = '';
   document.getElementById('fabSearchResults').innerHTML = '';
@@ -1371,11 +1463,12 @@ function renderFabResults(val) {
         const catId = entry.slice(sep + 1);
         return !Object.values(list).find(i => i.name===name && i.catId===catId && !i.checked);
       })
-      .slice(0, 4);
+      .slice(0, 5);
     if (recentHistory.length === 0) {
       container.innerHTML = '';
       modal.classList.remove('with-results');
       modal.classList.remove('recent-mode');
+      modal.style.height = '';
     } else {
       modal.classList.add('recent-mode');
       container.innerHTML = `<div class="fab-section-label">${t('recent')}</div>` +
@@ -1383,15 +1476,17 @@ function renderFabResults(val) {
           const sep = entry.lastIndexOf('|');
           const name = entry.slice(0, sep);
           const catId = entry.slice(sep + 1);
+          const displayName = localizeItemName(name, catId);
           const cat = CATEGORIES.find(c => c.id === catId);
           const k = 'fab_recent_' + catId + '_' + name.replace(/\W/g,'_');
           const inList = Object.values(list).find(i => i.name===name && i.catId===catId && !i.checked);
-          return `<div class="search-result-item" onclick="fabAdd('${catId}','${name.replace(/'/g,"\\'")}','${k}')" id="${k}">
-            <span class="sri-name">${name}</span>
+          return `<div class="search-result-item" onclick="fabAdd('${catId}','${displayName.replace(/'/g,"\\'")}','${k}')" id="${k}">
+            <span class="sri-name">${displayName}</span>
             ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : ''}
           </div>`;
         }).join('');
-      modal.classList.add('with-results');
+      modal.classList.remove('with-results');
+      modal.style.height = '';
     }
     return;
   }
@@ -1434,7 +1529,7 @@ function renderFabResults(val) {
     const k = 'fab_' + m.catId + '_' + m.name.replace(/\W/g,'_');
     return `<div class="search-result-item" onclick="fabAdd('${m.catId}','${m.name.replace(/'/g,"\\'")}','${k}')" id="${k}">
       <span class="sri-name">${m.name}</span>
-      ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : m.used ? `<span class="sri-recent">🕐</span>` : ''}
+      ${inList ? `<span class="sri-added">${t('pi_inlist')}</span>` : m.used ? `<span class="sri-recent"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clip-rule="evenodd"/></svg></span>` : ''}
     </div>`;
   }).join('');
 
@@ -1444,7 +1539,6 @@ function renderFabResults(val) {
       <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
         <span class="sri-name">${t('search_add_custom').replace('{q}',val)}</span>
       </div>`;
-    hasResults = true;
   } else if (matches.length > 0) {
     hasResults = true;
   }
@@ -1455,6 +1549,7 @@ function renderFabResults(val) {
     modal.classList.add('with-results');
   } else {
     modal.classList.remove('with-results');
+    modal.style.height = '';
   }
 }
 
