@@ -1669,6 +1669,46 @@ main {
     height: 56px;
 }
 
+.fab-generate {
+    position: fixed;
+    bottom: calc(110px + 52px + 12px);
+    right: max(24px, calc(50% - 240px + 24px));
+    background: var(--brandColor);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,87,255,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 80;
+    transition: transform 0.15s;
+}
+
+.fab-generate.hidden {
+    display: none;
+}
+
+.fab-generate:active {
+    transform: scale(0.96);
+}
+
+.platform-ios .fab-generate {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px + 16px + 56px + 12px);
+    right: max(16px, calc(50% - 240px + 16px));
+    width: 56px;
+    height: 56px;
+}
+
+.platform-android .fab-generate {
+    width: 56px;
+    height: 56px;
+    bottom: calc(110px + 56px + 12px);
+}
+
 /* Week menu */
 .main--weekmenu {
     background: #F7F7F7;
