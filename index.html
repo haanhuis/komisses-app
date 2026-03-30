@@ -722,22 +722,29 @@ function renderWeekMenu() {
 
   let html = '';
 
+  const today = new Date();
+  const todayKey = WEEK_DAYS[today.getDay()];
+  const getDayDate = dayKey => {
+    const diff = (WEEK_DAYS.indexOf(dayKey) - today.getDay() + 7) % 7;
+    const d = new Date(today);
+    d.setDate(today.getDate() + diff);
+    return `${d.getDate()}/${d.getMonth() + 1}`;
+  };
+  getOrderedDays().forEach(day => {
+    const items = byDay[day];
+    if (!items || !items.length) return;
+    html += `<div class="meal-day-section">
+      <div class="meal-day-header${day === todayKey ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
+      <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
+    </div>`;
+  });
+
   if (unplanned.length) {
     html += `<div class="meal-day-section">
       <div class="meal-day-header">Niet gepland</div>
       <div class="meal-day-items">${unplanned.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
     </div>`;
   }
-
-  const todayKey = WEEK_DAYS[new Date().getDay()];
-  getOrderedDays().forEach(day => {
-    const items = byDay[day];
-    if (!items || !items.length) return;
-    html += `<div class="meal-day-section">
-      <div class="meal-day-header${day === todayKey ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]}</div>
-      <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
-    </div>`;
-  });
 
   main.innerHTML = html;
   meals.forEach(([id]) => initMealSwipe(id));
