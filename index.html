@@ -1146,7 +1146,7 @@ window.openDetail = window.openNote = function(id) {
   const item = list[id]; if (!item) return;
   document.getElementById('detailTitle').textContent = item.name.split('|')[0].trim();
   document.getElementById('noteInput').value = item.note||'';
-  document.getElementById('detailQty').textContent = item.qty||1;
+  document.getElementById('detailQty').value = item.qty||1;
   selectUnit(item.unit||'aantal', false);
   document.getElementById('noteModal').classList.add('show');
 };
