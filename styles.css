@@ -1864,37 +1864,3 @@ main {
 .day-chip.today.active {
     color: var(--brandColor);
 }
-
-/* ── Desktop layout ───────────────────────────────────────────────────── */
-@media (min-width: 600px) {
-    body {
-        max-width: 100%;
-        margin: 0;
-    }
-
-    /* Fixed elements: remove mobile centering, span full width */
-    .bottom-nav {
-        left: 0;
-        right: 0;
-    }
-    .bottom-sheet {
-        left: 0;
-        right: 0;
-    }
-    .fab-search-modal {
-        left: 0;
-        right: 0;
-    }
-
-    /* FAB: anchor to right edge of viewport */
-    .fab {
-        right: 24px;
-    }
-    .fab-generate {
-        right: 24px;
-    }
-    .platform-ios .fab,
-    .platform-ios .fab-generate {
-        right: 16px;
-    }
-}
