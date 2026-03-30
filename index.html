@@ -574,6 +574,8 @@ function setSyncBar(state) {
 
 function showToast(msg) {
   const el = document.getElementById('toast');
+  const headerBottom = document.querySelector('.header')?.getBoundingClientRect().bottom ?? 60;
+  el.style.top = (headerBottom + 10) + 'px';
   el.textContent = msg; el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
