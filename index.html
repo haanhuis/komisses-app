@@ -1050,7 +1050,7 @@ window.openDetail = window.openNote = function(id) {
   selectUnit(item.unit||'aantal', false);
   document.getElementById('noteModal').classList.add('show');
 };
-window.closeNote = function() { noteTarget=null; document.getElementById('noteModal').classList.remove('show'); };
+window.closeNote = function() { noteTarget=null; const m=document.getElementById('noteModal'); m.style.paddingBottom=''; m.classList.remove('show'); };
 
 window.detailChangeQty = function(delta) {
   const el = document.getElementById('detailQty');
@@ -1309,10 +1309,16 @@ function positionMealSheet() {
   if (!sheet.classList.contains('open')) return;
   sheet.style.bottom = getKeyboardOffset() + 'px';
 }
+function positionNoteModal() {
+  const modal = document.getElementById('noteModal');
+  if (!modal.classList.contains('show')) return;
+  modal.style.paddingBottom = getKeyboardOffset() + 'px';
+}
 function onViewportChange() {
   positionFabSheet();
   positionCatalogSheet();
   positionMealSheet();
+  positionNoteModal();
 }
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onViewportChange);
