@@ -959,7 +959,7 @@ window.openEditMealSheet = function(id) {
 window.closeMealSheet = function() {
   const sheet = document.getElementById('mealSheet');
   sheet.classList.remove('open');
-  sheet.style.bottom = '';
+  sheet.style.transform = '';
   document.getElementById('sheetOverlay').classList.remove('show');
   editingMealId = null;
 };
@@ -1314,7 +1314,8 @@ function positionCatalogSheet() {
 function positionMealSheet() {
   const sheet = document.getElementById('mealSheet');
   if (!sheet.classList.contains('open')) return;
-  sheet.style.bottom = getKeyboardOffset() + 'px';
+  const offset = getKeyboardOffset();
+  sheet.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
 }
 function positionNoteModal() {
   const modal = document.getElementById('noteModal');
