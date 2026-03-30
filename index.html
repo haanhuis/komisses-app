@@ -675,7 +675,7 @@ function renderList() {
 function renderItem(id, item) {
   const unit = item.unit||'aantal';
   const qty = item.qty||1;
-  const showQty = true;
+  const showQty = unit !== 'aantal' || qty > 1;
   const qtyLabel = `${qty} ${unit==='aantal'?'×':unit}`;
   const displayName = localizeItemName(item.name, item.catId);
   return `<div class="item-card ${item.checked?'done':''}" id="item-${id}">
