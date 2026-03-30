@@ -1,413 +1,1588 @@
 [
-  {"_comment": "--- Fruit & Groenten ---"},
-  {"product": "Ananas", "categorie": "Fruit & Groenten"},
-  {"product": "Abrikozen", "categorie": "Fruit & Groenten"},
-  {"product": "Artisjokken", "categorie": "Fruit & Groenten"},
-  {"product": "Aubergine", "categorie": "Fruit & Groenten"},
-  {"product": "Avocado", "categorie": "Fruit & Groenten"},
-  {"product": "Bananen", "categorie": "Fruit & Groenten", "aliases": ["Banaan"]},
-  {"product": "Basilicum", "categorie": "Fruit & Groenten"},
-  {"product": "Bessen", "categorie": "Fruit & Groenten"},
-  {"product": "Peren", "categorie": "Fruit & Groenten", "aliases": ["Peer"]},
-  {"product": "Bloemkool", "categorie": "Fruit & Groenten"},
-  {"product": "Broccoli", "categorie": "Fruit & Groenten"},
-  {"product": "Zwarte bessen", "categorie": "Fruit & Groenten"},
-  {"product": "Cherrytomaten", "categorie": "Fruit & Groenten"},
-  {"product": "Witlof", "categorie": "Fruit & Groenten"},
-  {"product": "Erwten", "categorie": "Fruit & Groenten"},
-  {"product": "Aardbeien", "categorie": "Fruit & Groenten"},
-  {"product": "Vijgen", "categorie": "Fruit & Groenten"},
-  {"product": "Venkel", "categorie": "Fruit & Groenten"},
-  {"product": "Fruit", "categorie": "Fruit & Groenten"},
-  {"product": "Bosui / Lente-ui", "categorie": "Fruit & Groenten"},
-  {"product": "Grapefruit", "categorie": "Fruit & Groenten"},
-  {"product": "Komkommer", "categorie": "Fruit & Groenten"},
-  {"product": "Blauwe bessen", "categorie": "Fruit & Groenten"},
-  {"product": "Frambozen", "categorie": "Fruit & Groenten"},
-  {"product": "Gember", "categorie": "Fruit & Groenten"},
-  {"product": "Wortelen", "categorie": "Fruit & Groenten"},
-  {"product": "Aardappelen", "categorie": "Fruit & Groenten"},
-  {"product": "Kersen", "categorie": "Fruit & Groenten"},
-  {"product": "Kiwi", "categorie": "Fruit & Groenten"},
-  {"product": "Knoflook", "categorie": "Fruit & Groenten"},
-  {"product": "Kool", "categorie": "Fruit & Groenten"},
-  {"product": "Koriander", "categorie": "Fruit & Groenten"},
-  {"product": "Pompoen", "categorie": "Fruit & Groenten"},
-  {"product": "Sla", "categorie": "Fruit & Groenten"},
-  {"product": "Prei", "categorie": "Fruit & Groenten"},
-  {"product": "Limoen", "categorie": "Fruit & Groenten"},
-  {"product": "Maïs", "categorie": "Fruit & Groenten"},
-  {"product": "Mandarijnen", "categorie": "Fruit & Groenten"},
-  {"product": "Mango", "categorie": "Fruit & Groenten"},
-  {"product": "Meloen", "categorie": "Fruit & Groenten"},
-  {"product": "Cranberry", "categorie": "Fruit & Groenten"},
-  {"product": "Nectarine", "categorie": "Fruit & Groenten"},
-  {"product": "Olijven", "categorie": "Fruit & Groenten"},
-  {"product": "Sinaasappelen", "categorie": "Fruit & Groenten"},
-  {"product": "Passiefruit", "categorie": "Fruit & Groenten"},
-  {"product": "Chillipeper", "categorie": "Fruit & Groenten"},
-  {"product": "Paprika", "categorie": "Fruit & Groenten"},
-  {"product": "Peterselie", "categorie": "Fruit & Groenten"},
-  {"product": "Munt", "categorie": "Fruit & Groenten"},
-  {"product": "Perzik", "categorie": "Fruit & Groenten"},
-  {"product": "Pruimen", "categorie": "Fruit & Groenten"},
-  {"product": "Champignons", "categorie": "Fruit & Groenten"},
-  {"product": "Radijzen", "categorie": "Fruit & Groenten"},
-  {"product": "Rabarber", "categorie": "Fruit & Groenten"},
-  {"product": "Rode biet", "categorie": "Fruit & Groenten"},
-  {"product": "Rucola", "categorie": "Fruit & Groenten"},
-  {"product": "Salie", "categorie": "Fruit & Groenten"},
-  {"product": "Bieslook", "categorie": "Fruit & Groenten"},
-  {"product": "Selderij", "categorie": "Fruit & Groenten"},
-  {"product": "Asperges", "categorie": "Fruit & Groenten"},
-  {"product": "Spinazie", "categorie": "Fruit & Groenten"},
-  {"product": "Zoete aardappelen", "categorie": "Fruit & Groenten"},
-  {"product": "Tijm", "categorie": "Fruit & Groenten"},
-  {"product": "Tomaten", "categorie": "Fruit & Groenten"},
-  {"product": "Druiven", "categorie": "Fruit & Groenten"},
-  {"product": "Watermeloen", "categorie": "Fruit & Groenten"},
-  {"product": "Citroen", "categorie": "Fruit & Groenten"},
-  {"product": "Courgette", "categorie": "Fruit & Groenten"},
-  {"product": "Ajuin", "categorie": "Fruit & Groenten"},
-  {"product": "Appels", "categorie": "Fruit & Groenten"},
-
-  {"_comment": "--- Snacks & Snoep ---"},
-  {"product": "Zoute krakeling", "categorie": "Snacks & Snoep"},
-  {"product": "Dessert", "categorie": "Snacks & Snoep"},
-  {"product": "Gedroogd fruit", "categorie": "Snacks & Snoep"},
-  {"product": "Pindanoten", "categorie": "Snacks & Snoep"},
-  {"product": "Gelei", "categorie": "Snacks & Snoep"},
-  {"product": "Mueslireep", "categorie": "Snacks & Snoep"},
-  {"product": "Kerstkransjes", "categorie": "Snacks & Snoep"},
-  {"product": "Chocolade", "categorie": "Ontbijt"},
-  {"product": "Kauwgum", "categorie": "Snacks & Snoep"},
-  {"product": "Koekjes", "categorie": "Snacks & Snoep"},
-  {"product": "Jam", "categorie": "Snacks & Snoep"},
-  {"product": "Kroepoek", "categorie": "Snacks & Snoep"},
-  {"product": "Crackers", "categorie": "Snacks & Snoep"},
-  {"product": "Taart", "categorie": "Snacks & Snoep"},
-  {"product": "Zandkoekjes", "categorie": "Snacks & Snoep"},
-  {"product": "American cookies", "categorie": "Snacks & Snoep"},
-  {"product": "Lu koekjes", "categorie": "Snacks & Snoep"},
-  {"product": "Spirits koekjes", "categorie": "Snacks & Snoep"},
-  {"product": "Speculoos koeken", "categorie": "Snacks & Snoep"},
-  {"product": "Cent wafers", "categorie": "Snacks & Snoep"},
-  {"product": "Mellow cakes", "categorie": "Snacks & Snoep"},
-  {"product": "Prince koeken", "categorie": "Snacks & Snoep"},
-  {"product": "Pralinécreme", "categorie": "Snacks & Snoep"},
-  {"product": "Chips", "categorie": "Snacks & Snoep"},
-  {"product": "Popcorn", "categorie": "Snacks & Snoep"},
-  {"product": "Stroopwafels", "categorie": "Snacks & Snoep"},
-  {"product": "Snacks", "categorie": "Snacks & Snoep"},
-  {"product": "Zoetigheid", "categorie": "Snacks & Snoep"},
-  {"product": "Tortilla Chips", "categorie": "Snacks & Snoep"},
-  {"product": "Vanille saus", "categorie": "Snacks & Snoep"},
-
-  {"_comment": "--- Dranken ---"},
-  {"product": "Omer", "categorie": "Dranken"},
-  {"product": "Duvel", "categorie": "Dranken"},
-  {"product": "Hapkin", "categorie": "Dranken"},
-  {"product": "Westmalle Triple", "categorie": "Dranken"},
-  {"product": "Pils", "categorie": "Dranken"},
-  {"product": "Crystal pils", "categorie": "Dranken"},
-  {"product": "Jupiler pils", "categorie": "Dranken"},
-  {"product": "Stella Artois pils", "categorie": "Dranken"},
-  {"product": "IPA", "categorie": "Dranken"},
-  {"product": "kombucha", "categorie": "Dranken"},
-  {"product": "Appelsap", "categorie": "Dranken"},
-  {"product": "Bier", "categorie": "Dranken"},
-  {"product": "Champagne", "categorie": "Dranken"},
-  {"product": "Cremant de Bourgogne", "categorie": "Dranken"},
-  {"product": "Cider", "categorie": "Dranken"},
-  {"product": "Cola", "categorie": "Dranken"},
-  {"product": "Cola Light", "categorie": "Dranken"},
-  {"product": "IJsthee", "categorie": "Dranken"},
-  {"product": "Energiedrank", "categorie": "Dranken"},
-  {"product": "Fruitsap", "categorie": "Dranken"},
-  {"product": "Drank", "categorie": "Dranken"},
-  {"product": "Gin", "categorie": "Dranken"},
-  {"product": "Gemberbier", "categorie": "Dranken", "aliases": ["Ginger beer"]},
-  {"product": "Warme chocomelk", "categorie": "Dranken"},
-  {"product": "Light Limonade", "categorie": "Dranken"},
-  {"product": "Limonade", "categorie": "Dranken"},
-  {"product": "Mineraalwater", "categorie": "Dranken"},
-  {"product": "Sinaasappelsap", "categorie": "Dranken"},
-  {"product": "Prosecco", "categorie": "Dranken"},
-  {"product": "Rode wijn", "categorie": "Dranken"},
-  {"product": "Rum", "categorie": "Dranken"},
-  {"product": "Sterke drank", "categorie": "Dranken"},
-  {"product": "Smoothie", "categorie": "Dranken"},
-  {"product": "Sportdrank", "categorie": "Dranken"},
-  {"product": "Tonic", "categorie": "Dranken"},
-  {"product": "Vodka", "categorie": "Dranken"},
-  {"product": "Water", "categorie": "Dranken"},
-  {"product": "Witte wijn", "categorie": "Dranken"},
-  {"product": "Whisky", "categorie": "Dranken"},
-
-  {"_comment": "--- Vlees & Vis ---"},
-  {"product": "Vleeswaren", "categorie": "Vlees & Vis"},
-  {"product": "Oesters", "categorie": "Vlees & Vis"},
-  {"product": "Bitterballen", "categorie": "Vlees & Vis"},
-  {"product": "Braadworst", "categorie": "Vlees & Vis"},
-  {"product": "Filet Americain", "categorie": "Vlees & Vis"},
-  {"product": "Vis", "categorie": "Vlees & Vis"},
-  {"product": "Vlees", "categorie": "Vlees & Vis"},
-  {"product": "Frikandel", "categorie": "Vlees & Vis"},
-  {"product": "Garnalen", "categorie": "Vlees & Vis"},
-  {"product": "Gehakt", "categorie": "Vlees & Vis"},
-  {"product": "Hot Dog", "categorie": "Vlees & Vis"},
-  {"product": "Kreeft", "categorie": "Vlees & Vis"},
-  {"product": "Kalfsvlees", "categorie": "Vlees & Vis"},
-  {"product": "Kroket", "categorie": "Vlees & Vis"},
-  {"product": "Zalm", "categorie": "Vlees & Vis"},
-  {"product": "Lam", "categorie": "Vlees & Vis"},
-  {"product": "Mosselen", "categorie": "Vlees & Vis"},
-  {"product": "Kip", "categorie": "Vlees & Vis"},
-  {"product": "Rundvlees", "categorie": "Vlees & Vis"},
-  {"product": "Gesneden Rundvlees", "categorie": "Vlees & Vis"},
-  {"product": "Prosciutto", "categorie": "Vlees & Vis"},
-  {"product": "Salami", "categorie": "Vlees & Vis"},
-  {"product": "Ansjovis", "categorie": "Vlees & Vis"},
-  {"product": "Ham", "categorie": "Vlees & Vis"},
-  {"product": "Varkensvlees", "categorie": "Vlees & Vis"},
-  {"product": "Spek", "categorie": "Vlees & Vis"},
-  {"product": "Steak", "categorie": "Vlees & Vis"},
-  {"product": "Tonijn", "categorie": "Vlees & Vis"},
-  {"product": "Kalkoen", "categorie": "Vlees & Vis"},
-  {"product": "Worst", "categorie": "Vlees & Vis"},
-  {"product": "Chipolata", "categorie": "Vlees & Vis"},
-  {"product": "Worsten", "categorie": "Vlees & Vis"},
-
-  {"_comment": "--- Brood & gebak ---"},
-  {"product": "Bagels", "categorie": "Brood & gebak"},
-  {"product": "Stokbrood", "categorie": "Brood & gebak"},
-  {"product": "Bladerdeeg", "categorie": "Brood & gebak"},
-  {"product": "Brood", "categorie": "Brood & gebak"},
-  {"product": "Gesneden brood", "categorie": "Brood & gebak"},
-  {"product": "Zoete broodjes", "categorie": "Brood & gebak"},
-  {"product": "Amerikaans Broodje", "categorie": "Brood & gebak"},
-  {"product": "Donuts", "categorie": "Brood & gebak"},
-  {"product": "Croissant", "categorie": "Brood & gebak"},
-  {"product": "Pompoentaart", "categorie": "Brood & gebak"},
-  {"product": "Muffins", "categorie": "Brood & gebak"},
-  {"product": "Pannenkoeken", "categorie": "Brood & gebak"},
-  {"product": "Pastei / Hartige taart", "categorie": "Brood & gebak"},
-  {"product": "Pizza deeg", "categorie": "Brood & gebak"},
-  {"product": "Kadetje", "categorie": "Brood & gebak"},
-  {"product": "Toast", "categorie": "Brood & gebak"},
-  {"product": "Wraps", "categorie": "Brood & gebak"},
-  {"product": "Wafels", "categorie": "Brood & gebak"},
-
-  {"_comment": "--- Ontbijt ---"},  
-  {"product": "Pindakaas", "categorie": "Ontbijt"},
-  {"product": "Confituur", "categorie": "Ontbijt"},
-  {"product": "Choco", "categorie": "Ontbijt"},
-  {"product": "Hagelslag", "categorie": "Ontbijt"},
-  {"product": "Honing", "categorie": "Ontbijt"},
-  {"product": "Ahornssiroop", "categorie": "Ontbijt"},
-  {"product": "Beschuit", "categorie": "Ontbijt"},
-  {"product": "Granola", "categorie": "Ontbijt"},
-  {"product": "Speculoos pasta", "categorie": "Ontbijt", "aliases": ["Biscoff pasta"]},
-  {"product": "Rijstwafels", "categorie": "Ontbijt"},
-  {"product": "Rozijnen", "categorie": "Ontbijt"},
-  {"product": "Luiske siroop", "categorie": "Ontbijt"},  
-  {"product": "Muesly", "categorie": "Ontbijt"},  
-  {"product": "Koekjes met melk", "categorie": "Ontbijt"}, 
-  {"product": "Kornflakes", "categorie": "Ontbijt"},   
-  {"product": "Koffie", "categorie": "Ontbijt"},
-  {"product": "Koffiebonen", "categorie": "Ontbijt"},
-  {"product": "Koffiepads", "categorie": "Ontbijt"},
-  {"product": "Koffiecapsules", "categorie": "Ontbijt"},
-  {"product": "Thee", "categorie": "Ontbijt"},
-
-
-  {"_comment": "--- Zuivel ---"},
-  {"product": "Blauwe kaas", "categorie": "Zuivel"},
-  {"product": "Boter", "categorie": "Zuivel"},
-  {"product": "Cheddar", "categorie": "Zuivel"},
-  {"product": "Creme fraiche", "categorie": "Zuivel"},
-  {"product": "Eieren", "categorie": "Zuivel"},
-  {"product": "Feta", "categorie": "Zuivel"},
-  {"product": "Roomkaas", "categorie": "Zuivel"},
-  {"product": "Gorgonzola", "categorie": "Zuivel"},
-  {"product": "Huttenkaas", "categorie": "Zuivel"},
-  {"product": "Yoghurt", "categorie": "Zuivel"},
-  {"product": "Kaas", "categorie": "Zuivel"},
-  {"product": "Margarine", "categorie": "Zuivel"},
-  {"product": "Mascarpone", "categorie": "Zuivel"},
-  {"product": "Melk", "categorie": "Zuivel"},
-  {"product": "Mozzarella", "categorie": "Zuivel"},
-  {"product": "Parmezaanse Kaas", "categorie": "Zuivel"},
-  {"product": "Room", "categorie": "Zuivel"},
-  {"product": "Geraspte kaas", "categorie": "Zuivel"},
-  {"product": "Zure Room", "categorie": "Zuivel"},
-  {"product": "Soja melk", "categorie": "Zuivel"},
-  {"product": "Smeerkaas", "categorie": "Zuivel"},
-  {"product": "Vla", "categorie": "Zuivel"},
-
-  {"_comment": "--- Graanproducten ---"},
-  {"product": "Basmati rijst", "categorie": "Graanproducten"},
-  {"product": "Cornflakes", "categorie": "Graanproducten"},
-  {"product": "Couscous", "categorie": "Graanproducten"},
-  {"product": "Cruesli", "categorie": "Graanproducten"},
-  {"product": "Griesmeel", "categorie": "Graanproducten"},
-  {"product": "Havermout", "categorie": "Graanproducten"},
-  {"product": "Kikkererwten", "categorie": "Graanproducten"},
-  {"product": "Bloem", "categorie": "Graanproducten"},
-  {"product": "Muesli", "categorie": "Graanproducten"},
-  {"product": "Noedels", "categorie": "Graanproducten"},
-  {"product": "Pasta", "categorie": "Graanproducten"},
-  {"product": "Penne", "categorie": "Graanproducten"},
-  {"product": "Rijst", "categorie": "Graanproducten"},
-  {"product": "Risotto rijst", "categorie": "Graanproducten"},
-  {"product": "Spaghetti", "categorie": "Graanproducten"},
-  {"product": "Tofu", "categorie": "Graanproducten"},
-
-  {"_comment": "--- Verzorging & Gezondheid ---"},
-  {"product": "Maandverband", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Bodylotion", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Conditioner", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Deodorant", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Douchegel", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Natte doekjes", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Gezichtscreme", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Haargel", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Haarlak", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Handcreme", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Insectenverdelger", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Condooms", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Gezichts reinigingsdoekjes", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Lenzenvloeistof", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Lipbalsem", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Make-Up Remover", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Mondwater", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Nagellak", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Nagellak remover", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Pleisters", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Scheerapparaten", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Scheermesjes", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Scheergel", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Pijnstiller", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Zeep", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Shampoo", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Zonnebrandcreme", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Tampons", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Zakdoeken", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Vitaminen", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Toiletpapier", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Wattenschijfjes", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Wattenstaafjes", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Pampers", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Tandenborstel", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Tandpasta", "categorie": "Verzorging & Gezondheid"},
-  {"product": "Tandfloss", "categorie": "Verzorging & Gezondheid"},
-
-  {"_comment": "--- Ingrediënten & Kruiden ---"},
-  {"product": "Appelmoes", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "BBQ Saus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Bakpoeder", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Balsamico Azijn", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Walnoten", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Bonen", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Bouillon", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Jus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Britse bruine saus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Chutney", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Dip", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Azijn", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Hazelnoten", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Gist", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Aardappelpuree", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Ketchup", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Kokosmelk", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Linzen", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Amandelen", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Mayonaise", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Noten", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Olijfolie", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Oregano", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Paneermeel", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Paprikapoeder", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Pasta saus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Tomatenblokjes", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Peperkorrels", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Zwarte peper", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Augurk", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Pijnboompitten", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Veenbessen saus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Poedersuiker", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Rozemarijn", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Salade dressing", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Zout", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Pikante Saus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Mosterd", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Soja saus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Zetmeel", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Tomatenpuree", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Tomatensaus", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Vanillesuiker", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Kaneel", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Suiker", "categorie": "Ingrediënten & Kruiden"},
-  {"product": "Olie", "categorie": "Ingrediënten & Kruiden"},
-
-  {"_comment": "--- Kruiden ---"},
-  {"product": "Laurier", "categorie": "Kruiden"},
-  {"product": "Peper", "categorie": "Kruiden"},
-  {"product": "Saffraan", "categorie": "Kruiden"},
-  {"product": "Kruidnagel", "categorie": "Kruiden"},
-
-  {"_comment": "--- Huishouden ---"},
-  {"product": "Vuilniszakken", "categorie": "Huishouden"},
-  {"product": "Afwasmiddel", "categorie": "Huishouden"},
-  {"product": "Aluminium Folie", "categorie": "Huishouden"},
-  {"product": "Baby voeding", "categorie": "Huishouden"},
-  {"product": "Bakpapier", "categorie": "Huishouden"},
-  {"product": "Badkamer reiniger", "categorie": "Huishouden"},
-  {"product": "Batterijen", "categorie": "Huishouden"},
-  {"product": "Bloemen", "categorie": "Huishouden"},
-  {"product": "Potgrond", "categorie": "Huishouden"},
-  {"product": "Vershoudfolie", "categorie": "Huishouden"},
-  {"product": "Cadeau", "categorie": "Huishouden"},
-  {"product": "Inpakpapier", "categorie": "Huishouden"},
-  {"product": "Onthardingszout", "categorie": "Huishouden"},
-  {"product": "Vaatwasser tabletten", "categorie": "Huishouden"},
-  {"product": "Glasreiniger", "categorie": "Huishouden"},
-  {"product": "Gloeilampen", "categorie": "Huishouden"},
-  {"product": "Keukenrol", "categorie": "Huishouden"},
-  {"product": "Houtskool", "categorie": "Huishouden"},
-  {"product": "Kaarsen", "categorie": "Huishouden"},
-  {"product": "Propaan", "categorie": "Huishouden"},
-  {"product": "Schoonmaakmiddelen", "categorie": "Huishouden"},
-  {"product": "Spons", "categorie": "Huishouden"},
-  {"product": "Servetten", "categorie": "Huishouden"},
-  {"product": "Toilet reiniger", "categorie": "Huishouden"},
-  {"product": "Waspoeder", "categorie": "Huishouden"},
-  {"product": "Wasverzachter", "categorie": "Huishouden"},
-
-  {"_comment": "--- Gereed- en diepvriesproducten ---"},
-  {"product": "Witte bonen met tomaat", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Burrito", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Kippenvleugels", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Chinees", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Vissticks", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Ingevroren groenten", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "IJs", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Indische maaltijden", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Italiaanse maaltijden", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Dumplings", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Lasagna", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Mexicaanse maaltijden", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Pizza", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Frieten", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Soep", "categorie": "Gereed- en diepvriesproducten"},
-  {"product": "Thaise maaltijden", "categorie": "Gereed- en diepvriesproducten"},
-
-  {"_comment": "--- Dierenvoeding ---"},
-  {"product": "Visvoer", "categorie": "Dierenvoeding"},
-  {"product": "Hondenvoer", "categorie": "Dierenvoeding"},
-  {"product": "Hondensnoepjes", "categorie": "Dierenvoeding"},
-  {"product": "Kattenvoer", "categorie": "Dierenvoeding"},
-  {"product": "Kattensnoepjes", "categorie": "Dierenvoeding"},
-  {"product": "Kattenbakvulling", "categorie": "Dierenvoeding"},
-  {"product": "Vogelvoer", "categorie": "Dierenvoeding"}
+  {
+    "_comment": "--- Fruit & Groenten ---"
+  },
+  {
+    "product": "Ananas",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Abrikozen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Artisjokken",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Aubergine",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Avocado",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Bananen",
+    "categorie": "Fruit",
+    "aliases": [
+      "Banaan"
+    ]
+  },
+  {
+    "product": "Basilicum",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Bessen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Peren",
+    "categorie": "Fruit",
+    "aliases": [
+      "Peer"
+    ]
+  },
+  {
+    "product": "Bloemkool",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Broccoli",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Zwarte bessen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Cherrytomaten",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Witlof",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Erwten",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Aardbeien",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Vijgen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Venkel",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Fruit",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Bosui / Lente-ui",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Grapefruit",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Komkommer",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Blauwe bessen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Frambozen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Gember",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Wortelen",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Aardappelen",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Kersen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Kiwi",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Knoflook",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Kool",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Koriander",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Pompoen",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Sla",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Prei",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Limoen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Maïs",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Mandarijnen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Mango",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Meloen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Cranberry",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Nectarine",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Olijven",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Sinaasappelen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Passiefruit",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Chillipeper",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Paprika",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Peterselie",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Munt",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Perzik",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Pruimen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Champignons",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Radijzen",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Rabarber",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Rode biet",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Rucola",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Salie",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Bieslook",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Selderij",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Asperges",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Spinazie",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Zoete aardappelen",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Tijm",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Tomaten",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Druiven",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Watermeloen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Citroen",
+    "categorie": "Fruit"
+  },
+  {
+    "product": "Courgette",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Ajuin",
+    "categorie": "Groenten"
+  },
+  {
+    "product": "Appels",
+    "categorie": "Fruit"
+  },
+  {
+    "_comment": "--- Snacks & Snoep ---"
+  },
+  {
+    "product": "Zoute krakeling",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Dessert",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Gedroogd fruit",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Pindanoten",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Gelei",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Mueslireep",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Kerstkransjes",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Chocolade",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Kauwgum",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Koekjes",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Jam",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Kroepoek",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Crackers",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Taart",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Zandkoekjes",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "American cookies",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Lu koekjes",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Spirits koekjes",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Speculoos koeken",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Cent wafers",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Mellow cakes",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Prince koeken",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Pralinécreme",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Chips",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Popcorn",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Stroopwafels",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Snacks",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Zoetigheid",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Tortilla Chips",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "product": "Vanille saus",
+    "categorie": "Snacks & Snoep"
+  },
+  {
+    "_comment": "--- Dranken ---"
+  },
+  {
+    "product": "Omer",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Duvel",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Hapkin",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Westmalle Triple",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Pils",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Crystal pils",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Jupiler pils",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Stella Artois pils",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "IPA",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "kombucha",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Appelsap",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Bier",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Champagne",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Cremant de Bourgogne",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Cider",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Cola",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Cola Light",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "IJsthee",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Energiedrank",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Fruitsap",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Drank",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Gin",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Gemberbier",
+    "categorie": "Dranken",
+    "aliases": [
+      "Ginger beer"
+    ]
+  },
+  {
+    "product": "Warme chocomelk",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Light Limonade",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Limonade",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Mineraalwater",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Sinaasappelsap",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Prosecco",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Rode wijn",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Rum",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Sterke drank",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Smoothie",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Sportdrank",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Tonic",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Vodka",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Water",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Witte wijn",
+    "categorie": "Dranken"
+  },
+  {
+    "product": "Whisky",
+    "categorie": "Dranken"
+  },
+  {
+    "_comment": "--- Vlees & Vis ---"
+  },
+  {
+    "product": "Vleeswaren",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Oesters",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Bitterballen",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Braadworst",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Filet Americain",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Vis",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Vlees",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Frikandel",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Garnalen",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Gehakt",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Hot Dog",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Kreeft",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Kalfsvlees",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Kroket",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Zalm",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Lam",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Mosselen",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Kip",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Rundvlees",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Gesneden Rundvlees",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Prosciutto",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Salami",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Ansjovis",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Ham",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Varkensvlees",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Spek",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Steak",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Tonijn",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Kalkoen",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Worst",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Chipolata",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "product": "Worsten",
+    "categorie": "Vlees & Vis"
+  },
+  {
+    "_comment": "--- Brood & gebak ---"
+  },
+  {
+    "product": "Bagels",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Stokbrood",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Bladerdeeg",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Brood",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Gesneden brood",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Zoete broodjes",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Amerikaans Broodje",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Donuts",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Croissant",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Pompoentaart",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Muffins",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Pannenkoeken",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Pastei / Hartige taart",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Pizza deeg",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Kadetje",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Toast",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Wraps",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "product": "Wafels",
+    "categorie": "Brood & gebak"
+  },
+  {
+    "_comment": "--- Ontbijt ---"
+  },
+  {
+    "product": "Pindakaas",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Confituur",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Choco",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Hagelslag",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Honing",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Ahornssiroop",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Beschuit",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Granola",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Speculoos pasta",
+    "categorie": "Ontbijt",
+    "aliases": [
+      "Biscoff pasta"
+    ]
+  },
+  {
+    "product": "Rijstwafels",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Rozijnen",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Luiske siroop",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Muesly",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Koekjes met melk",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Kornflakes",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Koffie",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Koffiebonen",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Koffiepads",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Koffiecapsules",
+    "categorie": "Ontbijt"
+  },
+  {
+    "product": "Thee",
+    "categorie": "Ontbijt"
+  },
+  {
+    "_comment": "--- Zuivel ---"
+  },
+  {
+    "product": "Blauwe kaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Boter",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Cheddar",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Creme fraiche",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Eieren",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Feta",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Roomkaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Gorgonzola",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Huttenkaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Yoghurt",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Kaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Margarine",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Mascarpone",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Melk",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Mozzarella",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Parmezaanse Kaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Room",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Geraspte kaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Zure Room",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Soja melk",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Smeerkaas",
+    "categorie": "Zuivel"
+  },
+  {
+    "product": "Vla",
+    "categorie": "Zuivel"
+  },
+  {
+    "_comment": "--- Graanproducten ---"
+  },
+  {
+    "product": "Basmati rijst",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Cornflakes",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Couscous",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Cruesli",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Griesmeel",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Havermout",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Kikkererwten",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Bloem",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Muesli",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Noedels",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Pasta",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Penne",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Rijst",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Risotto rijst",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Spaghetti",
+    "categorie": "Graanproducten"
+  },
+  {
+    "product": "Tofu",
+    "categorie": "Graanproducten"
+  },
+  {
+    "_comment": "--- Verzorging & Gezondheid ---"
+  },
+  {
+    "product": "Maandverband",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Bodylotion",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Conditioner",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Deodorant",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Douchegel",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Natte doekjes",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Gezichtscreme",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Haargel",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Haarlak",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Handcreme",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Insectenverdelger",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Condooms",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Gezichts reinigingsdoekjes",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Lenzenvloeistof",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Lipbalsem",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Make-Up Remover",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Mondwater",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Nagellak",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Nagellak remover",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Pleisters",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Scheerapparaten",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Scheermesjes",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Scheergel",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Pijnstiller",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Zeep",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Shampoo",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Zonnebrandcreme",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Tampons",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Zakdoeken",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Vitaminen",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Toiletpapier",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Wattenschijfjes",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Wattenstaafjes",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Pampers",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Tandenborstel",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Tandpasta",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "product": "Tandfloss",
+    "categorie": "Verzorging & Gezondheid"
+  },
+  {
+    "_comment": "--- Ingrediënten & Kruiden ---"
+  },
+  {
+    "product": "Appelmoes",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "BBQ Saus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Bakpoeder",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Balsamico Azijn",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Walnoten",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Bonen",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Bouillon",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Jus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Britse bruine saus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Chutney",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Dip",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Azijn",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Hazelnoten",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Gist",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Aardappelpuree",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Ketchup",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Kokosmelk",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Linzen",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Amandelen",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Mayonaise",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Noten",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Olijfolie",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Oregano",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Paneermeel",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Paprikapoeder",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Pasta saus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Tomatenblokjes",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Peperkorrels",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Zwarte peper",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Augurk",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Pijnboompitten",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Veenbessen saus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Poedersuiker",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Rozemarijn",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Salade dressing",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Zout",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Pikante Saus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Mosterd",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Soja saus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Zetmeel",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Tomatenpuree",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Tomatensaus",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Vanillesuiker",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Kaneel",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Suiker",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "product": "Olie",
+    "categorie": "Ingrediënten & Kruiden"
+  },
+  {
+    "_comment": "--- Kruiden ---"
+  },
+  {
+    "product": "Laurier",
+    "categorie": "Kruiden"
+  },
+  {
+    "product": "Peper",
+    "categorie": "Kruiden"
+  },
+  {
+    "product": "Saffraan",
+    "categorie": "Kruiden"
+  },
+  {
+    "product": "Kruidnagel",
+    "categorie": "Kruiden"
+  },
+  {
+    "_comment": "--- Huishouden ---"
+  },
+  {
+    "product": "Vuilniszakken",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Afwasmiddel",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Aluminium Folie",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Baby voeding",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Bakpapier",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Badkamer reiniger",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Batterijen",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Bloemen",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Potgrond",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Vershoudfolie",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Cadeau",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Inpakpapier",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Onthardingszout",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Vaatwasser tabletten",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Glasreiniger",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Gloeilampen",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Keukenrol",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Houtskool",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Kaarsen",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Propaan",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Schoonmaakmiddelen",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Spons",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Servetten",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Toilet reiniger",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Waspoeder",
+    "categorie": "Huishouden"
+  },
+  {
+    "product": "Wasverzachter",
+    "categorie": "Huishouden"
+  },
+  {
+    "_comment": "--- Gereed- en diepvriesproducten ---"
+  },
+  {
+    "product": "Witte bonen met tomaat",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Burrito",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Kippenvleugels",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Chinees",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Vissticks",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Ingevroren groenten",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "IJs",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Indische maaltijden",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Italiaanse maaltijden",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Dumplings",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Lasagna",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Mexicaanse maaltijden",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Pizza",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Frieten",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Soep",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "product": "Thaise maaltijden",
+    "categorie": "Gereed- en diepvriesproducten"
+  },
+  {
+    "_comment": "--- Dierenvoeding ---"
+  },
+  {
+    "product": "Visvoer",
+    "categorie": "Dierenvoeding"
+  },
+  {
+    "product": "Hondenvoer",
+    "categorie": "Dierenvoeding"
+  },
+  {
+    "product": "Hondensnoepjes",
+    "categorie": "Dierenvoeding"
+  },
+  {
+    "product": "Kattenvoer",
+    "categorie": "Dierenvoeding"
+  },
+  {
+    "product": "Kattensnoepjes",
+    "categorie": "Dierenvoeding"
+  },
+  {
+    "product": "Kattenbakvulling",
+    "categorie": "Dierenvoeding"
+  },
+  {
+    "product": "Vogelvoer",
+    "categorie": "Dierenvoeding"
+  }
 ]
