@@ -1713,12 +1713,15 @@ main {
 }
 
 
-.meal-inline-edit {
+.meal-daypicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
     padding: 8px 14px 10px;
     background: white;
     border-top: 1px solid var(--grey-light);
 }
-.meal-inline-edit.hidden {
+.meal-daypicker.hidden {
     display: none;
 }
 

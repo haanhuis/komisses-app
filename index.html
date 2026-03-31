@@ -769,6 +769,10 @@ function renderMealItem(id, meal) {
   }
   const isUrl = meal.ref && (meal.ref.startsWith('http://') || meal.ref.startsWith('https://'));
   const cardClick = isUrl ? `window.open('${meal.ref}','_blank','noopener')` : '';
+  const todayKey = WEEK_DAYS[new Date().getDay()];
+  const pickerChips = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(d =>
+    `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" onclick="event.stopPropagation();pickMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
+  ).join('');
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
     <div class="meal-card" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}>
       <button class="item-action-btn meal-check-btn" onclick="event.stopPropagation();checkMeal('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg></button>
@@ -776,16 +780,11 @@ function renderMealItem(id, meal) {
         <div class="item-name">${meal.label}</div>
         ${refText}
       </div>
-      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openMealInlineEdit('${id}')"><i class="lni lni-pencil-1"></i></button>
+      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();toggleMealDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
       <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>
     </div>
-    <div class="meal-inline-edit hidden" id="mealedit-${id}">
-      <input type="text" class="modal-input meal-edit-label" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false">
-      <input type="text" class="modal-input meal-edit-ref" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false" style="margin-top:6px;">
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="btn btn-secondary" style="flex:1;" onclick="cancelMealInline('${id}')">Annuleren</button>
-        <button class="btn btn-primary" style="flex:1;" onclick="saveMealInline('${id}')">Opslaan</button>
-      </div>
+    <div class="meal-daypicker hidden" id="daypicker-${id}">
+      ${pickerChips}
     </div>
   </div>`;
 }
@@ -952,29 +951,20 @@ window.openMealSheet = function() {
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
 };
 
-window.openMealInlineEdit = function(id) {
-  const meal = weekmenu[id]; if (!meal) return;
-  const el = document.getElementById('mealedit-' + id);
-  el.querySelector('.meal-edit-label').value = meal.label || '';
-  el.querySelector('.meal-edit-ref').value = meal.ref || '';
-  el.classList.remove('hidden');
-  el.querySelector('.meal-edit-label').focus();
+window.toggleMealDayPicker = function(id) {
+  document.querySelectorAll('.meal-daypicker').forEach(el => {
+    if (el.id !== 'daypicker-' + id) el.classList.add('hidden');
+  });
+  document.getElementById('daypicker-' + id).classList.toggle('hidden');
 };
-window.cancelMealInline = function(id) {
-  document.getElementById('mealedit-' + id).classList.add('hidden');
-};
-window.saveMealInline = function(id) {
-  const el = document.getElementById('mealedit-' + id);
-  const label = el.querySelector('.meal-edit-label').value.trim();
-  if (!label) return;
-  const recipeRef = el.querySelector('.meal-edit-ref').value.trim() || null;
-  const existing = weekmenu[id] || {};
-  const meal = { label };
-  if (existing.day) meal.day = existing.day;
-  if (recipeRef) meal.ref = recipeRef;
+window.pickMealDay = function(id, day) {
+  const existing = weekmenu[id]; if (!existing) return;
+  const meal = { label: existing.label };
+  if (existing.ref) meal.ref = existing.ref;
+  if (existing.day !== day) meal.day = day;
   setSyncBar('syncing');
   set(ref(db, 'lists/' + listId + '/weekmenu/' + id), meal);
-  el.classList.add('hidden');
+  document.getElementById('daypicker-' + id).classList.add('hidden');
 };
 
 window.openEditMealSheet = function(id) {
