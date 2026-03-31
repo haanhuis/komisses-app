@@ -1713,6 +1713,15 @@ main {
 }
 
 
+.meal-inline-edit {
+    padding: 8px 14px 10px;
+    background: white;
+    border-top: 1px solid var(--grey-light);
+}
+.meal-inline-edit.hidden {
+    display: none;
+}
+
 .meal-inline-picker {
     display: flex;
     flex-direction: row;

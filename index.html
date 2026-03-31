@@ -776,7 +776,16 @@ function renderMealItem(id, meal) {
         <div class="item-name">${meal.label}</div>
         ${refText}
       </div>
+      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openMealInlineEdit('${id}')"><i class="lni lni-pencil-1"></i></button>
       <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>
+    </div>
+    <div class="meal-inline-edit hidden" id="mealedit-${id}">
+      <input type="text" class="modal-input meal-edit-label" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false">
+      <input type="text" class="modal-input meal-edit-ref" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false" style="margin-top:6px;">
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="cancelMealInline('${id}')">Annuleren</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="saveMealInline('${id}')">Opslaan</button>
+      </div>
     </div>
   </div>`;
 }
@@ -941,6 +950,31 @@ window.openMealSheet = function() {
   document.getElementById('mealSheet').classList.add('open');
   document.getElementById('sheetOverlay').classList.add('show');
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
+};
+
+window.openMealInlineEdit = function(id) {
+  const meal = weekmenu[id]; if (!meal) return;
+  const el = document.getElementById('mealedit-' + id);
+  el.querySelector('.meal-edit-label').value = meal.label || '';
+  el.querySelector('.meal-edit-ref').value = meal.ref || '';
+  el.classList.remove('hidden');
+  el.querySelector('.meal-edit-label').focus();
+};
+window.cancelMealInline = function(id) {
+  document.getElementById('mealedit-' + id).classList.add('hidden');
+};
+window.saveMealInline = function(id) {
+  const el = document.getElementById('mealedit-' + id);
+  const label = el.querySelector('.meal-edit-label').value.trim();
+  if (!label) return;
+  const recipeRef = el.querySelector('.meal-edit-ref').value.trim() || null;
+  const existing = weekmenu[id] || {};
+  const meal = { label };
+  if (existing.day) meal.day = existing.day;
+  if (recipeRef) meal.ref = recipeRef;
+  setSyncBar('syncing');
+  set(ref(db, 'lists/' + listId + '/weekmenu/' + id), meal);
+  el.classList.add('hidden');
 };
 
 window.openEditMealSheet = function(id) {
