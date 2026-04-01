@@ -164,15 +164,7 @@
   <label class="sheet-field-label">Recept</label>
   <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
   <label class="sheet-field-label">Dag</label>
-  <div class="day-chips mb-10" id="mealDayChips">
-    <button class="day-chip" data-day="monday" onclick="selectDayChip(this)">Ma</button>
-    <button class="day-chip" data-day="tuesday" onclick="selectDayChip(this)">Di</button>
-    <button class="day-chip" data-day="wednesday" onclick="selectDayChip(this)">Wo</button>
-    <button class="day-chip" data-day="thursday" onclick="selectDayChip(this)">Do</button>
-    <button class="day-chip" data-day="friday" onclick="selectDayChip(this)">Vr</button>
-    <button class="day-chip" data-day="saturday" onclick="selectDayChip(this)">Za</button>
-    <button class="day-chip" data-day="sunday" onclick="selectDayChip(this)">Zo</button>
-  </div>
+  <div class="day-chips mb-10" id="mealDayChips"></div>
 </div>
 
 <div id="catalogSheet" class="bottom-sheet">
@@ -531,6 +523,9 @@ const CAT_META = {
   'Ready meals & Frozen':          {id:'fro', emoji:'🧊'},
   'Fruit & Groenten':              {id:'fru', emoji:'🍅'},
   'Fruit & Vegetables':            {id:'fru', emoji:'🍅'},
+  'Fruit':                         {id:'frt', emoji:'🍎'},
+  'Groenten':                      {id:'grn', emoji:'🥦'},
+  'Vegetables':                    {id:'grn', emoji:'🥦'},
   'Graanproducten':                {id:'gra', emoji:'🌾'},
   'Grains & Pasta':                {id:'gra', emoji:'🌾'},
   'Huishouden':                    {id:'cle', emoji:'🧹'},
@@ -670,6 +665,8 @@ function setSyncBar(state) {
 
 function showToast(msg) {
   const el = document.getElementById('toast');
+  const headerBottom = document.querySelector('.header')?.getBoundingClientRect().bottom ?? 60;
+  el.style.top = (headerBottom + 10) + 'px';
   el.textContent = msg; el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
@@ -822,22 +819,29 @@ function renderWeekMenu() {
 
   let html = '';
 
+  const today = new Date();
+  const todayKey = WEEK_DAYS[today.getDay()];
+  const getDayDate = dayKey => {
+    const diff = (WEEK_DAYS.indexOf(dayKey) - today.getDay() + 7) % 7;
+    const d = new Date(today);
+    d.setDate(today.getDate() + diff);
+    return `${d.getDate()}/${d.getMonth() + 1}`;
+  };
+  getOrderedDays().forEach(day => {
+    const items = byDay[day];
+    if (!items || !items.length) return;
+    html += `<div class="meal-day-section">
+      <div class="meal-day-header${day === todayKey ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
+      <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
+    </div>`;
+  });
+
   if (unplanned.length) {
     html += `<div class="meal-day-section">
       <div class="meal-day-header">Niet gepland</div>
       <div class="meal-day-items">${unplanned.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
     </div>`;
   }
-
-  const todayKey = WEEK_DAYS[new Date().getDay()];
-  getOrderedDays().forEach(day => {
-    const items = byDay[day];
-    if (!items || !items.length) return;
-    html += `<div class="meal-day-section">
-      <div class="meal-day-header${day === todayKey ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]}</div>
-      <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
-    </div>`;
-  });
 
   main.innerHTML = html;
   meals.forEach(([id]) => initMealSwipe(id));
@@ -857,6 +861,10 @@ function renderMealItem(id, meal) {
   }
   const isUrl = meal.ref && (meal.ref.startsWith('http://') || meal.ref.startsWith('https://'));
   const cardClick = isUrl ? `window.open('${meal.ref}','_blank','noopener')` : '';
+  const todayKey = WEEK_DAYS[new Date().getDay()];
+  const pickerChips = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(d =>
+    `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" onclick="event.stopPropagation();pickMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
+  ).join('');
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
     <div class="meal-card" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}>
       <button class="item-action-btn meal-check-btn" onclick="event.stopPropagation();checkMeal('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg></button>
@@ -864,7 +872,11 @@ function renderMealItem(id, meal) {
         <div class="item-name">${meal.label}</div>
         ${refText}
       </div>
+      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();toggleMealDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
       <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>
+      <div class="meal-daypicker hidden" id="daypicker-${id}">
+        ${pickerChips}
+      </div>
     </div>
   </div>`;
 }
@@ -972,6 +984,14 @@ window.removeMeal = function(id) {
   remove(ref(db,'lists/'+listId+'/weekmenu/'+id));
 };
 
+function renderMealDayChips(activeDay) {
+  const todayIdx = new Date().getDay();
+  const ordered = [...WEEK_DAYS.slice(todayIdx), ...WEEK_DAYS.slice(0, todayIdx)];
+  document.getElementById('mealDayChips').innerHTML = ordered.map(d =>
+    `<button class="day-chip${activeDay===d?' active':''}" data-day="${d}" onclick="selectDayChip(this)">${WEEK_DAY_SHORT[d]}</button>`
+  ).join('');
+}
+
 window.selectDayChip = function(el) {
   const isActive = el.classList.contains('active');
   document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
@@ -1020,7 +1040,7 @@ let editingMealId = null;
 window.openMealSheet = function() {
   editingMealId = null;
   hideMealToast();
-  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
+  renderMealDayChips(null);
   document.getElementById('mealLabelInput').value = '';
   document.getElementById('mealRefInput').value = '';
   document.getElementById('mealSaveBtn').disabled = true;
@@ -1031,14 +1051,28 @@ window.openMealSheet = function() {
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
 };
 
+window.toggleMealDayPicker = function(id) {
+  document.querySelectorAll('.meal-daypicker').forEach(el => {
+    if (el.id !== 'daypicker-' + id) el.classList.add('hidden');
+  });
+  document.getElementById('daypicker-' + id).classList.toggle('hidden');
+};
+window.pickMealDay = function(id, day) {
+  const existing = weekmenu[id]; if (!existing) return;
+  const meal = { label: existing.label };
+  if (existing.ref) meal.ref = existing.ref;
+  if (existing.day !== day) meal.day = day;
+  setSyncBar('syncing');
+  set(ref(db, 'lists/' + listId + '/weekmenu/' + id), meal);
+  document.getElementById('daypicker-' + id).classList.add('hidden');
+};
+
 window.openEditMealSheet = function(id) {
   const meal = weekmenu[id];
   if (!meal) return;
   editingMealId = id;
   hideMealToast();
-  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.day === meal.day);
-  });
+  renderMealDayChips(meal.day || null);
   document.getElementById('mealLabelInput').value = meal.label || '';
   document.getElementById('mealRefInput').value = meal.ref || '';
   document.getElementById('mealSaveBtn').disabled = false;
@@ -1052,7 +1086,7 @@ window.openEditMealSheet = function(id) {
 window.closeMealSheet = function() {
   const sheet = document.getElementById('mealSheet');
   sheet.classList.remove('open');
-  sheet.style.bottom = '';
+  sheet.style.transform = '';
   document.getElementById('sheetOverlay').classList.remove('show');
   editingMealId = null;
 };
@@ -1150,7 +1184,7 @@ window.openDetail = window.openNote = function(id) {
   selectUnit(item.unit||'aantal', false);
   document.getElementById('noteModal').classList.add('show');
 };
-window.closeNote = function() { noteTarget=null; document.getElementById('noteModal').classList.remove('show'); };
+window.closeNote = function() { noteTarget=null; const m=document.getElementById('noteModal'); m.style.paddingBottom=''; m.classList.remove('show'); };
 
 window.detailChangeQty = function(delta) {
   const el = document.getElementById('detailQty');
@@ -1408,12 +1442,19 @@ function positionCatalogSheet() {
 function positionMealSheet() {
   const sheet = document.getElementById('mealSheet');
   if (!sheet.classList.contains('open')) return;
-  sheet.style.bottom = getKeyboardOffset() + 'px';
+  const offset = getKeyboardOffset();
+  sheet.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
+}
+function positionNoteModal() {
+  const modal = document.getElementById('noteModal');
+  if (!modal.classList.contains('show')) return;
+  modal.style.paddingBottom = getKeyboardOffset() + 'px';
 }
 function onViewportChange() {
   positionFabSheet();
   positionCatalogSheet();
   positionMealSheet();
+  positionNoteModal();
 }
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onViewportChange);
