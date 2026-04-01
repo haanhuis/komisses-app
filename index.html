@@ -164,15 +164,7 @@
   <label class="sheet-field-label">Recept</label>
   <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
   <label class="sheet-field-label">Dag</label>
-  <div class="day-chips mb-10" id="mealDayChips">
-    <button class="day-chip" data-day="monday" onclick="selectDayChip(this)">Ma</button>
-    <button class="day-chip" data-day="tuesday" onclick="selectDayChip(this)">Di</button>
-    <button class="day-chip" data-day="wednesday" onclick="selectDayChip(this)">Wo</button>
-    <button class="day-chip" data-day="thursday" onclick="selectDayChip(this)">Do</button>
-    <button class="day-chip" data-day="friday" onclick="selectDayChip(this)">Vr</button>
-    <button class="day-chip" data-day="saturday" onclick="selectDayChip(this)">Za</button>
-    <button class="day-chip" data-day="sunday" onclick="selectDayChip(this)">Zo</button>
-  </div>
+  <div class="day-chips mb-10" id="mealDayChips"></div>
 </div>
 
 <div id="catalogSheet" class="bottom-sheet">
@@ -892,6 +884,14 @@ window.removeMeal = function(id) {
   remove(ref(db,'lists/'+listId+'/weekmenu/'+id));
 };
 
+function renderMealDayChips(activeDay) {
+  const todayIdx = new Date().getDay();
+  const ordered = [...WEEK_DAYS.slice(todayIdx), ...WEEK_DAYS.slice(0, todayIdx)];
+  document.getElementById('mealDayChips').innerHTML = ordered.map(d =>
+    `<button class="day-chip${activeDay===d?' active':''}" data-day="${d}" onclick="selectDayChip(this)">${WEEK_DAY_SHORT[d]}</button>`
+  ).join('');
+}
+
 window.selectDayChip = function(el) {
   const isActive = el.classList.contains('active');
   document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
@@ -940,7 +940,7 @@ let editingMealId = null;
 window.openMealSheet = function() {
   editingMealId = null;
   hideMealToast();
-  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
+  renderMealDayChips(null);
   document.getElementById('mealLabelInput').value = '';
   document.getElementById('mealRefInput').value = '';
   document.getElementById('mealSaveBtn').disabled = true;
@@ -972,9 +972,7 @@ window.openEditMealSheet = function(id) {
   if (!meal) return;
   editingMealId = id;
   hideMealToast();
-  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.day === meal.day);
-  });
+  renderMealDayChips(meal.day || null);
   document.getElementById('mealLabelInput').value = meal.label || '';
   document.getElementById('mealRefInput').value = meal.ref || '';
   document.getElementById('mealSaveBtn').disabled = false;
