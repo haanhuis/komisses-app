@@ -165,6 +165,38 @@
   <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
   <label class="sheet-field-label">Dag</label>
   <div class="day-chips mb-10" id="mealDayChips"></div>
+  <div class="meal-catalog-toggle">
+    <span>Toevoegen aan databank</span>
+    <label class="ui-switch">
+      <input type="checkbox" id="mealAddToCatalog" onchange="toggleMealCatalogFields()">
+      <span class="ui-switch-track"></span>
+    </label>
+  </div>
+  <div id="mealCatalogFields" style="display:none;">
+    <div class="gen-section" style="padding:12px 0 0;border:none;">
+      <p class="gen-label">Regio</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-tog" data-catalog="region" data-v="Belgisch" onclick="mealCatalogPick(this)">Belgisch</button>
+        <button class="gen-tog" data-catalog="region" data-v="Italiaans" onclick="mealCatalogPick(this)">Italiaans</button>
+        <button class="gen-tog" data-catalog="region" data-v="Mediterraans" onclick="mealCatalogPick(this)">Mediterraans</button>
+        <button class="gen-tog" data-catalog="region" data-v="Aziatisch" onclick="mealCatalogPick(this)">Aziatisch</button>
+      </div>
+    </div>
+    <div class="gen-section" style="padding:12px 0 0;border:none;">
+      <p class="gen-label">Dieet</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-pref-btn on" data-catalog="diet" data-v="none" onclick="mealCatalogPick(this)">Geen</button>
+        <button class="gen-pref-btn" data-catalog="diet" data-v="vegetarian" onclick="mealCatalogPick(this)">Vegetarisch</button>
+      </div>
+    </div>
+    <div class="gen-section" style="padding:12px 0 0;border:none;">
+      <p class="gen-label">Type</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-tog" data-catalog="trait" data-v="pasta" onclick="mealCatalogPick(this)">Pasta</button>
+        <button class="gen-tog" data-catalog="trait" data-v="vis" onclick="mealCatalogPick(this)">Vis</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="catalogSheet" class="bottom-sheet">
@@ -198,7 +230,7 @@
     </div>
 
     <div class="gen-section">
-      <p class="gen-label">Voorkeur</p>
+      <p class="gen-label">Dieet</p>
       <div style="display:flex;gap:8px;">
         <button id="gen-pref-vegi" class="gen-pref-btn" onclick="genSetPref('vegi')">Vegetarisch</button>
         <button id="gen-pref-vegan" class="gen-pref-btn" onclick="genSetPref('vegan')">Veganistisch</button>
@@ -217,21 +249,16 @@
     </div>
 
     <div class="gen-section">
-      <p class="gen-label">Keuken</p>
+      <p class="gen-label">Regio</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="gen-tog" data-k="pasta" onclick="genToggle(this)">Pasta</button>
-        <button class="gen-tog" data-k="stew" onclick="genToggle(this)">Stoofpot</button>
-        <button class="gen-tog" data-k="curry" onclick="genToggle(this)">Curry</button>
-        <button class="gen-tog" data-k="flemish" onclick="genToggle(this)">Vlaamse keuken</button>
-        <button class="gen-tog" data-k="indian" onclick="genToggle(this)">Indiaas</button>
-        <button class="gen-tog" data-k="chinese" onclick="genToggle(this)">Chinees</button>
-        <button class="gen-tog" data-k="italian" onclick="genToggle(this)">Italiaans</button>
-        <button class="gen-tog" data-k="ramen" onclick="genToggle(this)">Ramen</button>
-        <button class="gen-tog" data-k="eastern" onclick="genToggle(this)">Oosters</button>
-        <button class="gen-tog" data-k="ottolenghi" onclick="genToggle(this)">Ottolenghi</button>
+        <button class="gen-tog" data-k="Belgisch" onclick="genToggle(this)">Belgisch</button>
+        <button class="gen-tog" data-k="Italiaans" onclick="genToggle(this)">Italiaans</button>
+        <button class="gen-tog" data-k="Mediterraans" onclick="genToggle(this)">Mediterraans</button>
+        <button class="gen-tog" data-k="Aziatisch" onclick="genToggle(this)">Aziatisch</button>
       </div>
     </div>
 
+    <!-- Karakter and Dieetwensen hidden — not yet supported by recipe catalog
     <div class="gen-section">
       <p class="gen-label">Karakter</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -252,6 +279,7 @@
         <button class="gen-tog" data-k="halal" onclick="genToggle(this)">Halal</button>
       </div>
     </div>
+    -->
 
   </div>
 </div>
@@ -301,22 +329,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="spoonacularModal">
-  <div class="modal-box">
-    <div class="modal-title">🍽️ Recepten instellen</div>
-    <p style="font-size:14px;color:var(--text-muted);margin:0 0 14px;">Om recepten te genereren heb je een gratis API-sleutel van Spoonacular nodig.</p>
-    <ol style="font-size:14px;color:var(--text-muted);margin:0 0 14px;padding-left:18px;line-height:1.8;">
-      <li>Ga naar <a href="https://spoonacular.com/food-api" target="_blank" rel="noopener" style="color:var(--brandColor);text-decoration:none;font-weight:500;">spoonacular.com/food-api</a></li>
-      <li>Maak een gratis account aan</li>
-      <li>Kopieer je API-sleutel en plak hem hieronder</li>
-    </ol>
-    <input type="text" class="modal-input" id="spoonacularKeyInput" placeholder="Plak je API-sleutel hier..." autocomplete="off" autocorrect="off" spellcheck="false">
-    <div class="modal-btns">
-      <button class="btn btn-secondary" onclick="closeSpoonacularModal()">Annuleren</button>
-      <button class="btn btn-primary" id="spoonacularSaveBtn" onclick="saveSpoonacularKey()" disabled>Opslaan</button>
-    </div>
-  </div>
-</div>
 
 <div class="modal-overlay" id="renameModal">
   <div class="modal-box">
@@ -385,7 +397,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, get, set, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD29JPhRCjywdu6RuTfIADfHFOdJMzejNs",
@@ -624,7 +636,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v32';
+const APP_VERSION = 'v33';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -637,7 +649,6 @@ const WEEK_DAY_SHORT  = {sunday:'Zo',monday:'Ma',tuesday:'Di',wednesday:'Wo',thu
 
 let list = {};
 let weekmenu = {};
-let spoonacularApiKey = null;
 let currentTab = 'list';
 let noteTarget = null;
 let listId = null;
@@ -690,7 +701,6 @@ function initList(id) {
     const data = snapshot.val() || {};
     list = data.items || {};
     weekmenu = data.weekmenu || {};
-    spoonacularApiKey = data.spoonacularApiKey || null;
     if (data.name) document.getElementById('listIdLabel').textContent = data.name;
     setSyncBar('ok');
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -1037,12 +1047,28 @@ window.saveCatalogProduct = function() {
 
 let editingMealId = null;
 
+window.toggleMealCatalogFields = function() {
+  const show = document.getElementById('mealAddToCatalog').checked;
+  document.getElementById('mealCatalogFields').style.display = show ? '' : 'none';
+};
+
+window.mealCatalogPick = function(btn) {
+  const group = btn.dataset.catalog;
+  document.querySelectorAll(`#mealCatalogFields [data-catalog="${group}"]`).forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+};
+
 window.openMealSheet = function() {
   editingMealId = null;
   hideMealToast();
   renderMealDayChips(null);
   document.getElementById('mealLabelInput').value = '';
   document.getElementById('mealRefInput').value = '';
+  document.getElementById('mealAddToCatalog').checked = false;
+  document.getElementById('mealCatalogFields').style.display = 'none';
+  document.querySelectorAll('#mealCatalogFields .gen-tog').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#mealCatalogFields .gen-pref-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('#mealCatalogFields [data-catalog="diet"][data-v="none"]')?.classList.add('on');
   document.getElementById('mealSaveBtn').disabled = true;
   document.getElementById('mealSaveBtn').textContent = 'Toevoegen';
   document.getElementById('mealSheetTitle').textContent = 'Maaltijd toevoegen';
@@ -1107,6 +1133,21 @@ window.saveMeal = function() {
     const newRef = push(ref(db,'lists/'+listId+'/weekmenu'));
     set(newRef, meal);
   }
+
+  if (document.getElementById('mealAddToCatalog').checked) {
+    const pick = group => document.querySelector(`#mealCatalogFields [data-catalog="${group}"].on`)?.dataset.v || null;
+    const entry = {
+      title: label,
+      url: recipeRef || '',
+      image_url: '',
+      region: pick('region'),
+      diet: pick('diet') || 'none',
+      trait: pick('trait'),
+    };
+    push(ref(db,'lists/'+listId+'/recipeCatalog'), entry);
+    if (_recipeCatalog) _recipeCatalog.push(entry);
+  }
+
   closeMealSheet();
 };
 
@@ -1708,138 +1749,77 @@ window.genToggle = function(btn) {
   btn.classList.toggle('on');
   genState[btn.dataset.k] = btn.classList.contains('on');
 };
+let _recipeCatalog = null;
+async function loadRecipeCatalog() {
+  if (_recipeCatalog) return _recipeCatalog;
+  const [jsonRes, fbSnap] = await Promise.all([
+    fetch('full_recipes_merged.json').then(r => r.json()),
+    get(ref(db, 'lists/' + listId + '/recipeCatalog')),
+  ]);
+  const userEntries = fbSnap.exists() ? Object.values(fbSnap.val()) : [];
+  _recipeCatalog = [...jsonRes, ...userEntries];
+  return _recipeCatalog;
+}
+
 window.handleGenerate = async function() {
-  const on = k => genState[k];
-
-  const cuisineMap = {
-    pasta: 'italian', curry: 'indian', indian: 'indian', chinese: 'chinese',
-    italian: 'italian', ramen: 'japanese', eastern: 'middle eastern', ottolenghi: 'middle eastern',
-  };
-  const cuisines = Object.keys(cuisineMap).filter(on).map(k => cuisineMap[k]);
-
-  let diet = '';
-  if (genPref === 'vegan' && genSplitCount === genCount) diet = 'vegan';
-  else if (genPref === 'vegi' && genSplitCount === genCount) diet = 'vegetarian';
-
-  const intoleranceMap = { lactose: 'dairy', gluten: 'gluten', nuts: 'tree nut', soy: 'soy' };
-  const intolerances = Object.keys(intoleranceMap).filter(on).map(k => intoleranceMap[k]);
-
-  const queryTerms = [];
-  if (on('stew')) queryTerms.push('stew');
-  if (on('flemish')) queryTerms.push('flemish');
-  if (on('ottolenghi')) queryTerms.push('ottolenghi');
-  if (on('comfort')) queryTerms.push('comfort food');
-  if (on('light')) queryTerms.push('light');
-  if (on('lowcarb')) queryTerms.push('low carb');
-  if (on('halal')) queryTerms.push('halal');
-
   closeGeneratorSheet();
-  await fetchRecipes({
-    count: genCount,
-    cuisines: [...new Set(cuisines)],
-    diet,
-    intolerances,
-    maxReadyTime: on('fast') ? 30 : null,
-    query: queryTerms.join(' '),
-    vegSplit: (genPref !== 'any' && genSplitCount > 0 && genSplitCount < genCount) ? genSplitCount : 0,
-    vegType: genPref,
+  showToast('Recepten zoeken...');
+
+  const catalog = await loadRecipeCatalog();
+
+  // Filter by region (if any toggled on)
+  const activeRegions = ['Belgisch','Italiaans','Mediterraans','Aziatisch'].filter(k => genState[k]);
+
+  // Filter by diet
+  const vegOnly = genPref === 'vegi' || genPref === 'vegan';
+
+  let pool = catalog.filter(r => {
+    if (activeRegions.length && !activeRegions.includes(r.region)) return false;
+    if (vegOnly && r.diet !== 'vegetarian') return false;
+    return true;
   });
-};
 
-let _pendingGenerateParams = null;
-
-async function fetchRecipes(params) {
-  if (!spoonacularApiKey) {
-    _pendingGenerateParams = params;
-    openSpoonacularModal();
+  if (!pool.length) {
+    showToast('Geen recepten gevonden. Probeer minder filters.');
     return;
   }
-  await runGenerate(params);
-}
 
-async function runGenerate(params) {
-  showToast('Recepten zoeken...');
-  try {
-    const results = await doSpoonacularSearch(spoonacularApiKey, params);
-    if (!results.length) { showToast('Geen recepten gevonden. Probeer minder filters.'); return; }
+  // Pick at least 1 per active region, fill remainder randomly
+  const shuffle = arr => arr.sort(() => Math.random() - 0.5);
+  let picked = [];
+  const usedUrls = new Set();
 
-    for (const r of results) {
-      await set(ref(db, 'lists/' + listId + '/weekmenu/' + generateId()), {
-        label: r.title,
-        ref: r.sourceUrl || '',
-      });
-    }
-
-    switchTab('weekmenu');
-    showToast(`${results.length} recept${results.length !== 1 ? 'en' : ''} toegevoegd!`);
-  } catch (e) {
-    console.error('[Generator]', e);
-    if (e.status === 402) {
-      showToast('Spoonacular daglimiet bereikt.');
-    } else if (e.status === 401) {
-      await set(ref(db, 'lists/' + listId + '/spoonacularApiKey'), null);
-      showToast('Ongeldige API-sleutel. Probeer opnieuw.');
-    } else {
-      showToast('Fout bij ophalen van recepten.');
+  if (activeRegions.length) {
+    for (const region of activeRegions) {
+      const regionPool = shuffle(pool.filter(r => r.region === region && !usedUrls.has(r.url)));
+      if (regionPool.length) {
+        picked.push(regionPool[0]);
+        usedUrls.add(regionPool[0].url);
+      }
     }
   }
-}
 
-window.openSpoonacularModal = function() {
-  const input = document.getElementById('spoonacularKeyInput');
-  input.value = '';
-  document.getElementById('spoonacularSaveBtn').disabled = true;
-  input.oninput = () => { document.getElementById('spoonacularSaveBtn').disabled = !input.value.trim(); };
-  document.getElementById('spoonacularModal').classList.add('show');
-};
-window.closeSpoonacularModal = function() {
-  document.getElementById('spoonacularModal').classList.remove('show');
-  _pendingGenerateParams = null;
-};
-window.saveSpoonacularKey = async function() {
-  const key = document.getElementById('spoonacularKeyInput').value.trim();
-  if (!key) return;
-  await set(ref(db, 'lists/' + listId + '/spoonacularApiKey'), key);
-  document.getElementById('spoonacularModal').classList.remove('show');
-  if (_pendingGenerateParams) {
-    const params = _pendingGenerateParams;
-    _pendingGenerateParams = null;
-    await runGenerate(params);
-  }
-};
-
-async function doSpoonacularSearch(apiKey, { count, cuisines, diet, intolerances, maxReadyTime, query, vegSplit, vegType }) {
-  const base = 'https://api.spoonacular.com/recipes/complexSearch';
-
-  const buildUrl = (n, dietOverride) => {
-    const p = new URLSearchParams({ apiKey, number: n, type: 'main course', addRecipeInformation: true, sort: 'random', instructionsRequired: true });
-    if (cuisines.length) p.set('cuisine', cuisines.join(','));
-    const d = dietOverride !== undefined ? dietOverride : diet;
-    if (d) p.set('diet', d);
-    if (intolerances.length) p.set('intolerances', intolerances.join(','));
-    if (maxReadyTime) p.set('maxReadyTime', maxReadyTime);
-    if (query) p.set('query', query);
-    return `${base}?${p}`;
-  };
-
-  const fetchJson = async url => {
-    const r = await fetch(url);
-    if (!r.ok) { const err = new Error('Spoonacular error'); err.status = r.status; throw err; }
-    return r.json();
-  };
-
-  if (vegSplit > 0) {
-    const vegDiet = vegType === 'vegan' ? 'vegan' : 'vegetarian';
-    const [r1, r2] = await Promise.all([
-      fetchJson(buildUrl(vegSplit, vegDiet)),
-      fetchJson(buildUrl(count - vegSplit, '')),
-    ]);
-    return [...(r1.results || []), ...(r2.results || [])];
+  // Fill remaining slots from the full pool
+  const remaining = shuffle(pool.filter(r => !usedUrls.has(r.url)));
+  for (const r of remaining) {
+    if (picked.length >= genCount) break;
+    picked.push(r);
+    usedUrls.add(r.url);
   }
 
-  const r = await fetchJson(buildUrl(count, undefined));
-  return r.results || [];
-}
+  const shuffled = picked.slice(0, genCount);
+
+  for (const r of shuffled) {
+    await set(ref(db, 'lists/' + listId + '/weekmenu/' + generateId()), {
+      label: r.title,
+      ref: r.url || '',
+    });
+  }
+
+  switchTab('weekmenu');
+  showToast(`${shuffled.length} recept${shuffled.length !== 1 ? 'en' : ''} toegevoegd!`);
+};
+
 window.menuCheckAll = function() {
   closeMenu();
   const unchecked = Object.entries(list).filter(([,i]) => !i.checked);
