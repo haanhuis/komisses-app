@@ -37,11 +37,20 @@
     font-size: 14px; outline: none;
   }
   #searchInput:focus { border-color: #1a56db; }
-
   #count { font-size: 13px; color: #888; margin-top: -8px; }
 
   /* Main */
-  #main { flex: 1; overflow-y: auto; padding: 20px; }
+  #main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+  .toolbar { display: flex; justify-content: flex-end; gap: 10px; }
+  .btn {
+    padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    cursor: pointer; border: none; transition: background 0.15s;
+  }
+  .btn-primary { background: #1a56db; color: white; }
+  .btn-primary:hover { background: #1648c0; }
+  .btn-secondary { background: #eee; color: #333; }
+  .btn-secondary:hover { background: #e0e0e0; }
 
   table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
   thead th {
@@ -70,6 +79,35 @@
   .badge-none { background: #f5f5f5; color: #888; }
   .thumb { width: 48px; height: 36px; object-fit: cover; border-radius: 6px; display: block; }
   .no-results { text-align: center; padding: 60px 20px; color: #888; font-size: 16px; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; padding: 28px;
+    width: 480px; max-width: 95vw; display: flex; flex-direction: column; gap: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  }
+  .modal h3 { font-size: 18px; font-weight: 600; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 13px; font-weight: 500; color: #555; }
+  .field input, .field select {
+    padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 14px; outline: none; width: 100%;
+  }
+  .field input:focus, .field select:focus { border-color: #1a56db; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+  .unsaved-banner {
+    background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; color: #795548;
+    display: none; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .unsaved-banner.show { display: flex; }
 </style>
 </head>
 <body>
@@ -98,19 +136,78 @@
 </div>
 
 <div id="main">
-  <table>
-    <thead>
-      <tr>
-        <th style="width:56px"></th>
-        <th data-col="title">Titel</th>
-        <th data-col="trait">Type</th>
-        <th data-col="diet">Dieet</th>
-        <th data-col="region">Regio</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
-  <div class="no-results" id="noResults" style="display:none">Geen resultaten gevonden.</div>
+  <div class="toolbar">
+    <div class="unsaved-banner" id="unsavedBanner">
+      <span id="unsavedCount"></span>
+      <button class="btn btn-primary" onclick="downloadJson()">Opslaan als JSON</button>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Recept toevoegen</button>
+  </div>
+
+  <div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:56px"></th>
+          <th data-col="title">Titel</th>
+          <th data-col="trait">Type</th>
+          <th data-col="diet">Dieet</th>
+          <th data-col="region">Regio</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="no-results" id="noResults" style="display:none">Geen resultaten gevonden.</div>
+  </div>
+</div>
+
+<!-- Add recipe modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Recept toevoegen</h3>
+    <div class="field">
+      <label>Titel *</label>
+      <input id="fTitle" type="text" placeholder="Naam van het recept...">
+    </div>
+    <div class="field">
+      <label>URL</label>
+      <input id="fUrl" type="url" placeholder="https://...">
+    </div>
+    <div class="field">
+      <label>Afbeelding URL</label>
+      <input id="fImage" type="url" placeholder="https://...">
+    </div>
+    <div class="field">
+      <label>Type</label>
+      <select id="fTrait">
+        <option value="">— Geen —</option>
+        <option value="pasta">Pasta</option>
+        <option value="vis">Vis</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Dieet</label>
+      <select id="fDiet">
+        <option value="none">Geen</option>
+        <option value="vegetarian">Vegetarisch</option>
+        <option value="vegan">Vegan</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Regio</label>
+      <select id="fRegion">
+        <option value="">— Geen —</option>
+        <option value="Belgisch">Belgisch</option>
+        <option value="Italiaans">Italiaans</option>
+        <option value="Mediterraans">Mediterraans</option>
+        <option value="Aziatisch">Aziatisch</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveRecipe()">Toevoegen</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -120,6 +217,7 @@ let sortDir = 1;
 let activeTraits = new Set();
 let activeDiets = new Set();
 let activeRegions = new Set();
+let unsavedCount = 0;
 
 fetch('full_recipes_merged.json')
   .then(r => r.json())
@@ -206,13 +304,66 @@ function render() {
 
   document.getElementById('tbody').innerHTML = rows.map(r => `
     <tr>
-      <td><img class="thumb" src="${r.image_url}" loading="lazy" onerror="this.style.display='none'"></td>
+      <td><img class="thumb" src="${r.image_url || ''}" loading="lazy" onerror="this.style.display='none'"></td>
       <td class="title-cell"><a href="${r.url}" target="_blank" rel="noopener">${r.title}</a></td>
       <td><span class="badge badge-${r.trait || 'none'}">${r.trait || '—'}</span></td>
       <td><span class="badge badge-${r.diet || 'none'}">${r.diet === 'none' ? 'Geen' : r.diet === 'vegetarian' ? 'Vegetarisch' : r.diet || '—'}</span></td>
       <td>${r.region || '—'}</td>
     </tr>
   `).join('');
+}
+
+// Modal
+function openModal() {
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fUrl').value = '';
+  document.getElementById('fImage').value = '';
+  document.getElementById('fTrait').value = '';
+  document.getElementById('fDiet').value = 'none';
+  document.getElementById('fRegion').value = '';
+  document.getElementById('addModal').classList.add('open');
+  setTimeout(() => document.getElementById('fTitle').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('addModal').classList.remove('open');
+}
+
+document.getElementById('addModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+function saveRecipe() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { document.getElementById('fTitle').focus(); return; }
+
+  const entry = {
+    title,
+    url: document.getElementById('fUrl').value.trim() || '',
+    image_url: document.getElementById('fImage').value.trim() || '',
+    trait: document.getElementById('fTrait').value || null,
+    diet: document.getElementById('fDiet').value || 'none',
+    region: document.getElementById('fRegion').value || null,
+  };
+
+  data.push(entry);
+  unsavedCount++;
+  document.getElementById('unsavedCount').textContent = `${unsavedCount} nieuwe recept${unsavedCount !== 1 ? 'en' : ''} toegevoegd — nog niet opgeslagen`;
+  document.getElementById('unsavedBanner').classList.add('show');
+  buildFilters();
+  render();
+  closeModal();
+}
+
+function downloadJson() {
+  const blob = new Blob([JSON.stringify(data, null, 4)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'full_recipes_merged.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  unsavedCount = 0;
+  document.getElementById('unsavedBanner').classList.remove('show');
 }
 </script>
 </body>
