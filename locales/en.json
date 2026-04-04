@@ -1,4 +1,5 @@
 {
+  "app_title": "Groceries",
   "loading": "Connecting to list...",
   "newlist_desc": "Create a new list or connect to an existing shared list.",
   "newlist_create": "Create new list",
