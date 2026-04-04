@@ -180,6 +180,7 @@
         <button class="gen-tog" data-catalog="region" data-v="Italiaans" onclick="mealCatalogPick(this)">Italiaans</button>
         <button class="gen-tog" data-catalog="region" data-v="Mediterraans" onclick="mealCatalogPick(this)">Mediterraans</button>
         <button class="gen-tog" data-catalog="region" data-v="Aziatisch" onclick="mealCatalogPick(this)">Aziatisch</button>
+        <button class="gen-tog" data-catalog="region" data-v="Indisch" onclick="mealCatalogPick(this)">Indisch</button>
       </div>
     </div>
     <div class="gen-section" style="padding:12px 0 0;border:none;">
@@ -187,6 +188,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="gen-pref-btn on" data-catalog="diet" data-v="none" onclick="mealCatalogPick(this)">Geen</button>
         <button class="gen-pref-btn" data-catalog="diet" data-v="vegetarian" onclick="mealCatalogPick(this)">Vegetarisch</button>
+        <button class="gen-pref-btn" data-catalog="diet" data-v="vegan" onclick="mealCatalogPick(this)">Vegan</button>
       </div>
     </div>
     <div class="gen-section" style="padding:12px 0 0;border:none;">
@@ -194,6 +196,8 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="gen-tog" data-catalog="trait" data-v="pasta" onclick="mealCatalogPick(this)">Pasta</button>
         <button class="gen-tog" data-catalog="trait" data-v="vis" onclick="mealCatalogPick(this)">Vis</button>
+        <button class="gen-tog" data-catalog="trait" data-v="curry" onclick="mealCatalogPick(this)">Curry</button>
+        <button class="gen-tog" data-catalog="trait" data-v="ovenschotel" onclick="mealCatalogPick(this)">Ovenschotel</button>
       </div>
     </div>
   </div>
@@ -225,7 +229,6 @@
         <button onclick="genAdjCount(-1)" class="gen-stepper-btn">−</button>
         <span id="gen-count-display" style="font-size:28px;font-weight:500;color:var(--text);min-width:24px;text-align:center;">5</span>
         <button onclick="genAdjCount(1)" class="gen-stepper-btn">+</button>
-        <span style="font-size:13px;color:var(--text-muted);">recepten voor de week</span>
       </div>
     </div>
 
@@ -233,7 +236,6 @@
       <p class="gen-label">Dieet</p>
       <div style="display:flex;gap:8px;">
         <button id="gen-pref-vegi" class="gen-pref-btn" onclick="genSetPref('vegi')">Vegetarisch</button>
-        <button id="gen-pref-vegan" class="gen-pref-btn" onclick="genSetPref('vegan')">Veganistisch</button>
         <button id="gen-pref-any" class="gen-pref-btn on" onclick="genSetPref('any')">Maakt niet uit</button>
       </div>
       <div id="gen-split-panel" style="display:none;margin-top:16px;">
@@ -245,6 +247,14 @@
           <input type="range" id="gen-vegi-slider" min="0" max="5" step="1" value="2" oninput="genOnSliderChange()" style="width:100%;" />
           <div id="gen-tick-row" style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:0 9px;"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="gen-section">
+      <p class="gen-label">Type</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gen-tog" data-k="pasta" onclick="genToggle(this)">Pasta</button>
+        <button class="gen-tog" data-k="vis" onclick="genToggle(this)">Vis</button>
       </div>
     </div>
 
@@ -280,6 +290,26 @@
       </div>
     </div>
     -->
+
+    <div class="gen-section" style="border-bottom:none;">
+      <p class="gen-label">Opties</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="meal-catalog-toggle">
+          <label class="ui-switch">
+            <input type="checkbox" id="genPlanDays">
+            <span class="ui-switch-track"></span>
+          </label>
+          <span>Inplannen voor de komende dagen</span>
+        </div>
+        <div class="meal-catalog-toggle">
+          <label class="ui-switch">
+            <input type="checkbox" id="genReplace" checked>
+            <span class="ui-switch-track"></span>
+          </label>
+          <span>Vervang bestaande gegenereerde recepten</span>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -808,14 +838,26 @@ function renderBrowse() {
 }
 
 // ── Week menu ─────────────────────────────────────────────────────────
-function getOrderedDays() {
-  const todayIdx = new Date().getDay(); // 0=Sun, 1=Mon, ...
-  return [...WEEK_DAYS.slice(todayIdx), ...WEEK_DAYS.slice(0, todayIdx)];
+function getOrderedDays(byDay) {
+  const todayIdx = new Date().getDay();
+  const next7 = Array.from({length: 7}, (_, i) => WEEK_DAYS[(todayIdx + i) % 7]);
+  const prev2 = [WEEK_DAYS[(todayIdx + 5) % 7], WEEK_DAYS[(todayIdx + 6) % 7]];
+  const pastWithMeals = byDay ? prev2.filter(d => byDay[d]?.length) : [];
+  // Remove past days from next7 to avoid duplicates
+  const pastSet = new Set(pastWithMeals);
+  return [...pastWithMeals, ...next7.filter(d => !pastSet.has(d))];
+}
+
+function isPastDay(dayKey) {
+  const todayIdx = new Date().getDay();
+  const diff = (WEEK_DAYS.indexOf(dayKey) - todayIdx + 7) % 7;
+  return diff >= 5;
 }
 
 function renderWeekMenu() {
   const main = document.getElementById('main');
   const meals = Object.entries(weekmenu);
+  if (!_recipeCatalog) loadRecipeCatalog().then(() => renderWeekMenu());
 
   if (meals.length === 0) {
     main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.261 1.035a2.25 2.25 0 0 0 1.908 1.908l1.035.261a.75.75 0 0 1 0 1.456l-1.035.261a2.25 2.25 0 0 0-1.908 1.908l-.261 1.035a.75.75 0 0 1-1.456 0l-.261-1.035a2.25 2.25 0 0 0-1.908-1.908l-1.035-.261a.75.75 0 0 1 0-1.456l1.035-.261a2.25 2.25 0 0 0 1.908-1.908l.261-1.035A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183a1.5 1.5 0 0 0 .948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395a1.5 1.5 0 0 0-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395a1.5 1.5 0 0 0 .948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd"/></svg>${t('weekmenu_generate_btn')}</button></div>`;
@@ -829,8 +871,6 @@ function renderWeekMenu() {
     byDay[m.day].push([id, m]);
   });
 
-  let html = '';
-
   const today = new Date();
   const todayKey = WEEK_DAYS[today.getDay()];
   const getDayDate = dayKey => {
@@ -839,24 +879,98 @@ function renderWeekMenu() {
     d.setDate(today.getDate() + diff);
     return `${d.getDate()}/${d.getMonth() + 1}`;
   };
-  getOrderedDays().forEach(day => {
-    const items = byDay[day];
-    if (!items || !items.length) return;
-    html += `<div class="meal-day-section">
-      <div class="meal-day-header${day === todayKey ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
-      <div class="meal-day-items">${items.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
+
+  let daysHtml = '';
+  getOrderedDays(byDay).forEach(day => {
+    const items = byDay[day] || [];
+    const isToday = day === todayKey;
+    const isPast = isPastDay(day);
+    daysHtml += `<div class="meal-day-section${isPast ? ' meal-day-section--past' : ''}"${isToday ? ' id="today-section"' : ''}>
+      <div class="meal-day-header${isToday ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
+      <div class="meal-day-items drop-zone" data-drop-day="${day}">
+        ${items.map(([id,m]) => renderMealItem(id,m)).join('')}
+        <div class="meal-drop-slot">Sleep hier</div>
+      </div>
     </div>`;
   });
 
+  let shelfHtml = '';
   if (unplanned.length) {
-    html += `<div class="meal-day-section">
-      <div class="meal-day-header">Niet gepland</div>
-      <div class="meal-day-items">${unplanned.map(([id,m]) => renderMealItem(id,m)).join('')}</div>
+    shelfHtml = `<div class="unplanned-sheet drop-zone" id="unplannedSheet" data-drop-day="">
+      <div class="unplanned-sheet-handle-row" onclick="toggleUnplannedSheet()">
+        <div class="unplanned-shelf-label">Niet gepland (${unplanned.length})</div>
+        <div class="unplanned-sheet-handle"></div>
+      </div>
+      <div class="unplanned-sheet-inner">
+        <div class="unplanned-sheet-scroll">
+          ${unplanned.map(([id,m]) => renderMealItem(id,m)).join('')}
+        </div>
+      </div>
     </div>`;
   }
 
-  main.innerHTML = html;
-  meals.forEach(([id]) => initMealSwipe(id));
+  main.innerHTML = `<div class="week-days-area">${daysHtml}</div>${shelfHtml}`;
+  meals.filter(([,m]) => m.day).forEach(([id]) => initMealSwipe(id));
+  meals.forEach(([id]) => initMealDrag(id));
+  initUnplannedSheetResize();
+  const hasPastMeals = getOrderedDays(byDay).some(d => isPastDay(d));
+  if (hasPastMeals) {
+    setTimeout(() => {
+      const todayEl = document.getElementById('today-section');
+      const area = document.querySelector('.week-days-area');
+      if (todayEl && area) {
+        const header = todayEl.querySelector('.meal-day-header');
+        area.scrollTop = header ? header.offsetTop : todayEl.offsetTop;
+      }
+    }, 50);
+  }
+}
+
+function initUnplannedSheetResize() {
+  const sheet = document.getElementById('unplannedSheet');
+  if (!sheet) return;
+  const handleRow = sheet.querySelector('.unplanned-sheet-handle-row');
+  if (!handleRow) return;
+
+  // Auto-size to fit one row of cards + bottom nav height
+  const scrollEl = sheet.querySelector('.unplanned-sheet-scroll');
+  const bottomNav = document.querySelector('.bottom-nav');
+  if (scrollEl) {
+    const navH = bottomNav ? bottomNav.offsetHeight : 0;
+    const fitH = handleRow.offsetHeight + scrollEl.scrollHeight + navH + 28;
+    sheet.style.height = fitH + 'px';
+  }
+
+  let startY = 0, startH = 0, resizing = false;
+  const MIN_H = 80, MAX_H = window.innerHeight * 0.75;
+
+  handleRow.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    startH = sheet.offsetHeight;
+    resizing = true;
+    sheet.classList.add('is-resizing');
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    if (!resizing) return;
+    const dy = startY - e.touches[0].clientY;
+    const newH = Math.min(MAX_H, Math.max(MIN_H, startH + dy));
+    sheet.style.height = newH + 'px';
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    if (!resizing) return;
+    resizing = false;
+    sheet.classList.remove('is-resizing');
+  });
+}
+
+function renderShelfCard(id, meal) {
+  const img = meal.ref && _recipeCatalog ? (_recipeCatalog.find(r => r.url === meal.ref) || {}).image_url : null;
+  return `<div class="shelf-card" id="meal-${id}">
+    ${img ? `<img class="shelf-card-img" src="${img}" loading="lazy" onerror="this.style.display='none'">` : '<div class="shelf-card-placeholder"></div>'}
+    <div class="shelf-card-title">${meal.label}</div>
+  </div>`;
 }
 
 function renderMealItem(id, meal) {
@@ -872,20 +986,32 @@ function renderMealItem(id, meal) {
     }
   }
   const isUrl = meal.ref && (meal.ref.startsWith('http://') || meal.ref.startsWith('https://'));
-  const cardClick = isUrl ? `window.open('${meal.ref}','_blank','noopener')` : '';
+  const openUrl = isUrl ? (meal.ref.includes('?') ? meal.ref + '&source=web' : meal.ref + '?source=web') : null;
+  const cardClick = openUrl ? `window.open('${openUrl}','_blank','noopener')` : '';
+  const cardData = openUrl ? ` data-open-url="${openUrl}"` : '';
   const todayKey = WEEK_DAYS[new Date().getDay()];
   const pickerChips = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(d =>
     `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" onclick="event.stopPropagation();pickMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
   ).join('');
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
-    <div class="meal-card" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}>
+    <div class="meal-card" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}${cardData}>
+      <!-- check button hidden — swipe right to complete
       <button class="item-action-btn meal-check-btn" onclick="event.stopPropagation();checkMeal('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg></button>
+      -->
+      ${(() => {
+        const img = meal.ref && _recipeCatalog ? (_recipeCatalog.find(r => r.url === meal.ref) || {}).image_url : null;
+        return img
+          ? `<img class="meal-thumb" src="${img}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling?.classList.remove('hidden')">`
+          : `<div class="meal-thumb meal-thumb-placeholder"><img src="fork-and-knife-combination-svgrepo-com.svg" width="22" height="22" style="opacity:0.35;"></div>`;
+      })()}
       <div class="meal-info">
         <div class="item-name">${meal.label}</div>
         ${refText}
       </div>
+      <!-- calendar button hidden — drag to assign day
       <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();toggleMealDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
-      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>
+      -->
+      ${!meal.generated ? `<button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>` : ''}
       <div class="meal-daypicker hidden" id="daypicker-${id}">
         ${pickerChips}
       </div>
@@ -943,6 +1069,81 @@ function initMealSwipe(id) {
       if (btn) btn.style.color = '';
     }
   });
+}
+
+function initMealDrag(id) {
+  const card = document.getElementById('meal-' + id);
+  if (!card) return;
+  let clone = null, dragActive = false, longPressTimer = null;
+  let startTouch = null, offsetX = 0, offsetY = 0, currentDrop = null;
+
+  card.addEventListener('touchstart', e => {
+    startTouch = e.touches[0];
+    longPressTimer = setTimeout(() => activateDrag(e.touches[0]), 350);
+  }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    if (!dragActive) {
+      const dx = Math.abs(e.touches[0].clientX - startTouch.clientX);
+      const dy = Math.abs(e.touches[0].clientY - startTouch.clientY);
+      if (dx > 6 || dy > 6) clearTimeout(longPressTimer);
+      return;
+    }
+    e.preventDefault();
+    const t = e.touches[0];
+    clone.style.left = (t.clientX - offsetX) + 'px';
+    clone.style.top  = (t.clientY - offsetY) + 'px';
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const drop = el?.closest('.drop-zone');
+    if (drop !== currentDrop) {
+      if (currentDrop) currentDrop.classList.remove('drag-over');
+      currentDrop = drop;
+      if (currentDrop) currentDrop.classList.add('drag-over');
+    }
+  }, { passive: false });
+
+  card.addEventListener('touchend', () => {
+    clearTimeout(longPressTimer);
+    if (!dragActive) return;
+    finishDrag();
+  });
+  card.addEventListener('touchcancel', () => { clearTimeout(longPressTimer); cancelDrag(); });
+
+  function activateDrag(touch) {
+    dragActive = true;
+    const rect = card.getBoundingClientRect();
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+    clone = card.cloneNode(true);
+    clone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;opacity:0.88;z-index:9999;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,0.18);transform:scale(1.04);border-radius:14px;transition:none;`;
+    document.body.appendChild(clone);
+    card.style.opacity = '0.3';
+    if (navigator.vibrate) navigator.vibrate(30);
+    document.querySelectorAll('.drop-zone').forEach(z => z.classList.add('drop-active'));
+  }
+
+  function finishDrag() {
+    if (clone) { clone.remove(); clone = null; }
+    card.style.opacity = '';
+    dragActive = false;
+    document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drop-active', 'drag-over'));
+    if (currentDrop) {
+      const newDay = currentDrop.dataset.dropDay || null;
+      const currentDay = weekmenu[id]?.day || null;
+      if (newDay !== currentDay) {
+        update(ref(db, 'lists/' + listId + '/weekmenu/' + id), { day: newDay });
+      }
+      currentDrop = null;
+    }
+  }
+
+  function cancelDrag() {
+    if (clone) { clone.remove(); clone = null; }
+    card.style.opacity = '';
+    dragActive = false;
+    document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drop-active', 'drag-over'));
+    currentDrop = null;
+  }
 }
 
 window.checkMeal = function(id) {
@@ -1769,14 +1970,16 @@ window.handleGenerate = async function() {
 
   const catalog = await loadRecipeCatalog();
 
-  // Filter by region (if any toggled on)
   const activeRegions = ['Belgisch','Italiaans','Mediterraans','Aziatisch'].filter(k => genState[k]);
-
-  // Filter by diet
+  const activeTraits = ['pasta','vis'].filter(k => genState[k]);
   const vegOnly = genPref === 'vegi' || genPref === 'vegan';
 
   let pool = catalog.filter(r => {
     if (activeRegions.length && !activeRegions.includes(r.region)) return false;
+    if (activeTraits.length) {
+      const rTraits = (r.trait || '').split(',').map(v => v.trim());
+      if (!activeTraits.some(t => rTraits.includes(t))) return false;
+    }
     if (vegOnly && r.diet !== 'vegetarian') return false;
     return true;
   });
@@ -1810,12 +2013,26 @@ window.handleGenerate = async function() {
   }
 
   const shuffled = picked.slice(0, genCount);
+  const planDays = document.getElementById('genPlanDays').checked;
+  const doReplace = document.getElementById('genReplace').checked;
 
-  for (const r of shuffled) {
-    await set(ref(db, 'lists/' + listId + '/weekmenu/' + generateId()), {
-      label: r.title,
-      ref: r.url || '',
-    });
+  if (doReplace) {
+    const toDelete = Object.entries(weekmenu).filter(([,m]) => m.generated);
+    await Promise.all(toDelete.map(([id]) => remove(ref(db, 'lists/' + listId + '/weekmenu/' + id))));
+    toDelete.forEach(([id]) => delete weekmenu[id]);
+  }
+
+  // Build ordered days from today, skipping days that already have a meal
+  const todayIdx = new Date().getDay();
+  const orderedDays = [...WEEK_DAYS.slice(todayIdx), ...WEEK_DAYS.slice(0, todayIdx)];
+  const takenDays = new Set(Object.values(weekmenu).map(m => m.day).filter(Boolean));
+  const availableDays = orderedDays.filter(d => !takenDays.has(d));
+
+  for (let i = 0; i < shuffled.length; i++) {
+    const r = shuffled[i];
+    const meal = { label: r.title, ref: r.url || '', generated: true };
+    if (planDays && availableDays[i]) meal.day = availableDays[i];
+    await set(ref(db, 'lists/' + listId + '/weekmenu/' + generateId()), meal);
   }
 
   switchTab('weekmenu');
