@@ -6581,5 +6581,45 @@
         "trait": "vis",
         "region": "Italiaans",
         "diet": "none"
+    },
+    {
+        "title": "Butter Bean curry",
+        "url": "https://www.romylondonuk.com/butter-bean-curry/",
+        "image_url": "https://www.romylondonuk.com/wp-content/uploads/2022/03/Butter-Bean-Curry-Vegan-and-Creamy_26-500x500.jpg",
+        "trait": "curry",
+        "diet": "vegan",
+        "region": "Indisch"
+    },
+    {
+        "title": "Chickpea butter masala",
+        "url": "https://bumbicurry.blogspot.com/2025/03/chickpea-butter-masala-chole-butter.html",
+        "image_url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVEuK2IYzUWwc5mzosvntomzg6U0NZzao6zdnIVjx_3vZRlph71uJLzeRZyKuBwLOeO1pU5laXS-QeENAjIdVFdloSlY32l2OJDcC5RijBkl6CuUVfFnDrNzqquJhqByRh1Cgch8wuUrwtC7HGmKqiJ2nchIW-Vhm8jQHBl-dh8vLlDRIyg7Ifjg639io/w564-h378/DSC00401.JPG",
+        "trait": "curry",
+        "diet": "vegetarian",
+        "region": "Indisch"
+    },
+    {
+        "title": "Creamy Miso Pasta",
+        "url": "https://www.bitesofberi.com/creamy-miso-pasta/",
+        "image_url": "https://www.bitesofberi.com/wp-content/uploads/2023/01/creamy-miso-pasta-1.jpg",
+        "trait": "pasta",
+        "diet": "vegan",
+        "region": "Aziatisch"
+    },
+    {
+        "title": "Hete bliksem met knolselder",
+        "url": "https://dagelijksekost.vrt.be/gerechten/hete-bliksem-met-knolselder",
+        "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvbNP98uQvKqL1C-reph-1eIa7479d4a24Ief9IAA8KXcEJZRjusKKP7Qc&s=10",
+        "trait": null,
+        "diet": "none",
+        "region": "Belgisch"
+    },
+    {
+        "title": "Maple Lime Roasted Cauliflower and Chickpeas",
+        "url": "https://plantbasedrdblog.com/2023/10/maple-lime-roasted-cauliflower-and-chickpeas/",
+        "image_url": "https://plantbasedrdblog.com/wp-content/uploads/2023/10/maple-lime-roasted-cauliflower-and-chickpeas_feat.jpg",
+        "trait": null,
+        "diet": "vegan",
+        "region": null
     }
 ]
