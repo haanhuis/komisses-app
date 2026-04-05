@@ -8,12 +8,8 @@ FILE_NAME = "full_recipes_merged.json"
 # Each job: (url, tags to apply/merge)
 SCRAPE_JOBS = [
     (
-        "https://dagelijksekost.vrt.be/gerechten/zoeken?course=main&trait=vis&region=Italiaans",
-        {"trait": "vis", "region": "Italiaans"},
-    ),
-    (
-        "https://dagelijksekost.vrt.be/gerechten/zoeken?course=main&region=Belgisch&diet=vegetarian",
-        {"region": "Belgisch", "diet": "vegetarian"},
+        "https://dagelijksekost.vrt.be/gerechten/zoeken?course=main&trait=ovenschotel&diet=Vegetarian&region=Belgisch",
+        {"trait": "ovenschotel", "region": "Belgisch", "diet": "vegetarian"},
     ),
 ]
 
