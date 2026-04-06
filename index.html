@@ -889,7 +889,7 @@ function renderWeekMenu() {
       <div class="meal-day-header${isToday ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
       <div class="meal-day-items drop-zone" data-drop-day="${day}">
         ${items.length === 0
-          ? `<div class="meal-day-empty"><div class="meal-drop-slot">Sleep hier</div></div>`
+          ? `<div class="meal-day-empty"><div class="meal-drop-slot">Niks gepland</div></div>`
           : items.map(([id,m]) => renderMealItem(id,m)).join('')
         }
       </div>
