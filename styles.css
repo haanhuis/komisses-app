@@ -1908,16 +1908,25 @@ main.main--weekmenu {
 }
 
 /* Drop zones */
+.meal-day-empty {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .meal-drop-slot {
     display: none;
+    width: 100%;
     border: 2px dashed #ddd;
     border-radius: 10px;
-    padding: 12px;
+    padding: 20px 12px;
     text-align: center;
     color: var(--text-muted);
     font-size: 12px;
 }
-.drop-zone.drop-active .meal-drop-slot { display: block; }
+/* Always show drop slot on empty days */
+.meal-day-empty .meal-drop-slot { display: block; }
+/* Highlight when dragging over */
 .drop-zone.drag-over { background: var(--brandColor-light); }
 .drop-zone.drag-over .meal-drop-slot { border-color: var(--brandColor); color: var(--brandColor); }
 

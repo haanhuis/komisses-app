@@ -888,8 +888,10 @@ function renderWeekMenu() {
     daysHtml += `<div class="meal-day-section${isPast ? ' meal-day-section--past' : ''}"${isToday ? ' id="today-section"' : ''}>
       <div class="meal-day-header${isToday ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
       <div class="meal-day-items drop-zone" data-drop-day="${day}">
-        ${items.map(([id,m]) => renderMealItem(id,m)).join('')}
-        <div class="meal-drop-slot">Sleep hier</div>
+        ${items.length === 0
+          ? `<div class="meal-day-empty"><div class="meal-drop-slot">Sleep hier</div></div>`
+          : items.map(([id,m]) => renderMealItem(id,m)).join('')
+        }
       </div>
     </div>`;
   });
@@ -1075,49 +1077,84 @@ function initMealDrag(id) {
   const card = document.getElementById('meal-' + id);
   if (!card) return;
   let clone = null, dragActive = false, longPressTimer = null;
-  let startTouch = null, offsetX = 0, offsetY = 0, currentDrop = null;
+  let startPos = null, offsetX = 0, offsetY = 0, currentDrop = null;
 
+  // ── Touch ──────────────────────────────────────────────────────────────
   card.addEventListener('touchstart', e => {
-    startTouch = e.touches[0];
+    startPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     longPressTimer = setTimeout(() => activateDrag(e.touches[0]), 350);
   }, { passive: true });
 
   card.addEventListener('touchmove', e => {
     if (!dragActive) {
-      const dx = Math.abs(e.touches[0].clientX - startTouch.clientX);
-      const dy = Math.abs(e.touches[0].clientY - startTouch.clientY);
+      const dx = Math.abs(e.touches[0].clientX - startPos.x);
+      const dy = Math.abs(e.touches[0].clientY - startPos.y);
       if (dx > 6 || dy > 6) clearTimeout(longPressTimer);
       return;
     }
     e.preventDefault();
     const t = e.touches[0];
-    clone.style.left = (t.clientX - offsetX) + 'px';
-    clone.style.top  = (t.clientY - offsetY) + 'px';
-    const el = document.elementFromPoint(t.clientX, t.clientY);
+    moveClone(t.clientX, t.clientY);
+  }, { passive: false });
+
+  card.addEventListener('touchend', () => { clearTimeout(longPressTimer); if (dragActive) finishDrag(); });
+  card.addEventListener('touchcancel', () => { clearTimeout(longPressTimer); cancelDrag(); });
+
+  // ── Mouse ──────────────────────────────────────────────────────────────
+  function onMouseMove(e) {
+    if (!dragActive) {
+      if (startPos) {
+        const dx = Math.abs(e.clientX - startPos.x);
+        const dy = Math.abs(e.clientY - startPos.y);
+        if (dx > 6 || dy > 6) { clearTimeout(longPressTimer); removeMouseListeners(); }
+      }
+      return;
+    }
+    moveClone(e.clientX, e.clientY);
+  }
+
+  function onMouseUp() {
+    removeMouseListeners();
+    if (!dragActive) { clearTimeout(longPressTimer); startPos = null; return; }
+    finishDrag();
+  }
+
+  function removeMouseListeners() {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  }
+
+  card.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    startPos = { x: e.clientX, y: e.clientY };
+    longPressTimer = setTimeout(() => activateDrag(e), 350);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  // ── Shared ─────────────────────────────────────────────────────────────
+  function moveClone(x, y) {
+    clone.style.left = (x - offsetX) + 'px';
+    clone.style.top  = (y - offsetY) + 'px';
+    const el = document.elementFromPoint(x, y);
     const drop = el?.closest('.drop-zone');
     if (drop !== currentDrop) {
       if (currentDrop) currentDrop.classList.remove('drag-over');
       currentDrop = drop;
       if (currentDrop) currentDrop.classList.add('drag-over');
     }
-  }, { passive: false });
+  }
 
-  card.addEventListener('touchend', () => {
-    clearTimeout(longPressTimer);
-    if (!dragActive) return;
-    finishDrag();
-  });
-  card.addEventListener('touchcancel', () => { clearTimeout(longPressTimer); cancelDrag(); });
-
-  function activateDrag(touch) {
+  function activateDrag(pos) {
     dragActive = true;
     const rect = card.getBoundingClientRect();
-    offsetX = touch.clientX - rect.left;
-    offsetY = touch.clientY - rect.top;
+    offsetX = pos.clientX - rect.left;
+    offsetY = pos.clientY - rect.top;
     clone = card.cloneNode(true);
     clone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;opacity:0.88;z-index:9999;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,0.18);transform:scale(1.04);border-radius:14px;transition:none;`;
     document.body.appendChild(clone);
     card.style.opacity = '0.3';
+    document.body.style.userSelect = 'none';
     if (navigator.vibrate) navigator.vibrate(30);
     document.querySelectorAll('.drop-zone').forEach(z => z.classList.add('drop-active'));
   }
@@ -1126,6 +1163,9 @@ function initMealDrag(id) {
     if (clone) { clone.remove(); clone = null; }
     card.style.opacity = '';
     dragActive = false;
+    startPos = null;
+    document.body.style.userSelect = '';
+    removeMouseListeners();
     document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drop-active', 'drag-over'));
     if (currentDrop) {
       const newDay = currentDrop.dataset.dropDay || null;
@@ -1141,6 +1181,9 @@ function initMealDrag(id) {
     if (clone) { clone.remove(); clone = null; }
     card.style.opacity = '';
     dragActive = false;
+    startPos = null;
+    document.body.style.userSelect = '';
+    removeMouseListeners();
     document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drop-active', 'drag-over'));
     currentDrop = null;
   }
