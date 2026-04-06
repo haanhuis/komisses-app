@@ -760,7 +760,7 @@ function renderList() {
   const active = entries.filter(([,i]) => !i.checked);
   const done   = entries.filter(([,i]) => i.checked);
 
-  if (entries.length === 0 || (active.length === 0 && (hideDone || done.length === 0))) {
+  if (entries.length === 0 || active.length === 0) {
     main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">${t('list_empty_title')}</div><div class="empty-sub">${t('list_empty_sub')}</div></div>`;
     return;
   }
