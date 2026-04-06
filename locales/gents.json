@@ -81,5 +81,15 @@
     "pet": "Bîesten-eten",
     "swe": "Snisjes & lekkers",
     "ont": "'T ochtendeten"
+  },
+  "add_meal": "Eten baissteken",
+  "add_recipe": "Recept baissteken",
+  "days": {
+    "monday": "Moandag", "tuesday": "Deisdag", "wednesday": "Woensdag",
+    "thursday": "Donderdag", "friday": "Vraidag", "saturday": "Zoaterdag", "sunday": "Zondag"
+  },
+  "days_short": {
+    "monday": "Mo", "tuesday": "De", "wednesday": "Wo",
+    "thursday": "Do", "friday": "Vr", "saturday": "Zoa", "sunday": "Zon"
   }
 }

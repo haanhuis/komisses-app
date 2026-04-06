@@ -81,5 +81,15 @@
     "pet": "Pet food",
     "swe": "Snacks & Sweets",
     "ont": "Breakfast"
+  },
+  "add_meal": "Add meal",
+  "add_recipe": "Add recipe",
+  "days": {
+    "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday",
+    "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday", "sunday": "Sunday"
+  },
+  "days_short": {
+    "monday": "Mo", "tuesday": "Tu", "wednesday": "We",
+    "thursday": "Th", "friday": "Fr", "saturday": "Sa", "sunday": "Su"
   }
 }

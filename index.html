@@ -422,7 +422,7 @@
     <span class="weekmenu-action-icon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd"/></svg>
     </span>
-    <span class="weekmenu-action-label">Maaltijd toevoegen</span>
+    <span class="weekmenu-action-label" id="addMealActionLabel">Recept toevoegen</span>
   </button>
   <button class="weekmenu-action-item" onclick="closeWeekmenuActionSheet(); openGeneratorSheet()">
     <span class="weekmenu-action-icon">
@@ -433,7 +433,7 @@
 </div>
 
 <div class="bottom-fade"></div>
-<label class="fab" for="fabTriggerInput" onclick="openFabSearch()"><i class="lni lni-plus"></i></label>
+<label class="fab" for="fabTriggerInput" onclick="openFabSearch(event)"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" class="hidden-input" autocomplete="off">
 <div class="toast" id="toast"></div>
 <div class="toast meal-toast" id="mealToast">Maaltijd afgevinkt &nbsp;<button class="meal-toast-undo" onclick="undoCheckMeal()">Ongedaan maken</button></div>
@@ -503,6 +503,7 @@ function applyLocaleToDOM() {
   const tl = document.getElementById('tabListText'); if (tl) tl.textContent = t('tab_list');
   const tb = document.getElementById('tab-browse')?.querySelector('span:not(.tab-icon)'); if (tb) tb.textContent = t('tab_browse');
   const tw = document.getElementById('tabWeekmenuText'); if (tw) tw.textContent = t('tab_weekmenu');
+  const am = document.getElementById('addMealActionLabel'); if (am) am.textContent = t('add_recipe');
   // Note modal
   const ni = document.getElementById('noteInput'); if (ni) ni.placeholder = t('note_placeholder');
   const ncb = document.getElementById('noteCancelBtn'); if (ncb) ncb.textContent = t('btn_cancel');
@@ -689,8 +690,16 @@ const isAndroid = platformOverride ? platformOverride === 'android' : /android/i
 document.body.classList.add(isAndroid ? 'platform-android' : 'platform-ios');
 
 const WEEK_DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-const WEEK_DAY_LABELS = {sunday:'Zondag',monday:'Maandag',tuesday:'Dinsdag',wednesday:'Woensdag',thursday:'Donderdag',friday:'Vrijdag',saturday:'Zaterdag'};
-const WEEK_DAY_SHORT  = {sunday:'Zo',monday:'Ma',tuesday:'Di',wednesday:'Wo',thursday:'Do',friday:'Vr',saturday:'Za'};
+function getWeekDayLabels() {
+  const days = LOCALES?.[currentLocale]?.days || {};
+  return {sunday:'Zondag',monday:'Maandag',tuesday:'Dinsdag',wednesday:'Woensdag',thursday:'Donderdag',friday:'Vrijdag',saturday:'Zaterdag', ...days};
+}
+function getWeekDayShort() {
+  const days = LOCALES?.[currentLocale]?.days_short || {};
+  return {sunday:'Zo',monday:'Ma',tuesday:'Di',wednesday:'Wo',thursday:'Do',friday:'Vr',saturday:'Za', ...days};
+}
+Object.defineProperty(window, 'WEEK_DAY_LABELS', { get: getWeekDayLabels });
+Object.defineProperty(window, 'WEEK_DAY_SHORT',  { get: getWeekDayShort });
 
 let list = {};
 let weekmenu = {};
@@ -1330,7 +1339,7 @@ window.openMealSheet = function() {
   document.querySelector('#mealCatalogFields [data-catalog="diet"][data-v="none"]')?.classList.add('on');
   document.getElementById('mealSaveBtn').disabled = true;
   document.getElementById('mealSaveBtn').textContent = 'Toevoegen';
-  document.getElementById('mealSheetTitle').textContent = 'Maaltijd toevoegen';
+  document.getElementById('mealSheetTitle').textContent = t('add_recipe');
   document.getElementById('mealSheet').classList.add('open');
   document.getElementById('sheetOverlay').classList.add('show');
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
@@ -1765,13 +1774,14 @@ window.closeWeekmenuActionSheet = function() {
   document.getElementById('sheetOverlay').classList.remove('show');
 };
 
-window.openFabSearch = function() {
+window.openFabSearch = function(e) {
   if (currentTab === 'weekmenu') {
+    e?.preventDefault();
     document.getElementById('weekmenuActionSheet').classList.add('open');
     document.getElementById('sheetOverlay').classList.add('show');
     return;
   }
-  if (currentTab === 'browse') { openCatalogSheet(); return; }
+  if (currentTab === 'browse') { e?.preventDefault(); openCatalogSheet(); return; }
   const trigger = document.getElementById('fabTriggerInput');
   trigger.value = '';
   trigger.focus({ preventScroll: true });

@@ -81,5 +81,15 @@
     "pet": "Dierenvoeding",
     "swe": "Snacks & Snoep",
     "ont": "Ontbijt"
+  },
+  "add_meal": "Maaltijd toevoegen",
+  "add_recipe": "Recept toevoegen",
+  "days": {
+    "monday": "Maandag", "tuesday": "Dinsdag", "wednesday": "Woensdag",
+    "thursday": "Donderdag", "friday": "Vrijdag", "saturday": "Zaterdag", "sunday": "Zondag"
+  },
+  "days_short": {
+    "monday": "Ma", "tuesday": "Di", "wednesday": "Wo",
+    "thursday": "Do", "friday": "Vr", "saturday": "Za", "sunday": "Zo"
   }
 }
