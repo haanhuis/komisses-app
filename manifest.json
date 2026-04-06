@@ -1,6 +1,6 @@
 {
-  "name": "Komisses",
-  "short_name": "Komisses",
+  "name": "Komissen",
+  "short_name": "Komissen",
   "description": "Gedeelde boodschappenlijst",
   "start_url": "./",
   "display": "standalone",

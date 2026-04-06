@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#0057ff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Komisses">
-<title>Komisses</title>
+<meta name="apple-mobile-web-app-title" content="Komissen">
+<title>Komissen</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,11 +23,29 @@
   <div class="loading-text" id="loadingText">Verbinden met lijst...</div>
 </div>
 
+<div class="newlist-modal hidden-init" id="localePickerModal">
+  <div class="newlist-box">
+    <div class="emoji-xl">🗣️</div>
+    <h2 class="mb-8">Welke taal?</h2>
+    <p class="description-text mb-16">Kies je voorkeurstaal of dialect.</p>
+    <button class="locale-picker-btn" onclick="pickLocaleAndContinue('nl')">
+      <span class="locale-picker-code">NL</span><span class="locale-picker-name">Nederlands</span>
+    </button>
+    <button class="locale-picker-btn" onclick="pickLocaleAndContinue('gents')">
+      <span class="locale-picker-code">GE</span><span class="locale-picker-name">Gènts</span>
+    </button>
+    <button class="locale-picker-btn" onclick="pickLocaleAndContinue('oi')">
+      <span class="locale-picker-code">OI</span><span class="locale-picker-name">Oilsjters</span>
+    </button>
+    <button class="locale-picker-btn" onclick="pickLocaleAndContinue('en')">
+      <span class="locale-picker-code">EN</span><span class="locale-picker-name">English</span>
+    </button>
+  </div>
+</div>
+
 <div class="newlist-modal hidden-init" id="newlistModal">
   <div class="newlist-box">
     <div class="emoji-xl">🛒</div>
-    <h2 class="mb-8">Komisses</h2>
-    <p class="description-text mb-16" id="newlistDesc">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
 
     <button class="btn btn-primary w-full mb-12" id="newlistCreateBtn" style="padding:14px;font-size:15px;" onclick="createNewList()">
       <i class="lni lni-plus icon-sm"></i><span id="newlistCreateText">Nieuwe lijst aanmaken</span>
@@ -35,7 +53,7 @@
 
     <div class="flex-center relative mb-12">
       <div class="divider-line"></div>
-      <span class="divider-text">of</span>
+      <span class="divider-text" id="newlistDividerText">of</span>
       <div class="divider-line"></div>
     </div>
 
@@ -62,7 +80,7 @@
   <div class="header-top">
     <div class="logo-wrap">
       <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 256 256" xml:space="preserve"><g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)"><path d="M 74.396 66.93 h -47.12 c -3.491 0 -5.549 -2.665 -5.777 -5.299 c -0.178 -2.057 0.741 -4.326 2.792 -5.506 L 16.745 22.34 c -0.132 -0.592 0.012 -1.213 0.392 -1.687 c 0.379 -0.474 0.954 -0.75 1.561 -0.75 H 88 c 0.647 0 1.256 0.314 1.631 0.842 c 0.375 0.528 0.471 1.206 0.258 1.817 l -7.983 22.876 c -0.991 2.838 -3.446 4.921 -6.406 5.438 l -48.522 8.48 c -0.006 0.001 -0.012 0.002 -0.019 0.003 c -1.499 0.267 -1.507 1.541 -1.473 1.926 c 0.033 0.386 0.261 1.644 1.792 1.644 h 47.12 c 1.104 0 2 0.896 2 2 S 75.501 66.93 74.396 66.93 z M 21.193 23.904 l 6.966 31.186 l 46.652 -8.152 c 1.533 -0.268 2.805 -1.347 3.318 -2.817 l 7.055 -20.216 H 21.193 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/><path d="M 27.846 83.111 c -3.615 0 -6.555 -2.94 -6.555 -6.555 c 0 -3.615 2.94 -6.556 6.555 -6.556 s 6.556 2.94 6.556 6.556 C 34.401 80.171 31.46 83.111 27.846 83.111 z M 27.846 74.001 c -1.409 0 -2.555 1.146 -2.555 2.556 c 0 1.408 1.146 2.555 2.555 2.555 c 1.409 0 2.556 -1.146 2.556 -2.555 C 30.401 75.147 29.255 74.001 27.846 74.001 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/><path d="M 68.845 83.111 c -3.615 0 -6.556 -2.94 -6.556 -6.555 c 0 -3.615 2.94 -6.556 6.556 -6.556 s 6.556 2.94 6.556 6.556 C 75.4 80.171 72.46 83.111 68.845 83.111 z M 68.845 74.001 c -1.409 0 -2.556 1.146 -2.556 2.556 c 0 1.408 1.146 2.555 2.556 2.555 s 2.556 -1.146 2.556 -2.555 C 71.4 75.147 70.254 74.001 68.845 74.001 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/><path d="M 18.695 23.904 c -0.916 0 -1.742 -0.633 -1.95 -1.564 l -1.407 -6.301 c -0.677 -3.033 -3.321 -5.151 -6.428 -5.151 H 2 c -1.104 0 -2 -0.896 -2 -2 s 0.896 -2 2 -2 h 6.909 c 4.995 0 9.244 3.404 10.333 8.279 l 1.407 6.301 c 0.241 1.078 -0.438 2.147 -1.516 2.388 C 18.986 23.889 18.839 23.904 18.695 23.904 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/></g></svg>
-      <div class="logo" id="appTitle">Komisses</div>
+      <div class="logo" id="appTitle">Komissen</div>
     </div>
     <div class="header-actions">
       <div class="locale-wrap" id="localeWrap">
@@ -323,7 +341,7 @@
     <span class="locale-opt-code">NL</span><span class="locale-opt-name">Nederlands</span>
   </button>
   <button class="locale-option" id="localeOptGents" onclick="selectLocale('gents')">
-    <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gents</span>
+    <span class="locale-opt-code">GE</span><span class="locale-opt-name">Gènts</span>
   </button>
   <button class="locale-option" id="localeOptOi" onclick="selectLocale('oi')">
     <span class="locale-opt-code">OI</span><span class="locale-opt-name">Oilsjters</span>
@@ -496,6 +514,7 @@ function applyLocaleToDOM() {
   const nd = document.getElementById('newlistDesc'); if (nd) nd.textContent = t('newlist_desc');
   const nc = document.getElementById('newlistCreateText'); if (nc) nc.textContent = t('newlist_create');
   const nct = document.getElementById('newlistConnectText'); if (nct) nct.textContent = t('newlist_connect');
+  const ndiv = document.getElementById('newlistDividerText'); if (ndiv) ndiv.textContent = t('or');
   const cui = document.getElementById('connectUrlInput'); if (cui) cui.placeholder = t('connect_placeholder');
   const ce = document.getElementById('connectError'); if (ce) ce.textContent = t('connect_error');
   const cb = document.getElementById('connectBtn'); if (cb) cb.textContent = t('btn_connect');
@@ -783,7 +802,7 @@ function renderList() {
   const done   = entries.filter(([,i]) => i.checked);
 
   if (entries.length === 0 || active.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">${t('list_empty_title')}</div><div class="empty-sub">${t('list_empty_sub')}</div></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">${t('list_empty_title')}</div></div>`;
     return;
   }
 
@@ -882,7 +901,7 @@ function renderWeekMenu() {
   if (!_recipeCatalog) loadRecipeCatalog().then(() => renderWeekMenu());
 
   if (meals.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><div class="empty-sub">${t('weekmenu_empty_sub')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.261 1.035a2.25 2.25 0 0 0 1.908 1.908l1.035.261a.75.75 0 0 1 0 1.456l-1.035.261a2.25 2.25 0 0 0-1.908 1.908l-.261 1.035a.75.75 0 0 1-1.456 0l-.261-1.035a2.25 2.25 0 0 0-1.908-1.908l-1.035-.261a.75.75 0 0 1 0-1.456l1.035-.261a2.25 2.25 0 0 0 1.908-1.908l.261-1.035A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183a1.5 1.5 0 0 0 .948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395a1.5 1.5 0 0 0-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395a1.5 1.5 0 0 0 .948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd"/></svg>${t('weekmenu_generate_btn')}</button></div>`;
+    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.261 1.035a2.25 2.25 0 0 0 1.908 1.908l1.035.261a.75.75 0 0 1 0 1.456l-1.035.261a2.25 2.25 0 0 0-1.908 1.908l-.261 1.035a.75.75 0 0 1-1.456 0l-.261-1.035a2.25 2.25 0 0 0-1.908-1.908l-1.035-.261a.75.75 0 0 1 0-1.456l1.035-.261a2.25 2.25 0 0 0 1.908-1.908l.261-1.035A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183a1.5 1.5 0 0 0 .948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395a1.5 1.5 0 0 0-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395a1.5 1.5 0 0 0 .948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd"/></svg>${t('weekmenu_generate_btn')}</button></div>`;
     return;
   }
 
@@ -1721,7 +1740,14 @@ Promise.all([loadLocales(), loadCatalog()]).then(() => {
   } else {
     const lastId = localStorage.getItem('lastListId');
     if (lastId) { initList(lastId); }
-    else { document.getElementById('loadingOverlay').classList.add('hidden'); document.getElementById('newlistModal').style.display='flex'; }
+    else {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+      if (!localStorage.getItem('locale')) {
+        document.getElementById('localePickerModal').style.display = 'flex';
+      } else {
+        document.getElementById('newlistModal').style.display = 'flex';
+      }
+    }
   }
 });
 
@@ -1768,6 +1794,12 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', onViewportChange);
   window.visualViewport.addEventListener('scroll', onViewportChange);
 }
+
+window.pickLocaleAndContinue = function(locale) {
+  selectLocale(locale);
+  document.getElementById('localePickerModal').style.display = 'none';
+  document.getElementById('newlistModal').style.display = 'flex';
+};
 
 window.closeWeekmenuActionSheet = function() {
   document.getElementById('weekmenuActionSheet').classList.remove('open');

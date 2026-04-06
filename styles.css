@@ -179,6 +179,34 @@ body {
     margin-left: 1px;
 }
 /* (locale-dropdown removed — now a bottom sheet) */
+.locale-picker-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    background: var(--grey);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    text-align: left;
+    transition: background 0.12s;
+}
+.locale-picker-btn:hover { background: var(--grey-mid); }
+.locale-picker-btn:active { background: var(--brandColor-light); color: var(--brandColor); }
+.locale-picker-code {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    min-width: 24px;
+    color: var(--brandColor);
+}
+.locale-picker-name { font-weight: 500; }
+
 .locale-option {
     display: flex;
     align-items: center;
