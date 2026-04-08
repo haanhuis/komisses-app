@@ -125,7 +125,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 90%;
+    max-width: 150px;
 }
 
 .logo-icon {
