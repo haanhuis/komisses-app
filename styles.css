@@ -1369,12 +1369,14 @@ main.main--weekmenu {
     font-weight: 500;
     z-index: 500;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.2s, transform 0.2s;
     white-space: nowrap;
 }
 
 .toast.show {
     opacity: 1;
+    pointer-events: auto;
     transform: translateX(-50%) translateY(0);
 }
 
