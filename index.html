@@ -47,7 +47,11 @@
   <div class="newlist-box">
     <div class="emoji-xl">🛒</div>
 
-    <button class="btn btn-primary w-full mb-12" id="newlistCreateBtn" style="padding:14px;font-size:15px;" onclick="createNewList()">
+    <input type="text" id="newlistNameInput" class="modal-input mb-12" placeholder="Naam van de lijst..." autocomplete="off" autocorrect="off" spellcheck="false"
+      oninput="document.getElementById('newlistCreateBtn').disabled = !this.value.trim()"
+      onkeydown="if(event.key==='Enter' && this.value.trim()) createNewList()">
+
+    <button class="btn btn-primary w-full mb-12" id="newlistCreateBtn" style="padding:14px;font-size:15px;" onclick="createNewList()" disabled>
       <i class="lni lni-plus icon-sm"></i><span id="newlistCreateText">Nieuwe lijst aanmaken</span>
     </button>
 
@@ -61,6 +65,10 @@
       <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px;">
         <i class="lni lni-share-1 icon-sm"></i><span id="newlistConnectText" onclick="showConnectInput()">Verbinden met gedeelde lijst</span>
       </button>
+      <div id="recentListsSection" style="display:none;margin-top:12px;">
+        <p class="description-text mb-8" style="font-size:12px;text-align:left;">Onlangs verbonden:</p>
+        <div id="recentListsBtns"></div>
+      </div>
     </div>
     <div id="connectInputSection" class="hidden-init">
       <input type="url" id="connectUrlInput" class="modal-input mb-10" placeholder="Plak de gedeelde link hier..." autocomplete="off" autocorrect="off" spellcheck="false"
@@ -88,7 +96,7 @@
           <span id="localeBtnLabel">NL</span><span class="locale-chevron" id="localeChevron">▾</span>
         </button>
       </div>
-      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-share-1"></i></button>
+      <button class="icon-btn" onclick="openShare()" title="Deel lijst"><i class="lni lni-user-multiple-4"></i></button>
       <button class="icon-btn" id="menuBtn" onclick="openMenu()" title="Menu"><i class="lni lni-menu-meatballs-1"></i></button>
     </div>
   </div>
@@ -391,12 +399,16 @@
 
 <div class="modal-overlay" id="connectModal">
   <div class="modal-box">
-    <div class="modal-title" id="connectModalTitle"><i class="lni lni-link-2-angular-right icon-sm"></i><span id="connectModalTitleText">Verbinden met lijst</span></div>
+    <div class="modal-title" id="connectModalTitle"><span id="connectModalTitleText">Verbinden met lijst</span></div>
     <input type="url" class="modal-input mb-10" id="connectModalInput" placeholder="Plak de gedeelde link hier..."
       autocomplete="off" autocorrect="off" spellcheck="false"
       oninput="validateConnectModal()"
       onkeydown="if(event.key==='Enter') confirmConnectModal()">
     <div id="connectModalError" class="error-text mb-8">Ongeldige link. Plak de volledige URL.</div>
+    <div id="connectModalRecent" style="display:none;margin-top:4px;margin-bottom:12px;">
+      <p class="description-text mb-8" style="text-align:left; color: #222;">Of verbind opnieuw met een recente lijst:</p>
+      <div id="connectModalRecentBtns"></div>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-secondary" id="connectModalCancelBtn" onclick="closeConnectModal()">Annuleren</button>
       <button class="btn btn-primary" id="connectModalBtn" onclick="confirmConnectModal()" disabled>Verbinden</button>
@@ -404,22 +416,20 @@
   </div>
 </div>
 
-<div class="share-modal" id="shareModal">
+<div class="share-modal" id="shareModal" onclick="if(event.target===this)closeShare()">
   <div class="share-box">
-    <div class="share-title" id="shareTitle">📤 Lijst delen</div>
-    <div class="share-sub" id="shareSub">Iedereen met de link kan live producten toevoegen en afvinken.</div>
-    <div class="share-link-box" id="shareLink"></div>
-    <div class="share-options">
-      <button class="share-btn" id="shareCopyBtn" onclick="doShare('copy')">
-        <span class="share-btn-icon">🔗</span>
-        <div><strong id="shareCopyLabel">Link kopiëren</strong><br><small class="share-btn-desc" id="shareCopyDesc">Plak in WhatsApp, iMessage, e-mail...</small></div>
+    <div class="share-title" id="shareTitle">Lijst delen</div>
+    <div class="share-sub" id="shareSubText"></div>
+    <div class="share-url-row">
+      <div class="share-link-box" id="shareLink"></div>
+      <button class="share-icon-btn" onclick="doShare('copy')" title="Link kopiëren" id="shareCopyBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </button>
-      <button class="share-btn" id="shareViaBtn" onclick="doShare('native')">
-        <span class="share-btn-icon">📱</span>
-        <div><strong id="shareViaLabel">Delen via...</strong><br><small class="share-btn-desc" id="shareViaDesc">WhatsApp, SMS, e-mail en meer</small></div>
+      <button class="share-icon-btn" onclick="doShare('native')" title="Delen via..." id="shareViaBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
       </button>
-      <button class="share-btn share-btn-cancel" id="shareCancelBtn" onclick="closeShare()">Annuleren</button>
     </div>
+    <button class="share-connect-btn" id="shareConnectBtn" onclick="closeShare(); menuConnectList();" data-i18n="menu_connect">Verbinden met andere lijst</button>
   </div>
 </div>
 
@@ -561,7 +571,8 @@ function applyLocaleToDOM() {
   const cmbtn = document.getElementById('connectModalBtn'); if (cmbtn) cmbtn.textContent = t('btn_connect');
   // Share modal
   const st = document.getElementById('shareTitle'); if (st) st.textContent = t('share_title');
-  const ss = document.getElementById('shareSub'); if (ss) ss.textContent = t('share_sub');
+  const ss = document.getElementById('shareSubText'); if (ss) ss.textContent = t('share_sub');
+  const scn = document.getElementById('shareConnectBtn'); if (scn) scn.textContent = t('menu_connect');
   const scl = document.getElementById('shareCopyLabel'); if (scl) scl.textContent = t('share_copy');
   const scd = document.getElementById('shareCopyDesc'); if (scd) scd.textContent = t('share_copy_desc');
   const svl = document.getElementById('shareViaLabel'); if (svl) svl.textContent = t('share_via');
@@ -758,7 +769,41 @@ function showToast(msg) {
 
 // ── Init ──────────────────────────────────────────────────────────────
 window.createNewList = function() {
+  const name = document.getElementById('newlistNameInput')?.value.trim();
+  if (!name) return;
   const id = generateId();
+  document.getElementById('newlistModal').style.display = 'none';
+  initList(id);
+  setTimeout(() => {
+    update(ref(db, 'lists/' + id + '/meta'), { name });
+    const lbl = document.getElementById('listNameLabel');
+    if (lbl) lbl.textContent = name;
+  }, 300);
+};
+
+function saveRecentList(id, name) {
+  let recent = JSON.parse(localStorage.getItem('recentLists') || '[]');
+  recent = recent.filter(r => r.id !== id);
+  recent.unshift({ id, name: name || id });
+  recent = recent.slice(0, 5);
+  localStorage.setItem('recentLists', JSON.stringify(recent));
+}
+
+function renderRecentLists() {
+  const recent = JSON.parse(localStorage.getItem('recentLists') || '[]');
+  const section = document.getElementById('recentListsSection');
+  const container = document.getElementById('recentListsBtns');
+  if (!section || !container || recent.length === 0) return;
+  container.innerHTML = recent.map(r => `
+    <button class="recent-list-btn" onclick="connectToRecentList('${r.id}')">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88" width="16" height="16" style="flex-shrink:0;opacity:0.5"><path fill-rule="evenodd" clip-rule="evenodd" d="M61.44,0c33.93,0,61.44,27.51,61.44,61.44c0,33.93-27.51,61.44-61.44,61.44C27.51,122.88,0,95.37,0,61.44 C0,27.51,27.51,0,61.44,0L61.44,0z M52.92,30.52h7.51c1.37,0,2.5,1.13,2.5,2.5v28.94h26.41c1.38,0,2.5,1.13,2.5,2.5v7.51 c0,1.38-1.13,2.5-2.5,2.5H50.41V33.02C50.41,31.64,51.54,30.52,52.92,30.52L52.92,30.52z M61.44,13.95 c26.23,0,47.49,21.26,47.49,47.49c0,26.23-21.26,47.49-47.49,47.49c-26.23,0-47.49-21.26-47.49-47.49 C13.95,35.22,35.21,13.95,61.44,13.95L61.44,13.95z"/></svg>
+      <span>${r.name}</span>
+    </button>
+  `).join('');
+  section.style.display = 'block';
+}
+
+window.connectToRecentList = function(id) {
   document.getElementById('newlistModal').style.display = 'none';
   initList(id);
 };
@@ -768,13 +813,17 @@ function initList(id) {
   setListIdInUrl(id);
   document.getElementById('listIdLabel').textContent = id;
   localStorage.setItem('lastListId', id);
+  saveRecentList(id, null);
   dbRef = ref(db, 'lists/' + id);
   setSyncBar('syncing');
   onValue(dbRef, (snapshot) => {
     const data = snapshot.val() || {};
     list = data.items || {};
     weekmenu = data.weekmenu || {};
-    if (data.name) document.getElementById('listIdLabel').textContent = data.name;
+    if (data.name) {
+      document.getElementById('listIdLabel').textContent = data.name;
+      saveRecentList(listId, data.name);
+    }
     setSyncBar('ok');
     document.getElementById('loadingOverlay').classList.add('hidden');
     render();
@@ -1670,6 +1719,9 @@ window.switchTab = function(tab) {
 window.openShare = function() {
   const url = window.location.href;
   document.getElementById('shareLink').textContent = url;
+  const listName = document.getElementById('listIdLabel')?.textContent || '';
+  const titleEl = document.getElementById('shareTitle');
+  if (titleEl) titleEl.textContent = listName ? `Deel link voor "${listName}"` : t('share_title');
   document.getElementById('shareModal').classList.add('show');
   window._shareUrl = url;
 };
@@ -1746,6 +1798,8 @@ Promise.all([loadLocales(), loadCatalog()]).then(() => {
         document.getElementById('localePickerModal').style.display = 'flex';
       } else {
         document.getElementById('newlistModal').style.display = 'flex';
+        renderRecentLists();
+        setTimeout(() => document.getElementById('newlistNameInput')?.focus(), 80);
       }
     }
   }
@@ -1799,6 +1853,8 @@ window.pickLocaleAndContinue = function(locale) {
   selectLocale(locale);
   document.getElementById('localePickerModal').style.display = 'none';
   document.getElementById('newlistModal').style.display = 'flex';
+  renderRecentLists();
+  setTimeout(() => document.getElementById('newlistNameInput')?.focus(), 80);
 };
 
 window.closeWeekmenuActionSheet = function() {
@@ -2226,8 +2282,28 @@ window.menuConnectList = function() {
   document.getElementById('connectModalInput').value = '';
   document.getElementById('connectModalError').style.display = 'none';
   document.getElementById('connectModalBtn').disabled = true;
+
+  const recent = JSON.parse(localStorage.getItem('recentLists') || '[]');
+  const section = document.getElementById('connectModalRecent');
+  const container = document.getElementById('connectModalRecentBtns');
+  if (recent.length > 0) {
+    container.innerHTML = recent.map(r => `
+      <button class="recent-list-btn" onclick="connectToRecentListModal('${r.id}')">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88" width="16" height="16" style="flex-shrink:0;opacity:0.5"><path fill-rule="evenodd" clip-rule="evenodd" d="M61.44,0c33.93,0,61.44,27.51,61.44,61.44c0,33.93-27.51,61.44-61.44,61.44C27.51,122.88,0,95.37,0,61.44 C0,27.51,27.51,0,61.44,0L61.44,0z M52.92,30.52h7.51c1.37,0,2.5,1.13,2.5,2.5v28.94h26.41c1.38,0,2.5,1.13,2.5,2.5v7.51 c0,1.38-1.13,2.5-2.5,2.5H50.41V33.02C50.41,31.64,51.54,30.52,52.92,30.52L52.92,30.52z M61.44,13.95 c26.23,0,47.49,21.26,47.49,47.49c0,26.23-21.26,47.49-47.49,47.49c-26.23,0-47.49-21.26-47.49-47.49 C13.95,35.22,35.21,13.95,61.44,13.95L61.44,13.95z"/></svg>
+        <span>${r.name}</span>
+      </button>
+    `).join('');
+    section.style.display = 'block';
+  } else {
+    section.style.display = 'none';
+  }
+
   document.getElementById('connectModal').classList.add('show');
   setTimeout(() => document.getElementById('connectModalInput').focus(), 80);
+};
+window.connectToRecentListModal = function(id) {
+  closeConnectModal();
+  initList(id);
 };
 window.closeConnectModal = function() { document.getElementById('connectModal').classList.remove('show'); };
 window.validateConnectModal = function() {

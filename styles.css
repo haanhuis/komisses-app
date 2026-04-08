@@ -179,6 +179,26 @@ body {
     margin-left: 1px;
 }
 /* (locale-dropdown removed — now a bottom sheet) */
+.recent-list-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    background: var(--grey);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    text-align: left;
+    transition: background 0.12s;
+}
+.recent-list-btn:hover { background: var(--grey-mid); }
+.recent-list-btn:active { background: var(--brandColor-light); color: var(--brandColor); }
+
 .locale-picker-btn {
     display: flex;
     align-items: center;
@@ -1101,6 +1121,7 @@ main.main--weekmenu {
 }
 
 /* Share modal */
+
 .share-modal {
     position: fixed;
     inset: 0;
@@ -1118,7 +1139,7 @@ main.main--weekmenu {
 .share-box {
     background: white;
     border-radius: 20px 20px 0 0;
-    padding: 20px 20px 48px;
+    padding: 20px 20px max(32px, env(safe-area-inset-bottom));
     width: min(480px,100vw);
 }
 
@@ -1134,17 +1155,66 @@ main.main--weekmenu {
     margin-bottom: 16px;
 }
 
+.share-list-name {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+
+.share-connect-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    background: none;
+    border:none;
+    color: var(--brandColor);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+}
+
+.share-url-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
 .share-link-box {
+    flex: 1;
     background: var(--grey);
     border-radius: 10px;
-    padding: 12px 14px;
+    padding: 0 14px;
+    height: 42px;
     font-size: 12px;
     color: var(--text-muted);
-    word-break: break-all;
-    margin-bottom: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     border: 2px solid var(--grey-mid);
     font-family: monospace;
+    min-width: 0;
+    display: flex;
+    align-items: center;
 }
+
+.share-icon-btn {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--grey);
+    border: 2px solid var(--grey-mid);
+    border-radius: 10px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.share-icon-btn:active { background: var(--brandColor-light); color: var(--brandColor); border-color: var(--brandColor); }
 
 .share-options {
     display: flex;
@@ -1667,7 +1737,7 @@ main.main--weekmenu {
 }
 
 .description-text {
-    color: #666;
+    color: #888;
     font-size: 14px;
 }
 

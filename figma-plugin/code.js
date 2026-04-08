@@ -914,7 +914,7 @@
     h6.layoutAlign = 'CENTER';
     sheet.appendChild(h6);
 
-    sheet.appendChild(makeText('📤 Lijst delen', 18, fontBold, C.text));
+    sheet.appendChild(makeText(' Lijst delen', 18, fontBold, C.text));
     sheet.appendChild(makeText('Deel jouw boodschappenlijst met anderen.', 14, fontRegular, C.textMuted));
 
     // Link box
