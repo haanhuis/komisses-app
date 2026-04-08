@@ -450,7 +450,7 @@
 <label class="fab" for="fabTriggerInput" onclick="openFabSearch(event)"><i class="lni lni-plus"></i></label>
 <input id="fabTriggerInput" type="text" class="hidden-input" autocomplete="off">
 <div class="toast" id="toast"></div>
-<div class="toast update-toast" id="updateToast">New app update available &nbsp;<button class="update-toast-btn" onclick="menuUpdateApp()">Update</button></div>
+<div class="toast update-toast" id="updateToast">New app update available &nbsp;<button class="update-toast-btn" id="updateToastBtn">Update</button></div>
 <div class="toast meal-toast" id="mealToast">Maaltijd afgevinkt &nbsp;<button class="meal-toast-undo" onclick="undoCheckMeal()">Ongedaan maken</button></div>
 
 <script type="module">
@@ -2339,6 +2339,14 @@ window.saveRename = function() {
 };
 
 // ── Service Worker ─────────────────────────────────────────────────────
+document.getElementById('updateToastBtn').addEventListener('click', () => {
+  sessionStorage.setItem('appUpdated', APP_VERSION);
+  Promise.all([
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))),
+    navigator.serviceWorker?.getRegistrations().then(regs => Promise.all(regs.map(r => r.unregister())))
+  ]).then(() => window.location.reload());
+});
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').then(reg => {
