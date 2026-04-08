@@ -1378,6 +1378,24 @@ main.main--weekmenu {
     transform: translateX(-50%) translateY(0);
 }
 
+.update-toast {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.update-toast-btn {
+    background: #0057ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .meal-toast {
     display: flex;
     align-items: center;

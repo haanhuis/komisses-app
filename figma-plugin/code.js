@@ -258,7 +258,7 @@
     const logoEmoji = makeText('🛒', 22, fontRegular, C.white);
     logoRow.appendChild(logoEmoji);
 
-    const title = makeText('Komisses', 20, fontBold, C.white);
+    const title = makeText('Komissies', 20, fontBold, C.white);
     logoRow.appendChild(title);
 
     header.appendChild(logoRow);
@@ -629,7 +629,7 @@
     lrBg.layoutGrow = 1;
     lrBg.primaryAxisAlignItems = 'CENTER';
     lrBg.appendChild(makeText('🛒', 22, fontRegular, C.white));
-    lrBg.appendChild(makeText('Komisses', 20, fontBold, C.white));
+    lrBg.appendChild(makeText('Komissies', 20, fontBold, C.white));
     bgHeader.appendChild(lrBg);
     bgHeader.appendChild(makeIconBtn('⬆', 32));
     bgHeader.appendChild(makeIconBtn('⋮', 32));
@@ -782,7 +782,7 @@
     const cartIcon = makeText('🛒', 48, fontRegular, C.brand, { align: 'CENTER' });
     modal.appendChild(cartIcon);
 
-    const modalTitle = makeText('Komisses', 22, fontBold, C.text, { align: 'CENTER' });
+    const modalTitle = makeText('Komissies', 22, fontBold, C.text, { align: 'CENTER' });
     modal.appendChild(modalTitle);
 
     const modalDesc = makeText(
@@ -878,7 +878,7 @@
     lrS.layoutGrow = 1;
     lrS.primaryAxisAlignItems = 'CENTER';
     lrS.appendChild(makeText('🛒', 22, fontRegular, C.white));
-    lrS.appendChild(makeText('Komisses', 20, fontBold, C.white));
+    lrS.appendChild(makeText('Komissies', 20, fontBold, C.white));
     bgH2.appendChild(lrS);
     bgH2.appendChild(makeIconBtn('⬆', 32));
     bgH2.appendChild(makeIconBtn('⋮', 32));
@@ -994,7 +994,7 @@
     lrP.layoutGrow = 1;
     lrP.primaryAxisAlignItems = 'CENTER';
     lrP.appendChild(makeText('🛒', 22, fontRegular, C.white));
-    lrP.appendChild(makeText('Komisses', 20, fontBold, C.white));
+    lrP.appendChild(makeText('Komissies', 20, fontBold, C.white));
     bgH3.appendChild(lrP);
     bgH3.appendChild(makeIconBtn('⬆', 32));
     bgH3.appendChild(makeIconBtn('⋮', 32));
@@ -1159,5 +1159,5 @@
 
   // ─── Finalise ─────────────────────────────────────────────────────────────────
   figma.viewport.scrollAndZoomIntoView(page.children);
-  figma.closePlugin('✅ Komisses UI created — 7 screens');
+  figma.closePlugin('✅ Komissies UI created — 7 screens');
 })();
