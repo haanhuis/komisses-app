@@ -202,6 +202,7 @@
         <button class="gen-tog" data-catalog="trait" data-v="vis" onclick="mealCatalogPick(this)">Vis</button>
         <button class="gen-tog" data-catalog="trait" data-v="curry" onclick="mealCatalogPick(this)">Curry</button>
         <button class="gen-tog" data-catalog="trait" data-v="ovenschotel" onclick="mealCatalogPick(this)">Ovenschotel</button>
+        <button class="gen-tog" data-catalog="trait" data-v="salade" onclick="mealCatalogPick(this)">Salade</button>
       </div>
     </div>
   </div>
@@ -260,6 +261,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="gen-tog" data-k="pasta" onclick="genToggle(this)">Pasta</button>
         <button class="gen-tog" data-k="vis" onclick="genToggle(this)">Vis</button>
+        <button class="gen-tog" data-k="salade" onclick="genToggle(this)">Salade</button>
       </div>
     </div>
 
@@ -701,7 +703,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v38';
+const APP_VERSION = 'v39';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -2145,7 +2147,7 @@ window.handleGenerate = async function() {
   const catalog = await loadRecipeCatalog();
 
   const activeRegions = ['Belgisch','Italiaans','Mediterraans','Aziatisch'].filter(k => genState[k]);
-  const activeTraits = ['pasta','vis'].filter(k => genState[k]);
+  const activeTraits = ['pasta','vis','salade'].filter(k => genState[k]);
   const vegOnly = genPref === 'vegi' || genPref === 'vegan';
 
   let pool = catalog.filter(r => {
