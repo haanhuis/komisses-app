@@ -1994,6 +1994,56 @@ main.main--weekmenu {
     color: var(--brandColor);
     border-color: var(--brandColor);
 }
+.weekmenu-filter-bar--search {
+    gap: 10px;
+}
+.weekmenu-search-field {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.weekmenu-search-input {
+    flex: 1;
+    height: 36px;
+    border-radius: 10px;
+    border: var(--brandColor) 1.5px solid;
+    background: white;
+    padding: 0 32px 0 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+.weekmenu-search-input::placeholder {
+    color: var(--text-muted);
+}
+.weekmenu-search-clear {
+    position: absolute;
+    right: 6px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+}
+.weekmenu-cancel-btn {
+    background: none;
+    border: none;
+    color: var(--brandColor);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .weekmenu-search-btn {
     margin-left: auto;
     width: 34px;

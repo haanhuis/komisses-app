@@ -430,16 +430,6 @@
   </div>
 </div>
 
-<div id="recipeSearchModal" class="bottom-sheet fab-search-modal">
-  <div id="recipeSearchResults" class="fab-search-results"></div>
-  <div class="fab-search-header">
-    <form action="javascript:void(0)" onsubmit="closeRecipeSearch()" style="display:contents;">
-      <input type="text" id="recipeSearchInput" class="modal-input" placeholder="Zoek recept..." style="margin:0;flex:1;" oninput="onRecipeSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
-      <button type="submit" hidden></button>
-    </form>
-    <button onclick="closeRecipeSearch()" class="fab-search-close">✕</button>
-  </div>
-</div>
 
 <div id="weekmenuActionSheet" class="bottom-sheet">
   <div class="sheet-handle"></div>
@@ -711,7 +701,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v40';
+const APP_VERSION = 'v41';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -733,6 +723,8 @@ Object.defineProperty(window, 'WEEK_DAY_SHORT',  { get: getWeekDayShort });
 let list = {};
 let weekmenu = {};
 let weekmenuFilter = 'open';
+let weekmenuSearchQuery = '';
+let weekmenuSearchOpen = false;
 let currentTab = 'list';
 let noteTarget = null;
 let listId = null;
@@ -952,11 +944,19 @@ function renderWeekMenu() {
   const main = document.getElementById('main');
   if (!_recipeCatalog) loadRecipeCatalog().then(() => renderWeekMenu());
 
-  const filterBar = `<div class="weekmenu-filter-bar">
-    <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
-    <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
-    <button class="weekmenu-search-btn" onclick="openRecipeSearch()"><i class="lni lni-search-1"></i></button>
-  </div>`;
+  const filterBar = weekmenuSearchOpen
+    ? `<div class="weekmenu-filter-bar weekmenu-filter-bar--search">
+        <div class="weekmenu-search-field">
+          <input type="text" id="recipeSearchInline" class="weekmenu-search-input" placeholder="Zoek recept..." value="${weekmenuSearchQuery.replace(/"/g,'&quot;')}" oninput="setRecipeSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" inputmode="search">
+          ${weekmenuSearchQuery ? `<button class="weekmenu-search-clear" onclick="setRecipeSearch('');document.getElementById('recipeSearchInline').value='';document.getElementById('recipeSearchInline').focus()">✕</button>` : ''}
+        </div>
+        <button class="weekmenu-cancel-btn" onclick="closeRecipeSearch()">Annuleren</button>
+      </div>`
+    : `<div class="weekmenu-filter-bar">
+        <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
+        <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
+        <button class="weekmenu-search-btn" onclick="openRecipeSearch()"><i class="lni lni-search-1"></i></button>
+      </div>`;
 
   const allMeals = Object.entries(weekmenu).sort(([,a],[,b]) => (a.order ?? Infinity) - (b.order ?? Infinity));
   if (allMeals.length === 0) {
@@ -965,8 +965,12 @@ function renderWeekMenu() {
   }
 
   // Apply filter
-  const filtered = weekmenuFilter === 'all' ? allMeals
+  let filtered = weekmenuFilter === 'all' ? allMeals
     : allMeals.filter(([,m]) => weekmenuFilter === 'checked' ? m.checked : !m.checked);
+  if (weekmenuSearchQuery) {
+    const q = weekmenuSearchQuery.toLowerCase();
+    filtered = filtered.filter(([,m]) => m.label.toLowerCase().includes(q));
+  }
 
   if (filtered.length === 0) {
     const emptyMsg = weekmenuFilter === 'checked' ? 'Nog niets afgevinkt.' : 'Alle recepten zijn afgevinkt.';
@@ -977,6 +981,10 @@ function renderWeekMenu() {
   main.innerHTML = filterBar + `<div class="meal-flat-list">${filtered.map(([id,m]) => renderMealItem(id,m)).join('')}</div>`;
   filtered.forEach(([id]) => initMealSwipe(id));
   filtered.forEach(([id]) => initMealDragReorder(id));
+  if (weekmenuSearchOpen) {
+    const input = document.getElementById('recipeSearchInline');
+    if (input) { input.focus({ preventScroll: true }); input.setSelectionRange(input.value.length, input.value.length); }
+  }
 }
 
 function initUnplannedSheetResize() {
@@ -1892,7 +1900,6 @@ function positionNoteModal() {
 }
 function onViewportChange() {
   positionFabSheet();
-  positionRecipeSearchSheet();
   positionCatalogSheet();
   positionMealSheet();
   positionNoteModal();
@@ -1916,83 +1923,21 @@ window.closeWeekmenuActionSheet = function() {
 };
 
 window.openRecipeSearch = function() {
-  const modal = document.getElementById('recipeSearchModal');
-  modal.classList.add('open');
-  document.getElementById('sheetOverlay').classList.add('show');
-  renderRecipeSearchResults('');
-  positionRecipeSearchSheet();
-  setTimeout(() => {
-    const input = document.getElementById('recipeSearchInput');
-    input.value = '';
-    input.focus({ preventScroll: true });
-    positionRecipeSearchSheet();
-  }, 80);
+  weekmenuSearchOpen = true;
+  weekmenuSearchQuery = '';
+  renderWeekMenu();
 };
 
 window.closeRecipeSearch = function() {
-  const modal = document.getElementById('recipeSearchModal');
-  modal.classList.remove('open', 'with-results');
-  modal.style.bottom = '';
-  modal.style.height = '';
-  document.getElementById('sheetOverlay').classList.remove('show');
-  document.getElementById('recipeSearchInput').value = '';
-  document.getElementById('recipeSearchResults').innerHTML = '';
+  weekmenuSearchOpen = false;
+  weekmenuSearchQuery = '';
+  renderWeekMenu();
 };
 
-window.onRecipeSearch = function(val) { renderRecipeSearchResults(val); };
-
-function renderRecipeSearchResults(val) {
-  const q = val.trim().toLowerCase();
-  const container = document.getElementById('recipeSearchResults');
-  const modal = document.getElementById('recipeSearchModal');
-  if (!q) {
-    modal.classList.remove('with-results');
-    modal.style.height = '';
-    container.innerHTML = '';
-    positionRecipeSearchSheet();
-    return;
-  }
-  const meals = Object.entries(weekmenu).sort(([,a],[,b]) => (a.order ?? Infinity) - (b.order ?? Infinity));
-  const results = meals.filter(([,m]) => m.label.toLowerCase().includes(q));
-  if (results.length === 0) {
-    modal.classList.add('with-results');
-    container.innerHTML = `<div style="padding:16px;color:var(--text-muted);text-align:center;font-size:14px;">Geen recepten gevonden</div>`;
-    positionRecipeSearchSheet();
-    return;
-  }
-  modal.classList.add('with-results');
-  container.innerHTML = results.map(([id, m]) => {
-    const isUrl = m.ref && (m.ref.startsWith('http://') || m.ref.startsWith('https://'));
-    let refHtml = '';
-    if (m.ref) {
-      const label = isUrl ? ((() => { try { return new URL(m.ref).hostname.replace(/^www\./, ''); } catch(e) { return m.ref; } })()) : m.ref;
-      refHtml = `<div class="meal-ref${isUrl ? ' meal-ref--url' : ''}">${label}</div>`;
-    }
-    return `<div class="search-result-item" onclick="recipeSearchToggleCheck('${id}')">
-      <div class="meal-item-checkbox${m.checked ? ' checked' : ''}"></div>
-      <div class="sri-info">
-        <div class="sri-name">${m.label}</div>
-        ${refHtml}
-      </div>
-    </div>`;
-  }).join('');
-  positionRecipeSearchSheet();
-}
-
-window.recipeSearchToggleCheck = function(id) {
-  checkMeal(id);
-  renderRecipeSearchResults(document.getElementById('recipeSearchInput').value);
+window.setRecipeSearch = function(val) {
+  weekmenuSearchQuery = val;
+  renderWeekMenu();
 };
-
-function positionRecipeSearchSheet() {
-  const modal = document.getElementById('recipeSearchModal');
-  if (!modal.classList.contains('open')) return;
-  modal.style.bottom = getKeyboardOffset() + 'px';
-  if (modal.classList.contains('with-results')) {
-    const vv = window.visualViewport;
-    modal.style.height = Math.round((vv ? vv.height : window.innerHeight) * 0.7) + 'px';
-  }
-}
 
 window.openFabSearch = function(e) {
   if (currentTab === 'weekmenu') {
@@ -2181,7 +2126,6 @@ window.closeAllSheets = function() {
   closeLocaleSheet();
   closeMenu();
   closeFabSearch();
-  closeRecipeSearch();
   closeMealSheet();
   closeCatalogSheet();
   closeGeneratorSheet();
