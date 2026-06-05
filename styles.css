@@ -1979,7 +1979,7 @@ main.main--weekmenu {
     flex-shrink: 0;
 }
 .weekmenu-filter-btn {
-    padding: 7px 16px;
+    padding: 4px 10px;
     border-radius: 20px;
     border: 1.5px solid transparent;
     background: transparent;
@@ -1988,6 +1988,8 @@ main.main--weekmenu {
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
+    display: flex;
+    align-items: center;
     transition: border-color 0.15s, color 0.15s;
 }
 .weekmenu-filter-btn.active {
@@ -2042,6 +2044,11 @@ main.main--weekmenu {
     padding: 0;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+.meal-flat-list--no-images .meal-thumb,
+.meal-flat-list--no-images .meal-thumb-placeholder {
+    display: none;
 }
 
 .weekmenu-search-btn {
