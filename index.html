@@ -97,10 +97,9 @@
   </button>
   <button class="bottom-tab" id="tab-weekmenu" onclick="switchTab('weekmenu')">
     <span class="tab-icon">
-      <svg class="tab-icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"/></svg>
-      <svg class="tab-icon-filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"/><path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clip-rule="evenodd"/></svg>
+      <i class="lni lni-knife-fork-1" style="font-size:22px;display:block;width:24px;height:24px;line-height:24px;text-align:center;"></i>
     </span>
-    <span id="tabWeekmenuText">Week menu</span>
+    <span id="tabWeekmenuText">Recepten</span>
   </button>
 </nav>
 
@@ -167,8 +166,6 @@
   <input type="text" id="mealLabelInput" class="modal-input mb-10" placeholder="Naam van de maaltijd..." autocomplete="off" autocorrect="off" spellcheck="false" oninput="document.getElementById('mealSaveBtn').disabled=!this.value.trim()">
   <label class="sheet-field-label">Recept</label>
   <input type="text" id="mealRefInput" class="modal-input mb-10" placeholder="URL of boek + paginanummer..." autocomplete="off" autocorrect="off" spellcheck="false">
-  <label class="sheet-field-label">Dag</label>
-  <div class="day-chips mb-10" id="mealDayChips"></div>
   <div class="meal-catalog-toggle">
     <span>Toevoegen aan databank</span>
     <label class="ui-switch">
@@ -430,6 +427,17 @@
       <button type="submit" hidden></button>
     </form>
     <button onclick="closeFabSearch()" class="fab-search-close">✕</button>
+  </div>
+</div>
+
+<div id="recipeSearchModal" class="bottom-sheet fab-search-modal">
+  <div id="recipeSearchResults" class="fab-search-results"></div>
+  <div class="fab-search-header">
+    <form action="javascript:void(0)" onsubmit="closeRecipeSearch()" style="display:contents;">
+      <input type="text" id="recipeSearchInput" class="modal-input" placeholder="Zoek recept..." style="margin:0;flex:1;" oninput="onRecipeSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="search">
+      <button type="submit" hidden></button>
+    </form>
+    <button onclick="closeRecipeSearch()" class="fab-search-close">✕</button>
   </div>
 </div>
 
@@ -703,7 +711,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v39';
+const APP_VERSION = 'v40';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -724,6 +732,7 @@ Object.defineProperty(window, 'WEEK_DAY_SHORT',  { get: getWeekDayShort });
 
 let list = {};
 let weekmenu = {};
+let weekmenuFilter = 'open';
 let currentTab = 'list';
 let noteTarget = null;
 let listId = null;
@@ -943,82 +952,31 @@ function renderWeekMenu() {
   const main = document.getElementById('main');
   if (!_recipeCatalog) loadRecipeCatalog().then(() => renderWeekMenu());
 
-  // Auto-remove meals planned on past days (treat as afgevinkt)
-  Object.entries(weekmenu).forEach(([id, m]) => {
-    if (m.day && isPastDay(m.day)) {
-      remove(ref(db, 'lists/' + listId + '/weekmenu/' + id));
-      delete weekmenu[id];
-    }
-  });
+  const filterBar = `<div class="weekmenu-filter-bar">
+    <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
+    <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
+    <button class="weekmenu-search-btn" onclick="openRecipeSearch()"><i class="lni lni-search-1"></i></button>
+  </div>`;
 
-  const meals = Object.entries(weekmenu);
-  if (meals.length === 0) {
-    main.innerHTML = `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.261 1.035a2.25 2.25 0 0 0 1.908 1.908l1.035.261a.75.75 0 0 1 0 1.456l-1.035.261a2.25 2.25 0 0 0-1.908 1.908l-.261 1.035a.75.75 0 0 1-1.456 0l-.261-1.035a2.25 2.25 0 0 0-1.908-1.908l-1.035-.261a.75.75 0 0 1 0-1.456l1.035-.261a2.25 2.25 0 0 0 1.908-1.908l.261-1.035A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183a1.5 1.5 0 0 0 .948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395a1.5 1.5 0 0 0-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395a1.5 1.5 0 0 0 .948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd"/></svg>${t('weekmenu_generate_btn')}</button></div>`;
+  const allMeals = Object.entries(weekmenu).sort(([,a],[,b]) => (a.order ?? Infinity) - (b.order ?? Infinity));
+  if (allMeals.length === 0) {
+    main.innerHTML = filterBar + `<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-title">${t('weekmenu_empty_title')}</div><button class="gen-trigger-btn" onclick="openGeneratorSheet()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;"><path fill-rule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.261 1.035a2.25 2.25 0 0 0 1.908 1.908l1.035.261a.75.75 0 0 1 0 1.456l-1.035.261a2.25 2.25 0 0 0-1.908 1.908l-.261 1.035a.75.75 0 0 1-1.456 0l-.261-1.035a2.25 2.25 0 0 0-1.908-1.908l-1.035-.261a.75.75 0 0 1 0-1.456l1.035-.261a2.25 2.25 0 0 0 1.908-1.908l.261-1.035A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183a1.5 1.5 0 0 0 .948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395a1.5 1.5 0 0 0-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395a1.5 1.5 0 0 0 .948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clip-rule="evenodd"/></svg>${t('weekmenu_generate_btn')}</button></div>`;
     return;
   }
 
-  const unplanned = meals.filter(([,m]) => !m.day);
-  const byDay = {};
-  meals.filter(([,m]) => m.day).forEach(([id,m]) => {
-    if (!byDay[m.day]) byDay[m.day] = [];
-    byDay[m.day].push([id, m]);
-  });
+  // Apply filter
+  const filtered = weekmenuFilter === 'all' ? allMeals
+    : allMeals.filter(([,m]) => weekmenuFilter === 'checked' ? m.checked : !m.checked);
 
-  const today = new Date();
-  const todayKey = WEEK_DAYS[today.getDay()];
-  const getDayDate = dayKey => {
-    const diff = (WEEK_DAYS.indexOf(dayKey) - today.getDay() + 7) % 7;
-    const d = new Date(today);
-    d.setDate(today.getDate() + diff);
-    return `${d.getDate()}/${d.getMonth() + 1}`;
-  };
-
-  let daysHtml = '';
-  getOrderedDays(byDay).forEach(day => {
-    const items = byDay[day] || [];
-    const isToday = day === todayKey;
-    const isPast = isPastDay(day);
-    daysHtml += `<div class="meal-day-section${isPast ? ' meal-day-section--past' : ''}"${isToday ? ' id="today-section"' : ''}>
-      <div class="meal-day-header${isToday ? ' meal-day-header--today' : ''}">${WEEK_DAY_LABELS[day]} <span style="font-weight:400;opacity:0.6;">${getDayDate(day)}</span></div>
-      <div class="meal-day-items drop-zone" data-drop-day="${day}">
-        ${items.length === 0
-          ? `<div class="meal-day-empty"><div class="meal-drop-slot">Niks gepland</div></div>`
-          : items.map(([id,m]) => renderMealItem(id,m)).join('')
-        }
-      </div>
-    </div>`;
-  });
-
-  let shelfHtml = '';
-  if (unplanned.length) {
-    shelfHtml = `<div class="unplanned-sheet drop-zone" id="unplannedSheet" data-drop-day="">
-      <div class="unplanned-sheet-handle-row" onclick="toggleUnplannedSheet()">
-        <div class="unplanned-shelf-label">Niet gepland (${unplanned.length})</div>
-        <div class="unplanned-sheet-handle"></div>
-      </div>
-      <div class="unplanned-sheet-inner">
-        <div class="unplanned-sheet-scroll">
-          ${unplanned.map(([id,m]) => renderMealItem(id,m)).join('')}
-        </div>
-      </div>
-    </div>`;
+  if (filtered.length === 0) {
+    const emptyMsg = weekmenuFilter === 'checked' ? 'Nog niets afgevinkt.' : 'Alle recepten zijn afgevinkt.';
+    main.innerHTML = filterBar + `<div class="empty-state" style="padding-top:32px;"><div class="empty-title" style="color:var(--text-muted);font-weight:400;">${emptyMsg}</div></div>`;
+    return;
   }
 
-  main.innerHTML = `<div class="week-days-area">${daysHtml}</div>${shelfHtml}`;
-  meals.filter(([,m]) => m.day).forEach(([id]) => initMealSwipe(id));
-  meals.forEach(([id]) => initMealDrag(id));
-  initUnplannedSheetResize();
-  const hasPastMeals = getOrderedDays(byDay).some(d => isPastDay(d));
-  if (hasPastMeals) {
-    setTimeout(() => {
-      const todayEl = document.getElementById('today-section');
-      const area = document.querySelector('.week-days-area');
-      if (todayEl && area) {
-        const header = todayEl.querySelector('.meal-day-header');
-        area.scrollTop = header ? header.offsetTop : todayEl.offsetTop;
-      }
-    }, 50);
-  }
+  main.innerHTML = filterBar + `<div class="meal-flat-list">${filtered.map(([id,m]) => renderMealItem(id,m)).join('')}</div>`;
+  filtered.forEach(([id]) => initMealSwipe(id));
+  filtered.forEach(([id]) => initMealDragReorder(id));
 }
 
 function initUnplannedSheetResize() {
@@ -1084,15 +1042,10 @@ function renderMealItem(id, meal) {
   const openUrl = isUrl ? (meal.ref.includes('?') ? meal.ref + '&source=web' : meal.ref + '?source=web') : null;
   const cardClick = openUrl ? `window.open('${openUrl}','_blank','noopener')` : '';
   const cardData = openUrl ? ` data-open-url="${openUrl}"` : '';
-  const todayKey = WEEK_DAYS[new Date().getDay()];
-  const pickerChips = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(d =>
-    `<button class="day-chip${meal.day===d?' active':''}${d===todayKey?' today':''}" onclick="event.stopPropagation();pickMealDay('${id}','${d}')">${WEEK_DAY_SHORT[d]}</button>`
-  ).join('');
   return `<div class="meal-card-wrap" id="mealwrap-${id}">
-    <div class="meal-card" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}${cardData}>
-      <!-- check button hidden — swipe right to complete
-      <button class="item-action-btn meal-check-btn" onclick="event.stopPropagation();checkMeal('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg></button>
-      -->
+    <div class="meal-card${meal.checked ? ' meal-checked' : ''}" id="meal-${id}"${cardClick ? ` onclick="${cardClick}"` : ''}${cardData}>
+      <div class="meal-drag-handle" onclick="event.stopPropagation()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M7 2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM7 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM7 15a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/></svg></div>
+      <div class="meal-item-checkbox${meal.checked ? ' checked' : ''}" onclick="event.stopPropagation();toggleMealCheck('${id}')"></div>
       ${(() => {
         const img = meal.ref && _recipeCatalog ? (_recipeCatalog.find(r => r.url === meal.ref) || {}).image_url : null;
         return img
@@ -1103,13 +1056,7 @@ function renderMealItem(id, meal) {
         <div class="item-name">${meal.label}</div>
         ${refText}
       </div>
-      <!-- calendar button hidden — drag to assign day
-      <button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();toggleMealDayPicker('${id}')"><i class="lni lni-calendar-days"></i></button>
-      -->
       ${!meal.generated ? `<button class="item-action-btn" style="color:#777;" onclick="event.stopPropagation();openEditMealSheet('${id}')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg></button>` : ''}
-      <div class="meal-daypicker hidden" id="daypicker-${id}">
-        ${pickerChips}
-      </div>
     </div>
   </div>`;
 }
@@ -1154,15 +1101,137 @@ function initMealSwipe(id) {
     if (!dragging) return;
     dragging = false;
     if (triggered) {
+      if (weekmenu[id]?.checked) {
+        card.style.transition = 'transform 0.2s ease';
+        card.style.transform = '';
+        return;
+      }
       card.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
       card.style.transform = `translateX(${window.innerWidth}px)`;
       card.style.opacity = '0';
-      setTimeout(() => checkMeal(id), 250);
+      setTimeout(() => {
+        weekmenu[id] = { ...(weekmenu[id] || {}), checked: true };
+        setSyncBar('syncing');
+        update(ref(db, 'lists/' + listId + '/weekmenu/' + id), { checked: true });
+        if (weekmenuFilter === 'open') {
+          const wrap = document.getElementById('mealwrap-' + id);
+          if (wrap) wrap.remove();
+        } else {
+          card.style.transition = 'none';
+          card.style.transform = '';
+          card.style.opacity = '';
+          const cb = card.querySelector('.meal-item-checkbox');
+          card.classList.add('meal-checked');
+          if (cb) cb.classList.add('checked');
+        }
+      }, 250);
     } else {
       card.style.transition = 'transform 0.2s ease';
       card.style.transform = '';
       if (btn) btn.style.color = '';
     }
+  });
+}
+
+function initMealDragReorder(id) {
+  const wrap = document.getElementById('mealwrap-' + id);
+  const handle = wrap?.querySelector('.meal-drag-handle');
+  if (!handle || !wrap) return;
+
+  let dragging = false, clone = null, placeholder = null, offsetY = 0;
+
+  function getList() { return document.querySelector('.meal-flat-list'); }
+
+  function getVisibleWraps() {
+    return [...(getList()?.querySelectorAll('.meal-card-wrap') || [])].filter(el => el !== wrap);
+  }
+
+  function activate(clientX, clientY) {
+    dragging = true;
+    const rect = wrap.getBoundingClientRect();
+    offsetY = clientY - rect.top;
+
+    placeholder = document.createElement('div');
+    placeholder.className = 'meal-drag-placeholder';
+    placeholder.style.height = rect.height + 'px';
+    wrap.after(placeholder);
+
+    clone = wrap.cloneNode(true);
+    clone.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;z-index:9999;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,0.18);border-radius:14px;transform:scale(1.02);opacity:0.96;transition:none;`;
+    document.body.appendChild(clone);
+    wrap.style.visibility = 'hidden';
+    document.body.style.userSelect = 'none';
+    if (navigator.vibrate) navigator.vibrate(25);
+  }
+
+  function move(clientY) {
+    if (!dragging || !clone) return;
+    clone.style.top = (clientY - offsetY) + 'px';
+    const list = getList();
+    if (!list) return;
+    let insertBefore = null;
+    for (const el of getVisibleWraps()) {
+      if (el === placeholder) continue;
+      const mid = el.getBoundingClientRect().top + el.getBoundingClientRect().height / 2;
+      if (clientY < mid) { insertBefore = el; break; }
+    }
+    if (insertBefore) list.insertBefore(placeholder, insertBefore);
+    else list.appendChild(placeholder);
+  }
+
+  function finish() {
+    if (!dragging) return;
+    dragging = false;
+    placeholder.replaceWith(wrap);
+    if (clone) { clone.remove(); clone = null; }
+    wrap.style.visibility = '';
+    document.body.style.userSelect = '';
+
+    // Persist new order for all visible items
+    const ids = [...getList().querySelectorAll('.meal-card-wrap')].map(el => el.id.replace('mealwrap-', ''));
+    const updates = {};
+    ids.forEach((itemId, index) => {
+      if (weekmenu[itemId]) {
+        weekmenu[itemId].order = index;
+        updates['lists/' + listId + '/weekmenu/' + itemId + '/order'] = index;
+      }
+    });
+    setSyncBar('syncing');
+    update(ref(db), updates);
+  }
+
+  function cancel() {
+    if (!dragging) return;
+    dragging = false;
+    if (placeholder) { placeholder.replaceWith(wrap); placeholder = null; }
+    if (clone) { clone.remove(); clone = null; }
+    wrap.style.visibility = '';
+    document.body.style.userSelect = '';
+  }
+
+  handle.addEventListener('touchstart', e => {
+    activate(e.touches[0].clientX, e.touches[0].clientY);
+    e.preventDefault();
+    e.stopPropagation();
+  }, { passive: false });
+
+  handle.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    move(e.touches[0].clientY);
+    e.preventDefault();
+  }, { passive: false });
+
+  handle.addEventListener('touchend', finish);
+  handle.addEventListener('touchcancel', cancel);
+
+  handle.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    activate(e.clientX, e.clientY);
+    const onMove = e => move(e.clientY);
+    const onUp = () => { finish(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
   });
 }
 
@@ -1283,28 +1352,32 @@ function initMealDrag(id) {
 }
 
 window.checkMeal = function(id) {
-  // Flush any previous pending delete immediately
-  if (mealUndoTimer) {
-    clearTimeout(mealUndoTimer);
-    mealUndoTimer = null;
-    if (mealUndoId) { setSyncBar('syncing'); remove(ref(db,'lists/'+listId+'/weekmenu/'+mealUndoId)); }
-    mealUndoId = null;
+  const meal = weekmenu[id];
+  if (!meal) return;
+  const newChecked = !meal.checked;
+  weekmenu[id] = { ...meal, checked: newChecked };
+  setSyncBar('syncing');
+  update(ref(db, 'lists/' + listId + '/weekmenu/' + id), { checked: newChecked || null });
+  const card = document.getElementById('meal-' + id);
+  if (card) {
+    const cb = card.querySelector('.meal-item-checkbox');
+    if (newChecked) {
+      card.classList.add('meal-checked');
+      if (cb) cb.classList.add('checked');
+    } else {
+      card.classList.remove('meal-checked');
+      if (cb) cb.classList.remove('checked');
+    }
   }
-  const el = document.getElementById('meal-'+id);
-  if (el) {
-    const cb = el.querySelector('.item-checkbox');
-    if (cb) cb.classList.add('checked');
-    el.classList.add('meal-checked');
-    setTimeout(() => el.classList.add('checking'), 800);
-  }
-  mealUndoId = id;
-  showMealToast();
-  mealUndoTimer = setTimeout(() => {
-    mealUndoTimer = null; mealUndoId = null;
-    hideMealToast();
-    setSyncBar('syncing');
-    remove(ref(db,'lists/'+listId+'/weekmenu/'+id));
-  }, 3000);
+};
+
+window.toggleMealCheck = function(id) {
+  checkMeal(id);
+};
+
+window.setWeekMenuFilter = function(filter) {
+  weekmenuFilter = filter;
+  renderWeekMenu();
 };
 
 window.undoCheckMeal = function() {
@@ -1339,20 +1412,6 @@ window.removeMealFromSheet = function() {
   closeMealSheet();
   setSyncBar('syncing');
   remove(ref(db,'lists/'+listId+'/weekmenu/'+id));
-};
-
-function renderMealDayChips(activeDay) {
-  const todayIdx = new Date().getDay();
-  const ordered = [...WEEK_DAYS.slice(todayIdx), ...WEEK_DAYS.slice(0, todayIdx)];
-  document.getElementById('mealDayChips').innerHTML = ordered.map(d =>
-    `<button class="day-chip${activeDay===d?' active':''}" data-day="${d}" onclick="selectDayChip(this)">${WEEK_DAY_SHORT[d]}</button>`
-  ).join('');
-}
-
-window.selectDayChip = function(el) {
-  const isActive = el.classList.contains('active');
-  document.querySelectorAll('#mealDayChips .day-chip').forEach(c => c.classList.remove('active'));
-  if (!isActive) el.classList.add('active');
 };
 
 window.openCatalogSheet = function() {
@@ -1408,7 +1467,6 @@ window.mealCatalogPick = function(btn) {
 window.openMealSheet = function() {
   editingMealId = null;
   hideMealToast();
-  renderMealDayChips(null);
   document.getElementById('mealLabelInput').value = '';
   document.getElementById('mealRefInput').value = '';
   document.getElementById('mealAddToCatalog').checked = false;
@@ -1425,28 +1483,11 @@ window.openMealSheet = function() {
   setTimeout(() => document.getElementById('mealLabelInput').focus({ preventScroll: true }), 100);
 };
 
-window.toggleMealDayPicker = function(id) {
-  document.querySelectorAll('.meal-daypicker').forEach(el => {
-    if (el.id !== 'daypicker-' + id) el.classList.add('hidden');
-  });
-  document.getElementById('daypicker-' + id).classList.toggle('hidden');
-};
-window.pickMealDay = function(id, day) {
-  const existing = weekmenu[id]; if (!existing) return;
-  const meal = { label: existing.label };
-  if (existing.ref) meal.ref = existing.ref;
-  if (existing.day !== day) meal.day = day;
-  setSyncBar('syncing');
-  set(ref(db, 'lists/' + listId + '/weekmenu/' + id), meal);
-  document.getElementById('daypicker-' + id).classList.add('hidden');
-};
-
 window.openEditMealSheet = function(id) {
   const meal = weekmenu[id];
   if (!meal) return;
   editingMealId = id;
   hideMealToast();
-  renderMealDayChips(meal.day || null);
   document.getElementById('mealLabelInput').value = meal.label || '';
   document.getElementById('mealRefInput').value = meal.ref || '';
   document.getElementById('mealSaveBtn').disabled = false;
@@ -1469,12 +1510,10 @@ window.closeMealSheet = function() {
 window.saveMeal = function() {
   const label = document.getElementById('mealLabelInput').value.trim();
   if (!label) return;
-  const activeChip = document.querySelector('#mealDayChips .day-chip.active');
-  const day = activeChip?.dataset.day || null;
   const recipeRef = document.getElementById('mealRefInput').value.trim() || null;
   const meal = { label };
-  if (day) meal.day = day;
   if (recipeRef) meal.ref = recipeRef;
+  if (editingMealId && weekmenu[editingMealId]?.checked) meal.checked = true;
   setSyncBar('syncing');
   if (editingMealId) {
     set(ref(db,'lists/'+listId+'/weekmenu/'+editingMealId), meal);
@@ -1853,6 +1892,7 @@ function positionNoteModal() {
 }
 function onViewportChange() {
   positionFabSheet();
+  positionRecipeSearchSheet();
   positionCatalogSheet();
   positionMealSheet();
   positionNoteModal();
@@ -1874,6 +1914,85 @@ window.closeWeekmenuActionSheet = function() {
   document.getElementById('weekmenuActionSheet').classList.remove('open');
   document.getElementById('sheetOverlay').classList.remove('show');
 };
+
+window.openRecipeSearch = function() {
+  const modal = document.getElementById('recipeSearchModal');
+  modal.classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('show');
+  renderRecipeSearchResults('');
+  positionRecipeSearchSheet();
+  setTimeout(() => {
+    const input = document.getElementById('recipeSearchInput');
+    input.value = '';
+    input.focus({ preventScroll: true });
+    positionRecipeSearchSheet();
+  }, 80);
+};
+
+window.closeRecipeSearch = function() {
+  const modal = document.getElementById('recipeSearchModal');
+  modal.classList.remove('open', 'with-results');
+  modal.style.bottom = '';
+  modal.style.height = '';
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('recipeSearchInput').value = '';
+  document.getElementById('recipeSearchResults').innerHTML = '';
+};
+
+window.onRecipeSearch = function(val) { renderRecipeSearchResults(val); };
+
+function renderRecipeSearchResults(val) {
+  const q = val.trim().toLowerCase();
+  const container = document.getElementById('recipeSearchResults');
+  const modal = document.getElementById('recipeSearchModal');
+  if (!q) {
+    modal.classList.remove('with-results');
+    modal.style.height = '';
+    container.innerHTML = '';
+    positionRecipeSearchSheet();
+    return;
+  }
+  const meals = Object.entries(weekmenu).sort(([,a],[,b]) => (a.order ?? Infinity) - (b.order ?? Infinity));
+  const results = meals.filter(([,m]) => m.label.toLowerCase().includes(q));
+  if (results.length === 0) {
+    modal.classList.add('with-results');
+    container.innerHTML = `<div style="padding:16px;color:var(--text-muted);text-align:center;font-size:14px;">Geen recepten gevonden</div>`;
+    positionRecipeSearchSheet();
+    return;
+  }
+  modal.classList.add('with-results');
+  container.innerHTML = results.map(([id, m]) => {
+    const isUrl = m.ref && (m.ref.startsWith('http://') || m.ref.startsWith('https://'));
+    let refHtml = '';
+    if (m.ref) {
+      const label = isUrl ? ((() => { try { return new URL(m.ref).hostname.replace(/^www\./, ''); } catch(e) { return m.ref; } })()) : m.ref;
+      refHtml = `<div class="meal-ref${isUrl ? ' meal-ref--url' : ''}">${label}</div>`;
+    }
+    return `<div class="search-result-item" onclick="recipeSearchToggleCheck('${id}')">
+      <div class="meal-item-checkbox${m.checked ? ' checked' : ''}"></div>
+      <div class="sri-info">
+        <div class="sri-name">${m.label}</div>
+        ${refHtml}
+      </div>
+    </div>`;
+  }).join('');
+  positionRecipeSearchSheet();
+}
+
+window.recipeSearchToggleCheck = function(id) {
+  checkMeal(id);
+  renderRecipeSearchResults(document.getElementById('recipeSearchInput').value);
+};
+
+function positionRecipeSearchSheet() {
+  const modal = document.getElementById('recipeSearchModal');
+  if (!modal.classList.contains('open')) return;
+  modal.style.bottom = getKeyboardOffset() + 'px';
+  if (modal.classList.contains('with-results')) {
+    const vv = window.visualViewport;
+    modal.style.height = Math.round((vv ? vv.height : window.innerHeight) * 0.7) + 'px';
+  }
+}
 
 window.openFabSearch = function(e) {
   if (currentTab === 'weekmenu') {
@@ -2062,6 +2181,7 @@ window.closeAllSheets = function() {
   closeLocaleSheet();
   closeMenu();
   closeFabSearch();
+  closeRecipeSearch();
   closeMealSheet();
   closeCatalogSheet();
   closeGeneratorSheet();
