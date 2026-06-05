@@ -701,7 +701,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v42';
+const APP_VERSION = 'v43';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -956,6 +956,7 @@ function renderWeekMenu() {
     : `<div class="weekmenu-filter-bar">
         <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
         <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
+        <span style="flex:1;"></span>
         <button class="weekmenu-filter-btn${!weekmenuShowImages ? ' active' : ''}" onclick="setRecipeImagesView(false)"><svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="0" width="16" height="2" rx="1"/><rect x="0" y="5" width="16" height="2" rx="1"/><rect x="0" y="10" width="16" height="2" rx="1"/></svg></button>
         <button class="weekmenu-filter-btn${weekmenuShowImages ? ' active' : ''}" onclick="setRecipeImagesView(true)"><i class="lni lni-gallery" style="font-size:20px;line-height:1;vertical-align:middle;"></i></button>
         <button class="weekmenu-search-btn" onclick="openRecipeSearch()"><i class="lni lni-search-1"></i></button>
