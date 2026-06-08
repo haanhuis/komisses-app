@@ -505,6 +505,17 @@ body {
         inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
+/* Fill the safe-area gap below the floating pill so no white strip shows */
+.platform-ios .bottom-nav::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * max(36px, 50vw - 240px));
+    right: calc(-1 * max(36px, 50vw - 240px));
+    bottom: calc(-1 * max(22px, env(safe-area-inset-bottom)));
+    height: max(22px, env(safe-area-inset-bottom));
+    background: white;
+}
+
 .platform-ios .bottom-tab {
     color:#222;
     font-size: 11px;
@@ -574,7 +585,7 @@ main {
 }
 
 .platform-ios main {
-    padding: 0 0 calc(68px + 48px + 40px + env(safe-area-inset-bottom));
+    padding: 0 0 calc(68px + 48px + 40px);
 }
 
 main.main--weekmenu {
