@@ -94,6 +94,7 @@ body {
     background: var(--brandColor);
     color: white;
     padding: 0 16px;
+    padding-top: env(safe-area-inset-top);
     flex-shrink: 0;
     z-index: 100;
     box-shadow: 0 2px 12px rgba(0,87,255,0.25);
