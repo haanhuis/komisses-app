@@ -484,12 +484,12 @@ body {
     right: max(36px, calc(50% - 240px));
     transform: none;
     width: auto;
-    bottom: max(22px, env(safe-area-inset-bottom));
-    height: 68px;
-    padding: 6px 8px;
+    bottom: 0;
+    height: auto;
+    padding: 6px 8px max(22px, env(safe-area-inset-bottom));
 
-    /* Pill shape */
-    border-radius: 34px;
+    /* Rounded top, flush bottom to cover safe area */
+    border-radius: 34px 34px 0 0;
     border-top: none;
 
     /* iOS system material — matches UIBlurEffect .systemChromeMaterial */
@@ -1943,7 +1943,7 @@ main.main--weekmenu {
 }
 
 .platform-ios .fab {
-    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px + 16px);
+    bottom: calc(max(22px, env(safe-area-inset-bottom)) + 68px + 16px);
     right: max(16px, calc(50% - 240px + 16px));
     width: 56px;
     height: 56px;

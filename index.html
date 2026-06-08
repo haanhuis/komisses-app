@@ -54,6 +54,33 @@
     <button class="btn btn-primary w-full" id="newlistCreateBtn" style="padding:14px;font-size:15px;" onclick="createNewList()" disabled>
       <i class="lni lni-plus icon-sm"></i><span id="newlistCreateText">Nieuwe lijst aanmaken</span>
     </button>
+
+    <div id="recentListsSection" style="display:none;margin-top:16px;text-align:left;">
+      <div style="font-size:12px;color:#aaa;font-weight:600;margin-bottom:6px;">Recente lijsten</div>
+      <div id="recentListsBtns"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;margin:16px 0;">
+      <div class="divider-line"></div>
+      <div class="divider-text">of</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div id="connectSection">
+      <button class="btn btn-secondary w-full" style="padding:14px;font-size:15px;" onclick="showConnectInput()">
+        <i class="lni lni-link-2-angular-right icon-sm"></i><span id="newlistConnectText">Verbinden met gedeelde lijst</span>
+      </button>
+    </div>
+
+    <div id="connectInputSection" style="display:none;">
+      <input type="url" id="connectUrlInput" class="modal-input mb-8" placeholder="Plak de gedeelde link hier..." autocomplete="off" autocorrect="off" spellcheck="false"
+        oninput="validateConnectUrl()"
+        onkeydown="if(event.key==='Enter' && !document.getElementById('connectBtn').disabled) connectToList()">
+      <div id="connectError" class="error-text mb-8">Ongeldige link. Plak de volledige URL.</div>
+      <button class="btn btn-primary w-full" id="connectBtn" style="padding:14px;font-size:15px;" onclick="connectToList()" disabled>
+        <span>Verbinden</span>
+      </button>
+    </div>
   </div>
 </div>
 
