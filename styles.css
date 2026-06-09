@@ -973,7 +973,7 @@ main.main--weekmenu {
     width: min(480px,100vw);
     background: white;
     border-radius: 20px 20px 0 0;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.14);
+    box-shadow: none;
     z-index: 300;
     max-height: 65vh;
     display: flex;
@@ -983,6 +983,7 @@ main.main--weekmenu {
 
 .products-panel.open {
     transform: translateX(-50%) translateY(0);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.14);
 }
 
 .panel-handle {
@@ -1300,15 +1301,7 @@ main.main--weekmenu {
     display: none;
 }
 .platform-ios .bottom-fade {
-    display: block;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    background: linear-gradient(to top, white 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 79;
+    display: none;
 }
 
 /* FAB */
