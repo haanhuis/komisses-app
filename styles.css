@@ -487,6 +487,10 @@ body {
     display: none;
 }
 
+.platform-ios.standalone .bottom-nav {
+    padding-bottom: 0;
+}
+
 /* ── Material Design 3 navigation bar ───────────────────────────────
    M3: 80dp bar, 24dp icons, 12sp/500 labels, 64×32dp indicator pill
    behind icon in secondary-container color on active tab             */

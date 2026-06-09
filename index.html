@@ -707,6 +707,8 @@ const APP_VERSION = 'v43';
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
 const isAndroid = platformOverride ? platformOverride === 'android' : /android/i.test(navigator.userAgent);
 document.body.classList.add(isAndroid ? 'platform-android' : 'platform-ios');
+const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+if (isStandalone) document.body.classList.add('standalone');
 
 const WEEK_DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 function getWeekDayLabels() {
