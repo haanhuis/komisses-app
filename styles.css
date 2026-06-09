@@ -488,7 +488,7 @@ body {
     right: max(36px, calc(50% - 240px));
     transform: none;
     width: auto;
-    bottom: 0;
+    bottom: 22px;
     height: 68px;
     padding: 6px 8px;
 
@@ -509,15 +509,24 @@ body {
         inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
-/* Fill the safe-area gap below the floating pill so no white strip shows */
-.platform-ios .bottom-nav::before {
-    content: '';
-    position: absolute;
-    left: calc(-1 * max(36px, 50vw - 240px));
-    right: calc(-1 * max(36px, 50vw - 240px));
-    bottom: calc(-1 * max(22px, env(safe-area-inset-bottom)));
-    height: max(22px, env(safe-area-inset-bottom));
-    background: white;
+/* Frosted shelf that fills the gap between the pill and the screen edge.
+   Must be a real element (not ::before) — backdrop-filter clips pseudo-elements.
+   z-index above modals so the gap stays covered even when overlays open. */
+#ios-nav-shelf {
+    display: none;
+}
+.platform-ios #ios-nav-shelf {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    z-index: 601;
+    pointer-events: none;
 }
 
 .platform-ios .bottom-tab {
