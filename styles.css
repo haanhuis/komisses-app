@@ -529,7 +529,7 @@ main {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 0 0 calc(100px + 60px + 40px + env(safe-area-inset-bottom));
+    padding: 0 0 calc(100px + 60px + 40px);
 }
 
 
