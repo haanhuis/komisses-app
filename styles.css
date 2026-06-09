@@ -25,7 +25,7 @@ html {
 html, body {
     height: 100%;
     height: 100dvh;
-    overflow: hidden;
+    overflow: clip;
 }
 
 body {
@@ -509,9 +509,9 @@ body {
         inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
-/* Frosted shelf that fills the gap between the pill and the screen edge.
-   Must be a real element (not ::before) — backdrop-filter clips pseudo-elements.
-   z-index above modals so the gap stays covered even when overlays open. */
+/* Fills the gap below the floating pill. overflow:clip (not hidden) on
+   body is what makes position:fixed actually reach the physical screen
+   bottom on iOS, so modals cover this fill and no white strip shows. */
 #ios-nav-shelf {
     display: none;
 }
@@ -522,10 +522,8 @@ body {
     left: 0;
     right: 0;
     height: 22px;
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    z-index: 601;
+    background: white;
+    z-index: 99;
     pointer-events: none;
 }
 
