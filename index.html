@@ -1409,6 +1409,8 @@ window.undoCheckMeal = function() {
 
 function showMealToast() {
   const el = document.getElementById('mealToast');
+  const headerBottom = document.querySelector('.header')?.getBoundingClientRect().bottom ?? 60;
+  el.style.top = (headerBottom + 10) + 'px';
   el.classList.add('show');
 }
 function hideMealToast() {
@@ -2450,7 +2452,10 @@ if ('serviceWorker' in navigator) {
         const newWorker = reg.installing;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            document.getElementById('updateToast').classList.add('show');
+            const updateToastEl = document.getElementById('updateToast');
+            const headerBottom = document.querySelector('.header')?.getBoundingClientRect().bottom ?? 60;
+            updateToastEl.style.top = (headerBottom + 10) + 'px';
+            updateToastEl.classList.add('show');
           }
         });
       });
