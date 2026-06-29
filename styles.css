@@ -32,7 +32,6 @@ body {
     font-family: 'Outfit', sans-serif;
     background: white;
     color: var(--text);
-    max-width: 480px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -396,8 +395,8 @@ body {
 .bottom-nav {
     position: fixed;
     bottom: 0;
-    left: max(0px, calc(50% - 240px));
-    right: max(0px, calc(50% - 240px));
+    left: 0;
+    right: 0;
     background: #fffFFF;
     border-top: 1px solid rgba(0,0,0,0.08);
     display: flex;
@@ -472,6 +471,8 @@ body {
 .tab-icon-filled { display: none; width: 24px; height: 24px; }
 .bottom-tab.active .tab-icon-outline { display: none; }
 .bottom-tab.active .tab-icon-filled { display: block; }
+
+.tab-nav-badge { display: none; }
 
 /* Tab icon wrapper (used for Android indicator pill) */
 .tab-icon {
@@ -1246,7 +1247,7 @@ main.main--weekmenu {
 .fab {
     position: fixed;
     bottom: 110px;
-    right: max(24px, calc(50% - 240px + 24px));
+    right: 24px;
     background: var(--brandColor);
     color: #ffffff;
     border: none;
@@ -1898,7 +1899,7 @@ main.main--weekmenu {
 }
 
 .platform-ios .fab {
-    right: max(16px, calc(50% - 240px + 16px));
+    right: 16px;
     width: 56px;
     height: 56px;
     background: var(--brandColor);
@@ -2518,4 +2519,144 @@ main.main--weekmenu {
     margin: 0 0 0 0;
     padding-left: 8px;
     padding-right: 8px;
+}
+
+/* ── Desktop sidenav ─────────────────────────────────────────────────
+   On wide screens, convert the bottom nav into a left-side nav rail  */
+@media (min-width: 768px) {
+    body {
+        flex-direction: row;
+    }
+
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 101;
+    }
+
+    .bottom-nav {
+        position: fixed;
+        top: 58px;
+        left: 0;
+        bottom: 0;
+        right: auto;
+        width: 220px;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        border-top: none;
+        border-right: 1px solid rgba(0,0,0,0.08);
+        padding: 16px 12px 24px 0;
+        gap: 4px;
+        box-shadow: none;
+        z-index: 100;
+    }
+
+    .bottom-tab {
+        flex: 0 0 auto;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 0 12px 12px 0;
+        font-size: 15px;
+        text-align: left;
+    }
+
+    .bottom-tab > span:not(.tab-icon),
+    .bottom-tab > span.bottom-tab-label {
+        text-align: left;
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .bottom-tab .tab-nav-badge {
+        margin-left: auto;
+    }
+
+    .bottom-tab.active {
+        background: color-mix(in srgb, var(--brandColor) 10%, transparent);
+    }
+
+    main {
+        margin-left: 220px;
+        padding-bottom: 40px;
+        padding-top: 58px;
+    }
+
+    .platform-android .bottom-nav {
+        padding-top: 16px;
+        align-items: stretch;
+    }
+
+    .platform-android .bottom-tab .tab-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+    }
+
+    .fab {
+        right: 24px;
+        bottom: 32px;
+    }
+
+    .browse-grid {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .category-header {
+        padding: 5px 16px;
+    }
+
+    .cat-name {
+        font-size: 14px;
+    }
+
+    .item-card {
+        padding: 5px 15px;
+    }
+
+    .tab-nav-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--grey-mid);
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        padding: 0 5px;
+        margin-left: 6px;
+        line-height: 1;
+    }
+
+    .bottom-tab.active .tab-nav-badge {
+        background: var(--brandColor);
+        color: white;
+    }
+
+    main.main--weekmenu {
+        padding-top: 58px;
+    }
+
+    #main .sri-add {
+        background: none;
+        color: var(--brandColor);
+        border: none;
+        font-weight: 600;
+        padding: 6px 0;
+        font-size: 14px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    #main .sri-add.added {
+        color: var(--green);
+    }
 }
