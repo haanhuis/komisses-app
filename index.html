@@ -1676,15 +1676,17 @@ window.saveNote = function() {
 window.openCustom = function(prefill) {
   closeFabSearch();
   document.getElementById('customCat').innerHTML = CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
-  document.getElementById('customName').value = prefill || '';
+  const prefillCap = prefill ? prefill.charAt(0).toUpperCase() + prefill.slice(1) : '';
+  document.getElementById('customName').value = prefillCap;
   document.getElementById('customModal').classList.add('show');
   setTimeout(() => document.getElementById('customName').focus(), 100);
 };
 window.closeCustom = function() { document.getElementById('customModal').classList.remove('show'); };
 window.saveCustom = function() {
-  const name = document.getElementById('customName').value.trim();
+  const rawName = document.getElementById('customName').value.trim();
   const catId = document.getElementById('customCat').value;
-  if (!name) return;
+  if (!rawName) return;
+  const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   addProduct(name, catId); closeCustom();
 };
 
@@ -1736,9 +1738,10 @@ function doSearch(val) {
     if (cat) { matches.push({name:a.name, cat:cat.name, catId:cat.id, emoji:cat.emoji}); matchedNames.add(a.name+'|'+a.catId); }
   });
   if (!matches.length) {
+    const valCap = val.charAt(0).toUpperCase() + val.slice(1);
     results.innerHTML = `<div class="no-results">${t('search_noresults')} "<strong>${val}</strong>"</div>
-      <div class="search-result-item" onclick="openCustomFromSearch('${val.replace(/'/g,"\\'")}')">
-        <div class="sri-info"><div class="sri-name">${t('search_add_custom').replace('{q}',val)}</div></div>
+      <div class="search-result-item" onclick="openCustomFromSearch('${valCap.replace(/'/g,"\\'")}')">
+        <div class="sri-info"><div class="sri-name">${t('search_add_custom').replace('{q}',valCap)}</div></div>
       </div>`;
   } else {
     results.innerHTML = matches.slice(0,12).map(m => {
@@ -2076,9 +2079,10 @@ function renderFabResults(val) {
 
   let hasResults = false;
   if (q && matches.length === 0) {
+    const valCap = val.charAt(0).toUpperCase() + val.slice(1);
     html = `<div class="no-results">${t('search_noresults')} "<strong>${val}</strong>"</div>
-      <div class="search-result-item" onclick="fabAddNew('${val.replace(/'/g,"\\'")}')">
-        <span class="sri-name">${t('search_add_custom').replace('{q}',val)}</span>
+      <div class="search-result-item" onclick="fabAddNew('${valCap.replace(/'/g,"\\'")}')">
+        <span class="sri-name">${t('search_add_custom').replace('{q}',valCap)}</span>
       </div>`;
   } else if (matches.length > 0) {
     hasResults = true;
