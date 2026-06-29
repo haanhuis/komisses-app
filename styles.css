@@ -2521,6 +2521,205 @@ main.main--weekmenu {
     padding-right: 8px;
 }
 
+/* Recipe catalog tab */
+.rc-list {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.rc-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--grey);
+}
+
+.rc-row:hover .rc-row-name {
+    color: var(--brandColor);
+}
+
+.rc-row:active {
+    background: var(--grey);
+}
+
+.rc-row-name {
+    flex: 1;
+    font-size: 15px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+}
+
+.rc-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.rc-card-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+.rc-card-placeholder {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--grey);
+}
+
+.rc-card-body {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rc-card-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rc-add-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--brandColor);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.rc-add-btn:active {
+    opacity: 0.6;
+}
+
+/* Hide text label on mobile, show on desktop */
+.rc-add-label {
+    display: none;
+}
+
+.rc-filter-bar {
+    flex-wrap: nowrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+.rc-filter-scroll-wrap {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+}
+
+.rc-filter-pills {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex: 1;
+    min-width: 0;
+}
+
+.rc-filter-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.rc-scroll-btn {
+    display: none;
+    background: none;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.rc-view-btns {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.rc-filter-bar-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.rc-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px;
+    padding: 8px 12px;
+    border-bottom: none;
+    background: var(--grey-light, #f2f2f7);
+    border-radius: 10px;
+}
+
+
+.rc-search-input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 15px;
+    color: var(--text);
+    min-width: 0;
+}
+
+.rc-search-input::placeholder {
+    color: var(--text-light);
+}
+
+.rc-search-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 14px;
+    padding: 2px 4px;
+    line-height: 1;
+}
+
 /* ── Desktop sidenav ─────────────────────────────────────────────────
    On wide screens, convert the bottom nav into a left-side nav rail  */
 @media (min-width: 768px) {
@@ -2571,6 +2770,7 @@ main.main--weekmenu {
         flex: 1;
         display: flex;
         align-items: center;
+        justify-content: space-between;
     }
 
     .bottom-tab .tab-nav-badge {
@@ -2658,5 +2858,17 @@ main.main--weekmenu {
 
     #main .sri-add.added {
         color: var(--green);
+    }
+
+    .rc-add-label {
+        display: inline;
+    }
+
+    .rc-scroll-btn {
+        display: inline-flex;
+    }
+
+    .rc-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
