@@ -46,6 +46,7 @@
 <div class="newlist-modal hidden-init" id="newlistModal">
   <div class="newlist-box">
     <div class="emoji-xl">🛒</div>
+    <p id="newlistDesc">Maak een nieuwe lijst aan of verbind met een bestaande gedeelde lijst.</p>
 
     <input type="text" id="newlistNameInput" class="modal-input mb-12" placeholder="Naam van de lijst..." autocomplete="off" autocorrect="off" spellcheck="false"
       oninput="document.getElementById('newlistCreateBtn').disabled = !this.value.trim()"
@@ -54,6 +55,27 @@
     <button class="btn btn-primary w-full" id="newlistCreateBtn" style="padding:14px;font-size:15px;" onclick="createNewList()" disabled>
       <i class="lni lni-plus icon-sm"></i><span id="newlistCreateText">Nieuwe lijst aanmaken</span>
     </button>
+
+    <div style="display:flex;align-items:center;margin:16px 0 12px;">
+      <div class="divider-line"></div>
+      <span class="divider-text" id="newlistDividerText">of</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <div id="connectSection">
+      <button class="btn w-full" style="padding:14px;font-size:15px;border:1.5px solid var(--grey-mid);background:white;color:var(--text);" onclick="showConnectInput()">
+        <i class="lni lni-link-2-angular-right icon-sm"></i><span id="newlistConnectText">Verbinden met gedeelde lijst</span>
+      </button>
+    </div>
+
+    <div id="connectInputSection" style="display:none;">
+      <input type="url" id="connectUrlInput" class="modal-input mb-8" placeholder="Plak de gedeelde link hier..."
+        autocomplete="off" autocorrect="off" spellcheck="false"
+        oninput="validateConnectUrl()"
+        onkeydown="if(event.key==='Enter') connectToList()">
+      <div id="connectError" class="error-text mb-8">Ongeldige link. Plak de volledige URL.</div>
+      <button class="btn btn-primary w-full" id="connectBtn" style="padding:14px;font-size:15px;" onclick="connectToList()" disabled>Verbinden</button>
+    </div>
   </div>
 </div>
 
@@ -701,7 +723,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v70';
+const APP_VERSION = 'v71';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
