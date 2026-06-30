@@ -724,7 +724,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v73';
+const APP_VERSION = 'v74';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -986,7 +986,7 @@ function renderBrowse() {
 }
 
 // ── Recipe Catalog tab ────────────────────────────────────────────────
-let recipeCatalogView = 'list'; // 'list' or 'grid'
+let recipeCatalogView = 'grid'; // 'list' or 'grid'
 let recipeCatalogSearch = '';
 let rcFilterRegion = ''; // single selection
 let rcFilterTraits = []; // multi selection
@@ -1202,22 +1202,16 @@ function renderWeekMenu() {
   const main = document.getElementById('main');
   if (!_recipeCatalog) loadRecipeCatalog().then(() => renderWeekMenu());
 
-  const filterBar = weekmenuSearchOpen
-    ? `<div class="weekmenu-filter-bar weekmenu-filter-bar--search">
-        <div class="weekmenu-search-field">
-          <input type="text" id="recipeSearchInline" class="weekmenu-search-input" placeholder="Zoek recept..." value="${weekmenuSearchQuery.replace(/"/g,'&quot;')}" oninput="setRecipeSearch(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" inputmode="search">
-          ${weekmenuSearchQuery ? `<button class="weekmenu-search-clear" onclick="setRecipeSearch('');document.getElementById('recipeSearchInline').value='';document.getElementById('recipeSearchInline').focus()">✕</button>` : ''}
-        </div>
-        <button class="weekmenu-cancel-btn" onclick="closeRecipeSearch()">Annuleren</button>
-      </div>`
-    : `<div class="weekmenu-filter-bar">
-        <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
-        <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
-        <span style="flex:1;"></span>
-        <button class="weekmenu-filter-btn${!weekmenuShowImages ? ' active' : ''}" onclick="setRecipeImagesView(false)"><svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="0" width="16" height="2" rx="1"/><rect x="0" y="5" width="16" height="2" rx="1"/><rect x="0" y="10" width="16" height="2" rx="1"/></svg></button>
-        <button class="weekmenu-filter-btn${weekmenuShowImages ? ' active' : ''}" onclick="setRecipeImagesView(true)"><i class="lni lni-gallery" style="font-size:20px;line-height:1;vertical-align:middle;"></i></button>
-        <button class="weekmenu-search-btn" onclick="openRecipeSearch()"><i class="lni lni-search-1"></i></button>
-      </div>`;
+  const filterBar = `<div class="weekmenu-filter-bar">
+      <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
+      <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
+      <span style="flex:1;"></span>
+      <button class="weekmenu-filter-btn rc-view-toggle" onclick="setRecipeImagesView(${!weekmenuShowImages})">
+        ${weekmenuShowImages
+          ? `<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="0" width="16" height="2" rx="1"/><rect x="0" y="5" width="16" height="2" rx="1"/><rect x="0" y="10" width="16" height="2" rx="1"/></svg>`
+          : `<i class="lni lni-gallery" style="font-size:20px;line-height:1;vertical-align:middle;"></i>`}
+      </button>
+    </div>`;
 
   const allMeals = Object.entries(weekmenu).sort(([,a],[,b]) => (a.order ?? Infinity) - (b.order ?? Infinity));
   if (allMeals.length === 0) {
@@ -1242,10 +1236,6 @@ function renderWeekMenu() {
   main.innerHTML = filterBar + `<div class="meal-flat-list${weekmenuShowImages ? '' : ' meal-flat-list--no-images'}">${filtered.map(([id,m]) => renderMealItem(id,m)).join('')}</div>`;
   filtered.forEach(([id]) => initMealSwipe(id));
   filtered.forEach(([id]) => initMealDragReorder(id));
-  if (weekmenuSearchOpen) {
-    const input = document.getElementById('recipeSearchInline');
-    if (input) { input.focus({ preventScroll: true }); input.setSelectionRange(input.value.length, input.value.length); }
-  }
 }
 
 function initUnplannedSheetResize() {

@@ -2302,7 +2302,7 @@ main.main--weekmenu {
     gap: 10px;
     box-shadow: 0 0px 0px rgba(0, 0, 0, 0.07), 0 3px 5px rgba(0, 0, 0, 0.04);
     /* transition: opacity 0.3s, transform 0.3s, max-height 0.35s, padding 0.35s; */
-    border: #EFEFEF 1px solid;
+    border: 1px solid #EFEFEF;
     cursor: pointer;
 }
 
@@ -3058,4 +3058,22 @@ main.main--weekmenu {
 
     /* Unit button (active tint was pinkish #fff5f5) */
     .unit-btn.active { background: var(--brandColor-light); }
+
+    /* Week menu: match body bg, not card surface */
+    .main--weekmenu { background: var(--bg); }
+
+    /* Meal cards: subtle border, no harsh white */
+    .meal-card { border-color: var(--border); }
+
+    /* Filter chips: inactive = subtle grey fill (no border), active = accent filled */
+    .weekmenu-filter-btn {
+        border-color: transparent;
+        background: var(--grey-mid);
+        color: var(--text-muted);
+    }
+    .weekmenu-filter-btn.active {
+        background: var(--brandColor);
+        border-color: transparent;
+        color: #000;
+    }
 }
