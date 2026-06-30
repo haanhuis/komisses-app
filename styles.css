@@ -853,6 +853,10 @@ main.main--weekmenu {
     justify-content: center;
 }
 
+.main--weekmenu .empty-state {
+    height: 70%;
+}
+
 .empty-icon {
     font-size: 54px;
     margin-bottom: 14px;
