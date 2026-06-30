@@ -401,8 +401,8 @@ body {
     border-top: 1px solid rgba(0,0,0,0.08);
     display: flex;
     z-index: 100;
-    padding-bottom: 20px;
-    padding-top: 20px
+    padding-bottom: 12px;
+    padding-top: 12px
 }
 
 .bottom-tab {
@@ -1246,7 +1246,7 @@ main.main--weekmenu {
 /* FAB */
 .fab {
     position: fixed;
-    bottom: 110px;
+    bottom: 100px;
     right: 24px;
     background: var(--brandColor);
     color: #ffffff;
