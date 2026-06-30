@@ -9,6 +9,12 @@
     --radius: 14px;
     --shadow: 0 2px 12px rgba(0,0,0,0.08);
     --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+    --bg: white;
+    --bg-card: white;
+    --bg-input: white;
+    --text-secondary: #222;
+    --text-light: #333;
+    --border: #e0e0e0;
 }
 
 * {
@@ -19,7 +25,7 @@
 }
 
 html {
-    background: white;
+    background: var(--bg);
 }
 
 html, body {
@@ -30,7 +36,7 @@ html, body {
 
 body {
     font-family: 'Outfit', sans-serif;
-    background: white;
+    background: var(--bg);
     color: var(--text);
     margin: 0 auto;
     display: flex;
@@ -291,7 +297,7 @@ body {
 }
 
 .search-input::placeholder {
-    color: #aaa;
+    color: var(--text-muted);
 }
 
 .search-icon {
@@ -300,7 +306,7 @@ body {
     top: 50%;
     transform: translateY(-50%);
     font-size: 16px;
-    color: #aaa;
+    color: var(--text-muted);
     pointer-events: none;
 }
 
@@ -311,7 +317,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: min(480px,100vw);
-    background: white;
+    background: var(--bg-card);
     border-radius: 0 0 var(--radius) var(--radius);
     box-shadow: var(--shadow-lg);
     z-index: 200;
@@ -397,7 +403,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: #fffFFF;
+    background: var(--bg-card);
     border-top: 1px solid rgba(0,0,0,0.08);
     display: flex;
     z-index: 100;
@@ -416,7 +422,7 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    color: #222;
+    color: var(--text-secondary);
     font-size: 13px;
     font-family: inherit;
     font-weight: 400;
@@ -554,7 +560,7 @@ main.main--weekmenu {
 
 .unplanned-sheet {
     flex-shrink: 0;
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -2px 16px rgba(0,0,0,0.08);
     overflow: hidden;
@@ -599,7 +605,7 @@ main.main--weekmenu {
 .loading-overlay {
     position: fixed;
     inset: 0;
-    background: white;
+    background: var(--bg-card);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -705,7 +711,7 @@ main.main--weekmenu {
 
 /* Item card */
 .item-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 12px;
     padding: 8px 14px;
     display: flex;
@@ -767,7 +773,7 @@ main.main--weekmenu {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #222;
+    color: var(--text-secondary);
 }
 
 .item-note-inline {
@@ -882,7 +888,7 @@ main.main--weekmenu {
 }
 
 .browse-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: var(--radius);
     padding: 16px 12px;
     box-shadow: var(--shadow);
@@ -914,7 +920,7 @@ main.main--weekmenu {
     left: 50%;
     transform: translateX(-50%) translateY(100%);
     width: min(480px,100vw);
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px 20px 0 0;
     box-shadow: none;
     z-index: 300;
@@ -1035,7 +1041,7 @@ main.main--weekmenu {
 }
 
 .modal-box {
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px 20px 0 0;
     padding: 12px 20px 40px;
     width: min(480px,100vw);
@@ -1118,7 +1124,7 @@ main.main--weekmenu {
 }
 
 .share-box {
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px 20px 0 0;
     padding: 20px 20px max(32px, env(safe-area-inset-bottom));
     width: min(480px,100vw);
@@ -1275,7 +1281,7 @@ main.main--weekmenu {
 
 .add-custom-btn {
     width: 100%;
-    background: white;
+    background: var(--bg-card);
     border: 2px dashed var(--grey-mid);
     border-radius: var(--radius);
     padding: 14px;
@@ -1400,7 +1406,7 @@ main.main--weekmenu {
 }
 
 .newlist-box {
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px;
     padding: 28px 24px;
     width: 100%;
@@ -1425,7 +1431,7 @@ main.main--weekmenu {
     padding: 5px 10px;
     border: 2px solid var(--grey-mid);
     border-radius: 8px;
-    background: white;
+    background: var(--bg-card);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -1476,7 +1482,7 @@ main.main--weekmenu {
     bottom: 0;
     left: max(0px, calc(50% - 240px));
     right: max(0px, calc(50% - 240px));
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px 20px 0 0;
     box-shadow: none;
     z-index: 510;
@@ -1535,7 +1541,7 @@ main.main--weekmenu {
     border: none;
     font-size: 16px;
     font-family: inherit;
-    color: #222;
+    color: var(--text-secondary);
     cursor: pointer;
     text-align: left;
 }
@@ -1568,7 +1574,7 @@ main.main--weekmenu {
 .ui-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
 .ui-switch-track {
     width: 44px; height: 26px;
-    background: #ddd;
+    background: var(--border);
     border-radius: 13px;
     transition: background 0.2s;
     position: relative;
@@ -1578,7 +1584,7 @@ main.main--weekmenu {
     position: absolute;
     top: 3px; left: 3px;
     width: 20px; height: 20px;
-    background: white;
+    background: var(--bg-card);
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     transition: transform 0.2s;
@@ -1746,7 +1752,7 @@ main.main--weekmenu {
 
 .divider-text {
     padding: 0 12px;
-    color: #aaa;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -1756,7 +1762,7 @@ main.main--weekmenu {
 }
 
 .description-text {
-    color: #888;
+    color: var(--text-muted);
     font-size: 14px;
 }
 
@@ -1839,7 +1845,7 @@ main.main--weekmenu {
     border: none;
     font-size: 22px;
     cursor: pointer;
-    color: #aaa;
+    color: var(--text-muted);
     padding: 4px;
     flex-shrink: 0;
 }
@@ -1971,7 +1977,7 @@ main.main--weekmenu {
     height: 36px;
     border-radius: 10px;
     border: var(--brandColor) 1.5px solid;
-    background: white;
+    background: var(--bg-card);
     padding: 0 32px 0 12px;
     font-size: 15px;
     font-family: inherit;
@@ -1988,7 +1994,7 @@ main.main--weekmenu {
     right: 6px;
     background: none;
     border: none;
-    color: #aaa;
+    color: var(--text-muted);
     font-size: 14px;
     cursor: pointer;
     padding: 4px;
@@ -2079,9 +2085,9 @@ main.main--weekmenu {
     color: #999;
 }
 .meal-drag-placeholder {
-    border: 2px dashed #ddd;
+    border: 2px dashed var(--border);
     border-radius: 14px;
-    background: #f5f5f5;
+    background: var(--grey);
     flex-shrink: 0;
 }
 
@@ -2159,7 +2165,7 @@ main.main--weekmenu {
     flex-direction: row;
     gap: 6px;
     padding: 6px 14px 8px;
-    background: white;
+    background: var(--bg-card);
 }
 
 .meal-inline-picker.hidden {
@@ -2212,7 +2218,7 @@ main.main--weekmenu {
 .meal-drop-slot {
     display: none;
     width: 100%;
-    border: 2px dashed #ddd;
+    border: 2px dashed var(--border);
     border-radius: 10px;
     padding: 20px 12px;
     text-align: center;
@@ -2239,7 +2245,7 @@ main.main--weekmenu {
     flex-shrink: 0;
     width: 90px;
     border-radius: 12px;
-    background: white;
+    background: var(--bg-card);
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
     overflow: hidden;
     -webkit-user-select: none;
@@ -2254,7 +2260,7 @@ main.main--weekmenu {
 .shelf-card-placeholder {
     width: 100%;
     height: 56px;
-    background: #f0f0f0;
+    background: var(--grey);
 }
 .shelf-card-title {
     font-size: 11px;
@@ -2278,14 +2284,14 @@ main.main--weekmenu {
     pointer-events: none;
 }
 .meal-thumb-placeholder {
-    background: #f0f0f0;
+    background: var(--grey);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #bbb;
 }
 .meal-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 14px;
     padding: 12px 14px;
     display: flex;
@@ -2372,7 +2378,7 @@ main.main--weekmenu {
     padding: 8px 0;
     border: 2px solid var(--grey-mid);
     border-radius: 10px;
-    background: white;
+    background: var(--bg-card);
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
@@ -2567,7 +2573,7 @@ main.main--weekmenu {
 }
 
 .rc-card {
-    background: white;
+    background: var(--bg-card);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
@@ -2692,7 +2698,7 @@ main.main--weekmenu {
 .rc-region-dropdown {
     display: none;
     position: fixed;
-    background: #fff;
+    background: var(--bg-card);
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 10px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.12);
@@ -2967,4 +2973,89 @@ main.main--weekmenu {
     .rc-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+}
+
+/* ── Dark Mode ───────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg:              #121212;
+        --bg-card:         #1e1e1e;
+        --bg-input:        #2a2a2a;
+        --text:            #f0f0f0;
+        --text-secondary:  #d0d0d0;
+        --text-muted:      #a0a0a0;
+        --text-light:      #c0c0c0;
+        --grey:            #2a2a2a;
+        --grey-mid:        #3a3a3a;
+        --border:          #3a3a3a;
+        --brandColor-light:#0a3d25;
+        --shadow:          0 2px 12px rgba(0,0,0,0.5);
+        --shadow-lg:       0 8px 32px rgba(0,0,0,0.7);
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+        border-top-color: var(--border);
+    }
+    .bottom-tab {
+        color: var(--text-muted);
+    }
+    .platform-android .bottom-tab {
+        color: var(--text-muted);
+    }
+
+    /* Inputs */
+    .modal-input,
+    input[type="text"],
+    input[type="url"] {
+        background: var(--bg-input);
+        border-color: var(--border);
+        color: var(--text);
+    }
+
+    /* Sheet handle */
+    .unplanned-sheet-handle { background: #555; }
+
+    /* Toggle switch off-state */
+    .ui-switch-track { background: #555; }
+
+    /* Toast: was near-black, make it a bit lighter than page bg */
+    .toast { background: #2e2e2e; color: var(--text); }
+
+    /* Update-available toast action button */
+    .toast-action-btn { color: var(--brandColor); }
+
+    /* Category badge */
+    .category-count { background: #555; color: var(--text); }
+
+    /* Drag/drop placeholder */
+    .meal-drag-placeholder {
+        border-color: var(--border);
+        background: var(--grey);
+    }
+
+    /* FAB shadow: drop the old blue, use brand-green glow */
+    .fab { box-shadow: 0 4px 16px rgba(13,168,104,0.35); }
+
+    /* Search input sits on green header — keep near-white but slightly tinted */
+    .search-input { background: rgba(255,255,255,0.12); color: var(--text); }
+    .search-input::placeholder { color: rgba(255,255,255,0.5); }
+    .search-icon { color: rgba(255,255,255,0.5); }
+
+    /* Region / filter dropdowns */
+    .rc-region-dropdown {
+        background: var(--bg-card);
+        border-color: var(--border);
+        color: var(--text);
+    }
+    .rc-scroll-btn { border-color: var(--border); }
+
+    /* Colored icon */
+    .icon-colored { color: var(--brandColor); }
+
+    /* Nerd-stuff panel: info text */
+    .nerd-label { color: var(--text-muted); }
+
+    /* Unit button (active tint was pinkish #fff5f5) */
+    .unit-btn.active { background: var(--brandColor-light); }
 }
