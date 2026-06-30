@@ -5390,14 +5390,6 @@
         "region": "Aziatisch"
     },
     {
-        "title": "White Bean & Aubergine Bake",
-        "url": "https://www.facebook.com/story.php?story_fbid=1300938384742112&id=100044778889414&post_id=100044778889414_1300938384742112&rdid=ammSjRykMBMW12ID",
-        "image_url": "https://scontent.fbru1-1.fna.fbcdn.net/v/t39.30808-6/540416870_1300938308075453_535645508978130436_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=104&ccb=1-7&_nc_sid=7b2446&_nc_ohc=mbrjuS8pOXsQ7kNvwHLrcyH&_nc_oc=AdrHYLZSqzRhpLEUgGSW4_CwrRPvW-QDIoS_boAu-SyG5HjhJdfpmuMhYxWUmbK-b34&_nc_zt=23&_nc_ht=scontent.fbru1-1.fna&_nc_gid=HQ21sonW3qLq_koeoFz0MA&_nc_ss=7a389&oh=00_Af0alflKSb0g6iujEEyBGjt_V6aAbtUzUzHSbKQra0GIwA&oe=69D8105F",
-        "trait": "ovenschotel",
-        "diet": "vegan",
-        "region": null
-    },
-    {
         "title": "Wraps with cauliflower and chickpeas",
         "url": "https://plantbasedrdblog.com/2023/10/maple-lime-roasted-cauliflower-and-chickpeas/",
         "image_url": "https://plantbasedrdblog.com/wp-content/uploads/2023/10/maple-lime-roasted-cauliflower-and-chickpeas_feat.jpg",
@@ -7657,7 +7649,7 @@
         "title": "Halloumi with Lemony Lentils, Chickpeas and Beets",
         "url": "https://www.pinterest.com/pin/424253227418437467/",
         "image_url": "https://i.pinimg.com/236x/a4/d7/ba/a4d7ba13b8b420ae84a3141d472de274.jpg",
-       "trait": "ovenschotel",
+        "trait": "ovenschotel",
         "region": "none",
         "diet": "none"
     },
@@ -7729,7 +7721,7 @@
         "title": "a bowl filled with food sitting on top of a wooden table next to a spoon",
         "url": "https://www.pinterest.com/pin/424253227416676686/",
         "image_url": "https://i.pinimg.com/236x/8d/d9/7a/8dd97a9fb632cfd71f6f9078c4241e55.jpg",
-          "trait": "none",
+        "trait": "none",
         "region": "none",
         "diet": "vegan"
     },
