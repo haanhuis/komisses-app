@@ -106,7 +106,6 @@ body {
     padding-top: env(safe-area-inset-top);
     flex-shrink: 0;
     z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,87,255,0.25);
 }
 
 .header-top {
@@ -1947,6 +1946,7 @@ main.main--weekmenu {
 }
 .weekmenu-filter-btn {
     padding: 4px 10px;
+    height: 32px;
     border-radius: 20px;
     border: 1.5px solid rgba(0,0,0,0.15);
     background: transparent;
@@ -1957,6 +1957,7 @@ main.main--weekmenu {
     font-family: inherit;
     display: flex;
     align-items: center;
+    box-sizing: border-box;
     transition: border-color 0.15s, color 0.15s;
 }
 .weekmenu-filter-btn.active {
@@ -3038,13 +3039,20 @@ main.main--weekmenu {
         background: var(--grey);
     }
 
-    /* FAB shadow: drop the old blue, use brand-green glow */
-    .fab { box-shadow: 0 4px 16px rgba(13,168,104,0.35); }
+    /* Header: black text/icons on green in dark mode */
+    .header { color: #000; }
+    .header-list-name { color: rgba(0,0,0,0.65); }
+    .icon-btn { color: #000; background: rgba(0,0,0,0.1); }
+    .icon-btn:active { background: rgba(0,0,0,0.2); }
+    .logo-icon { filter: brightness(0); }
 
-    /* Search input sits on green header — keep near-white but slightly tinted */
-    .search-input { background: rgba(255,255,255,0.12); color: var(--text); }
-    .search-input::placeholder { color: rgba(255,255,255,0.5); }
-    .search-icon { color: rgba(255,255,255,0.5); }
+    /* FAB: black icon, green glow shadow */
+    .fab { color: #000; box-shadow: 0 4px 16px rgba(13,168,104,0.35); }
+
+    /* Search input on green header: light bg, black text */
+    .search-input { background: rgba(255,255,255,0.25); color: #000; }
+    .search-input::placeholder { color: rgba(0,0,0,0.45); }
+    .search-icon { color: rgba(0,0,0,0.45); }
 
     /* Region / filter dropdowns */
     .rc-region-dropdown {

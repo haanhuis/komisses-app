@@ -724,7 +724,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v77';
+const APP_VERSION = 'v78';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -1038,7 +1038,6 @@ function renderRecipeCatalog() {
   const traits = ['pasta','vis','salade'];
   const sources = [{id:'dagelijkse-kost',label:'Dagelijkse Kost'},{id:'pinterest',label:'Pinterest'},{id:'kookboek',label:'Kookboek'}];
   const noFilter = !rcFilterRegion && !rcFilterTraits.length && !rcFilterVeg && !rcFilterSource;
-  const sep = `<span class="rc-filter-sep">|</span>`;
   const regionLabel = rcFilterRegion || 'Regio';
   const regionDropdown = `<div class="rc-region-wrap" id="rcRegionWrap">
     <button class="weekmenu-filter-btn rc-region-chip${rcFilterRegion?' active':''}" onclick="toggleRcRegionDropdown(event)">${regionLabel} <span class="rc-region-arrow">▾</span></button>
@@ -1062,7 +1061,7 @@ function renderRecipeCatalog() {
     <div class="weekmenu-filter-bar rc-filter-bar">
       <div class="rc-filter-scroll-wrap">
         <button class="rc-scroll-btn rc-scroll-left" onclick="rcScrollPills(-1)" aria-label="Scroll left">&#8249;</button>
-        <div class="rc-filter-pills" id="rcFilterPills">${regionDropdown}${sep}${traitPills}${sep}${vegPill}${sep}${sourceDropdown}${!noFilter ? `<button class="rc-clear-btn" onclick="toggleRcFilter('all')" aria-label="Filters wissen">&#10005;</button>` : ''}</div>
+        <div class="rc-filter-pills" id="rcFilterPills">${regionDropdown}${traitPills}${vegPill}${sourceDropdown}${!noFilter ? `<button class="rc-clear-btn" onclick="toggleRcFilter('all')" aria-label="Filters wissen">&#10005;</button>` : ''}</div>
         <button class="rc-scroll-btn rc-scroll-right" onclick="rcScrollPills(1)" aria-label="Scroll right">&#8250;</button>
       </div>
       <div class="rc-view-btns">
