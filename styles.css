@@ -2684,6 +2684,10 @@ main.main--weekmenu {
     padding: 0;
 }
 
+@media (max-width: 767px) {
+    .rc-scroll-left { display: none !important; }
+}
+
 .rc-region-wrap {
     position: relative;
     flex-shrink: 0;
