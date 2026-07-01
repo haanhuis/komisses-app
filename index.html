@@ -64,7 +64,7 @@
     </div>
 
     <div id="connectSection">
-      <button class="btn w-full" style="padding:14px;font-size:15px;border:1.5px solid var(--grey-mid);background:white;color:var(--text);" onclick="showConnectInput()">
+      <button class="btn w-full" style="padding:14px;font-size:15px;border:1.5px solid var(--grey-mid);background:var(--bg-card);color:var(--text);" onclick="showConnectInput()">
         <i class="lni lni-link-2-angular-right icon-sm"></i><span id="newlistConnectText">Verbinden met gedeelde lijst</span>
       </button>
     </div>
@@ -724,7 +724,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v74';
+const APP_VERSION = 'v75';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
