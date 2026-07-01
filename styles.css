@@ -1957,9 +1957,11 @@ main.main--recipes {
 /* Filter bar */
 .weekmenu-filter-bar {
     display: flex;
-    padding-top: 12px;
     flex-shrink: 0;
     gap: 5px;
+}
+.weekmenu-filter-bar:not(.rc-filter-bar) {
+    padding: 10px 14px;
 }
 .weekmenu-filter-btn {
     padding: 4px 10px;
@@ -2587,7 +2589,7 @@ main.main--recipes {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    padding: 12px;
+    padding: 0px 14px;
 }
 
 .rc-card {
@@ -2655,6 +2657,7 @@ main.main--recipes {
 }
 
 .rc-filter-bar {
+    padding-top: 10px;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
@@ -2794,7 +2797,7 @@ main.main--recipes {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 10px 16px;
+    margin: 10px 14px;
 }
 
 .rc-search-bar {
