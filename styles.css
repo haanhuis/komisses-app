@@ -2685,7 +2685,7 @@ main.main--weekmenu {
 }
 
 @media (max-width: 767px) {
-    .rc-scroll-left { display: none !important; }
+    .rc-scroll-left, .rc-scroll-right { display: none !important; }
 }
 
 .rc-region-wrap {
