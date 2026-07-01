@@ -1354,8 +1354,8 @@ main.main--weekmenu {
 }
 
 .update-toast-btn {
-    background: #0057ff;
-    color: white;
+    background: var(--brandColor);
+    color: #000;
     border: none;
     border-radius: 6px;
     padding: 3px 10px;
@@ -1374,7 +1374,7 @@ main.main--weekmenu {
 .meal-toast-undo {
     background: none;
     border: none;
-    color: #6ab0ff;
+    color: var(--brandColor);
     font-family: inherit;
     font-size: 14px;
     font-weight: 600;
@@ -1940,7 +1940,7 @@ main.main--weekmenu {
 /* Filter bar */
 .weekmenu-filter-bar {
     display: flex;
-    padding: 12px 16px 6px;
+    padding-top: 12px;
     flex-shrink: 0;
     gap: 5px;
 }
@@ -2639,7 +2639,6 @@ main.main--weekmenu {
 
 .rc-filter-bar {
     flex-wrap: nowrap;
-    gap: 8px;
     align-items: center;
     justify-content: space-between;
     min-width: 0;
@@ -2662,6 +2661,7 @@ main.main--weekmenu {
     -ms-overflow-style: none;
     flex: 1;
     min-width: 0;
+    padding-left: 14px;
 }
 
 .rc-filter-pills::-webkit-scrollbar {
@@ -2773,16 +2773,18 @@ main.main--weekmenu {
     white-space: nowrap;
 }
 
-.rc-filter-bar-wrap {
+.rc-search-row {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 16px;
 }
 
 .rc-search-bar {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 10px;
+    flex: 1;
     padding: 8px 12px;
     border-bottom: none;
     background: var(--grey);
