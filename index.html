@@ -724,7 +724,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v80';
+const APP_VERSION = 'v81';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -1083,7 +1083,7 @@ function renderRecipeCatalog() {
     </div>`;
 
   if (!recipes.length) {
-    main.innerHTML = filterBar + '<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Geen recepten gevonden</div></div>';
+    main.innerHTML = `<div class="rc-header">${filterBar}</div><div class="rc-body"><div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Geen recepten gevonden</div></div></div>`;
     setTimeout(updateRcScrollBtns, 0);
     return;
   }
@@ -1104,7 +1104,7 @@ function renderRecipeCatalog() {
         </div>
       </div>`;
     }).join('');
-    main.innerHTML = filterBar + `<div class="rc-grid">${cards}</div>`;
+    main.innerHTML = `<div class="rc-header">${filterBar}</div><div class="rc-body"><div class="rc-grid">${cards}</div></div>`;
   } else {
     const rows = recipes.map(r => {
       const name = r.title || r.label || '';
@@ -1118,7 +1118,7 @@ function renderRecipeCatalog() {
         </button>
       </div>`;
     }).join('');
-    main.innerHTML = filterBar + `<div class="rc-list">${rows}</div>`;
+    main.innerHTML = `<div class="rc-header">${filterBar}</div><div class="rc-body"><div class="rc-list">${rows}</div></div>`;
   }
   setTimeout(updateRcScrollBtns, 0);
 }
@@ -2038,6 +2038,7 @@ window.switchTab = function(tab) {
   document.getElementById('tab-weekmenu').classList.toggle('active', tab==='weekmenu');
   document.getElementById('tab-recipes').classList.toggle('active', tab==='recipes');
   document.getElementById('main').classList.toggle('main--weekmenu', tab==='weekmenu');
+  document.getElementById('main').classList.toggle('main--recipes', tab==='recipes');
   document.querySelector('.fab').classList.remove('fab-hidden');
   render();
 };

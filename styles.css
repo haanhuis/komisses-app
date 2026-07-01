@@ -550,6 +550,23 @@ main.main--weekmenu {
     padding: 0;
 }
 
+main.main--recipes {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.rc-header {
+    flex-shrink: 0;
+}
+
+.rc-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .week-days-area {
     flex: 1;
     overflow-y: auto;
