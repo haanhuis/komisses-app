@@ -3399,4 +3399,9 @@ main.main--recipes {
         background: rgba(255,255,255,0.1);
         color: #fff;
     }
+
+    /* --brandColor (#222) is invisible on dark surfaces */
+    .meal-ref--url,
+    .meal-ref-link,
+    .rc-add-btn { color: var(--text); }
 }

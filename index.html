@@ -692,6 +692,27 @@ function buildCatalog() {
     emoji: CAT_META[name].emoji,
     products: map[name]
   }));
+  mergeCustomProducts();
+}
+
+// Products the user added that aren't in the bundled catalog; kept in localStorage
+const CUSTOM_PRODUCTS_KEY = 'dlz_custom_products';
+function loadCustomProducts() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_PRODUCTS_KEY) || '[]'); } catch { return []; }
+}
+function rememberCustomProduct(name, catId) {
+  const all = loadCustomProducts();
+  if (!all.some(p => p.name === name && p.catId === catId)) {
+    all.push({ name, catId });
+    try { localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(all)); } catch {}
+  }
+}
+function mergeCustomProducts() {
+  for (const { name, catId } of loadCustomProducts()) {
+    const cat = CATEGORIES.find(c => c.id === catId);
+    if (cat && !cat.products.includes(name)) cat.products.push(name);
+  }
+  CATEGORIES.forEach(c => c.products.sort());
 }
 
 function localizeItemName(name, catId) {
@@ -735,7 +756,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v112';
+const APP_VERSION = 'v113';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -1739,8 +1760,7 @@ window.saveCatalogProduct = function() {
     cat.products.push(name);
     cat.products.sort();
   }
-  const catalog = currentLocale === 'en' ? catalogEn : catalogRaw;
-  catalog.push({ product: name, categorie: Object.keys(CAT_META).find(k => CAT_META[k].id === catId) });
+  rememberCustomProduct(name, catId);
   showToast(`'${name}' toegevoegd aan catalogus`);
   closeCatalogSheet();
   if (currentTab === 'browse') renderBrowse();
@@ -2446,6 +2466,7 @@ window.saveCustom = function() {
     cat.products.push(name);
     cat.products.sort();
   }
+  rememberCustomProduct(name, catId);
   addProduct(name, catId);
   closeCustom();
 };
