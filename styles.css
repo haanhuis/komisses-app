@@ -2044,7 +2044,7 @@ main.main--recipes {
     height: 40px;
     flex: 1;
     min-width: 0;
-    border: 1.5px solid transparent;
+    border: 1.5px solid var(--border);
     transition: border-color 0.15s;
 }
 .list-search-row:focus-within {
@@ -2178,6 +2178,38 @@ main.main--recipes {
 .weekmenu-filter-btn.active {
     color: var(--brandColor);
     border-color: var(--brandColor);
+}
+
+/* Segmented control (Open / Afgevinkt): one rounded border box, two segments */
+.weekmenu-segmented {
+    display: flex;
+    height: 32px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(0,0,0,0.15);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.weekmenu-segment-btn {
+    padding: 4px 14px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    transition: background-color 0.15s, color 0.15s;
+}
+.weekmenu-segment-btn + .weekmenu-segment-btn {
+    border-left: 1.5px solid rgba(0,0,0,0.15);
+}
+.weekmenu-segment-btn.active {
+    color: var(--brandColor);
+    background: rgba(0,0,0,0.06);
 }
 .weekmenu-filter-bar--search {
     gap: 10px;
@@ -3354,8 +3386,18 @@ main.main--recipes {
     .header-icon-btn:active { background: var(--grey); }
     .header-arrows-img { filter: invert(1); }
 
-    /* FAB: black icon, green glow shadow */
-    .fab { color: #000; box-shadow: 0 4px 16px rgba(13,168,104,0.35); }
+    /* FAB: main action color inverts — black bg/white icon in light, white bg/black icon in dark */
+    .fab,
+    .platform-ios .fab,
+    .platform-android .fab {
+        background: #fff;
+        color: #000;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+
+    /* Primary buttons (e.g. Opslaan in product/list modals): white bg, black text */
+    .btn-primary { background: #fff; color: #000; }
+    .btn-primary:disabled { background: var(--grey-mid); color: var(--text-muted); }
 
     /* Region / filter dropdowns */
     .rc-region-dropdown {
@@ -3365,14 +3407,17 @@ main.main--recipes {
     }
     .rc-scroll-btn { border-color: var(--border); }
 
-    /* Colored icon */
-    .icon-colored { color: var(--brandColor); }
+    /* Colored icon (was brandColor #222, invisible on dark) */
+    .icon-colored { color: var(--text); }
+
+    /* Menu/share icons that are flat black SVG images */
+    .menu-share-icon { filter: invert(1); }
 
     /* Nerd-stuff panel: info text */
     .nerd-label { color: var(--text-muted); }
 
-    /* Unit button (active tint was pinkish #fff5f5) */
-    .unit-btn.active { background: var(--brandColor-light); }
+    /* Unit button (active tint was pinkish #fff5f5, invisible on dark) */
+    .unit-btn.active { background: #fff; color: #000; border-color: #fff; }
 
     /* Week menu: match body bg, not card surface */
     .main--weekmenu { background: var(--bg); }
@@ -3389,6 +3434,16 @@ main.main--recipes {
     .weekmenu-filter-btn.active {
         background: #fff;
         border-color: transparent;
+        color: #000;
+    }
+    .weekmenu-segmented {
+        border-color: var(--border);
+    }
+    .weekmenu-segment-btn + .weekmenu-segment-btn {
+        border-left-color: var(--border);
+    }
+    .weekmenu-segment-btn.active {
+        background: #fff;
         color: #000;
     }
     .rc-region-option.selected {

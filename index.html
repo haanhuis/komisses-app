@@ -381,7 +381,7 @@
   <div class="sheet-handle"></div>
   <button class="menu-item" id="menuItemNewList" onclick="menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
   <button class="menu-item" id="menuItemRename" onclick="closeMenu();menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> <span>Lijstje hernoemen</span></button>
-  <button class="menu-item" id="menuItemShare" onclick="closeMenu();openShare()"><img src="add-user.svg" width="20" height="20" style="opacity:0.75;flex-shrink:0;margin-right:8px;" alt=""> <span id="menuItemShareText">Lijst delen</span></button>
+  <button class="menu-item" id="menuItemShare" onclick="closeMenu();openShare()"><img src="add-user.svg" class="menu-share-icon" width="20" height="20" style="opacity:0.75;flex-shrink:0;margin-right:8px;" alt=""> <span id="menuItemShareText">Lijst delen</span></button>
   <button class="menu-item" id="menuItemConnect" onclick="menuConnectList()"><i class="lni lni-link-2-angular-right icon-colored"></i> <span>Verbinden met andere lijst</span></button>
   <div style="height:1px;background:var(--grey-mid);margin:4px 0;"></div>
   <button class="menu-item" id="menuItemCheckAll" onclick="menuCheckAll()"><i class="lni lni-check-circle-1 icon-colored"></i> <span>Alles afvinken</span></button>
@@ -419,7 +419,7 @@
   <div class="modal-box">
     <button class="menu-item" onclick="closeConnectModal();menuNewList()"><i class="lni lni-plus icon-colored"></i> <span>Nieuwe lijst</span></button>
     <button class="menu-item" onclick="closeConnectModal();menuRename()"><i class="lni lni-pencil-1 icon-colored"></i> <span>Lijstje hernoemen</span></button>
-    <button class="menu-item" onclick="closeConnectModal();openShare()"><img src="add-user.svg" width="20" height="20" style="opacity:0.75;flex-shrink:0;margin-right:8px;" alt=""> <span>Lijst delen</span></button>
+    <button class="menu-item" onclick="closeConnectModal();openShare()"><img src="add-user.svg" class="menu-share-icon" width="20" height="20" style="opacity:0.75;flex-shrink:0;margin-right:8px;" alt=""> <span>Lijst delen</span></button>
     <button class="menu-item" onclick="closeConnectModal();menuConnectInput()"><i class="lni lni-link-2-angular-right icon-colored"></i> <span>Verbinden met andere lijst</span></button>
     <div id="connectModalRecent" style="display:none;margin-top:8px;">
       <div style="height:1px;background:var(--grey-mid);margin-bottom:8px;"></div>
@@ -756,7 +756,7 @@ async function loadCatalog() {
   catalogLoaded = true;
 }
 
-const APP_VERSION = 'v113';
+const APP_VERSION = 'v115';
 
 // Platform detection — Android gets Material Design 3 nav bar, everything else gets iOS/HIG style
 const platformOverride = new URLSearchParams(window.location.search).get('platform');
@@ -1254,8 +1254,10 @@ function renderWeekMenu() {
   if (!_recipeCatalog) loadRecipeCatalog().then(() => renderWeekMenu());
 
   const filterBar = `<div class="weekmenu-filter-bar">
-      <button class="weekmenu-filter-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
-      <button class="weekmenu-filter-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
+      <div class="weekmenu-segmented">
+        <button class="weekmenu-segment-btn${weekmenuFilter==='open'?' active':''}" onclick="setWeekMenuFilter('open')">Open</button>
+        <button class="weekmenu-segment-btn${weekmenuFilter==='checked'?' active':''}" onclick="setWeekMenuFilter('checked')">Afgevinkt</button>
+      </div>
       <span style="flex:1;"></span>
       <button class="weekmenu-filter-btn rc-view-toggle" onclick="setRecipeImagesView(${!weekmenuShowImages})">
         ${weekmenuShowImages
