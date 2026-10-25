@@ -2156,7 +2156,7 @@ main.main--recipes {
 }
 .weekmenu-filter-bar:not(.rc-filter-bar) {
     padding: 10px 14px;
-    background: transparent;
+    background: var(--bg-card);
     border-bottom: 1px solid rgba(0,0,0,0.07);
 }
 .weekmenu-filter-btn {
