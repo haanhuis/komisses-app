@@ -6,10 +6,19 @@
   <title>Komisses is verhuisd</title>
   <meta name="robots" content="noindex">
   <script>
-    location.replace("https://komisses.pages.dev/" + location.search + location.hash);
+    var params = new URLSearchParams(location.search);
+    if (!params.get("list")) {
+      try {
+        var last = localStorage.getItem("lastListId");
+        if (last) params.set("list", last);
+      } catch (e) {}
+    }
+    var qs = params.toString();
+    location.replace("https://komisses.pages.dev/" + (qs ? "?" + qs : "") + location.hash);
   </script>
 </head>
 <body>
   <p>Komisses is verhuisd naar <a href="https://komisses.pages.dev/">komisses.pages.dev</a>.</p>
 </body>
 </html>
+
