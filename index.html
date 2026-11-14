@@ -2,23 +2,122 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Komisses is verhuisd</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
-  <script>
-    var params = new URLSearchParams(location.search);
-    if (!params.get("list")) {
-      try {
-        var last = localStorage.getItem("lastListId");
-        if (last) params.set("list", last);
-      } catch (e) {}
+  <meta name="theme-color" content="#F4EEDD">
+  <title>Komisses is verhuisd</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Young+Serif&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4EEDD; --surface: #FFFFFF; --ink: #233127; --muted: #56634F;
+      --line: #E2D9BF; --accent: #2F7A4C; --on-accent: #FFFFFF; --hl: #F1F7EC;
+      --scrim: rgba(35, 49, 39, 0.42);
     }
-    var qs = params.toString();
-    location.replace("https://komisses.pages.dev/" + (qs ? "?" + qs : "") + location.hash);
-  </script>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    }
+    .card {
+      background: var(--surface); border-radius: 24px; width: 100%; max-width: 400px;
+      padding: 28px 24px 24px; box-shadow: 0 12px 40px rgba(35, 49, 39, 0.14);
+    }
+    h1 { font-family: 'Young Serif', Georgia, serif; font-weight: 400; font-size: 28px; margin: 0 0 8px; }
+    p { margin: 0 0 16px; line-height: 1.45; color: var(--muted); }
+    .label { font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+    .url {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--hl); border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px 12px 12px 14px; margin-bottom: 20px;
+    }
+    .url code { flex: 1; font: 500 15px 'DM Sans', system-ui, sans-serif; color: var(--ink); word-break: break-all; }
+    .copy {
+      border: 0; background: transparent; color: var(--accent); font: 700 14px 'DM Sans', system-ui, sans-serif;
+      padding: 6px 8px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    }
+    .btn {
+      display: block; width: 100%; text-align: center; text-decoration: none;
+      background: var(--accent); color: var(--on-accent); border-radius: 999px;
+      padding: 15px 20px; font: 700 16px 'DM Sans', system-ui, sans-serif;
+    }
+    .steps { margin: 20px 0 0; padding: 16px 0 0; border-top: 1px solid var(--line); }
+    .steps h2 { font-size: 15px; margin: 0 0 8px; }
+    .steps ol { margin: 0; padding-left: 20px; color: var(--muted); line-height: 1.5; font-size: 15px; }
+    .steps li { margin-bottom: 4px; }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
-  <p>Komisses is verhuisd naar <a href="https://komisses.pages.dev/">komisses.pages.dev</a>.</p>
+  <main class="card" role="dialog" aria-labelledby="title">
+    <h1 id="title">Komisses is verhuisd</h1>
+    <p>De app heeft een nieuw adres. Je lijstjes en recepten zijn gewoon meeverhuisd.</p>
+
+    <div class="label">Dit is je nieuwe URL</div>
+    <div class="url">
+      <code id="newUrl">komisses.pages.dev</code>
+      <button class="copy" id="copyBtn" type="button">Kopieer</button>
+    </div>
+
+    <a class="btn" id="openBtn" href="https://komisses.pages.dev/">Open Komisses</a>
+
+    <section class="steps">
+      <h2>Staat Komisses op je beginscherm?</h2>
+      <ol id="stepsIos">
+        <li>Open de nieuwe URL in Safari.</li>
+        <li>Tik op <strong>Deel</strong> → <strong>Zet op beginscherm</strong>.</li>
+        <li>Verwijder het oude icoon.</li>
+      </ol>
+      <ol id="stepsOther" class="hidden">
+        <li>Open de nieuwe URL in je browser.</li>
+        <li>Kies in het menu <strong>Toevoegen aan startscherm</strong> of <strong>App installeren</strong>.</li>
+        <li>Verwijder het oude icoon.</li>
+      </ol>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      if (!params.get("list")) {
+        try {
+          var last = localStorage.getItem("lastListId");
+          if (last) params.set("list", last);
+        } catch (e) {}
+      }
+      var qs = params.toString();
+      var url = "https://komisses.pages.dev/" + (qs ? "?" + qs : "");
+      var shown = url.replace(/^https:\/\//, "");
+
+      document.getElementById("newUrl").textContent = shown;
+      document.getElementById("openBtn").href = url;
+
+      var isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (!isIos) {
+        document.getElementById("stepsIos").classList.add("hidden");
+        document.getElementById("stepsOther").classList.remove("hidden");
+      }
+
+      var btn = document.getElementById("copyBtn");
+      btn.addEventListener("click", function () {
+        var done = function () { btn.textContent = "Gekopieerd"; setTimeout(function () { btn.textContent = "Kopieer"; }, 1800); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done, function () { fallback(); });
+        } else { fallback(); }
+        function fallback() {
+          var t = document.createElement("textarea");
+          t.value = url; t.setAttribute("readonly", ""); t.style.position = "absolute"; t.style.left = "-9999px";
+          document.body.appendChild(t); t.select();
+          try { document.execCommand("copy"); done(); } catch (e) {}
+          document.body.removeChild(t);
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
-
