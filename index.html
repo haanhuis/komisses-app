@@ -68,12 +68,12 @@
     <section class="steps">
       <h2>Staat Komisses op je beginscherm?</h2>
       <ol id="stepsIos">
-        <li>Open de nieuwe URL in Safari.</li>
+        <li>Tik op <strong>Open Komisses</strong>: de app opent in Safari. Zie je toch geen Safari, tik dan onderaan op het kompas.</li>
         <li>Tik op <strong>Deel</strong> → <strong>Zet op beginscherm</strong>.</li>
         <li>Verwijder het oude icoon.</li>
       </ol>
       <ol id="stepsOther" class="hidden">
-        <li>Open de nieuwe URL in je browser.</li>
+        <li>Tik op <strong>Open Komisses</strong>: de app opent in je browser.</li>
         <li>Kies in het menu <strong>Toevoegen aan startscherm</strong> of <strong>App installeren</strong>.</li>
         <li>Verwijder het oude icoon.</li>
       </ol>
@@ -98,7 +98,13 @@
 
       var isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      if (!isIos) {
+      var openBtn = document.getElementById("openBtn");
+      if (isIos) {
+        // Opent Safari zelf, i.p.v. het ingebouwde venster van de oude web-app
+        openBtn.href = "x-safari-" + url;
+      } else {
+        openBtn.target = "_blank";
+        openBtn.rel = "noopener";
         document.getElementById("stepsIos").classList.add("hidden");
         document.getElementById("stepsOther").classList.remove("hidden");
       }
